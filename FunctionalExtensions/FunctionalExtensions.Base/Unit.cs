@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Unit = System.ValueTuple;
+
 namespace FunctionalExtensions.Base
 {
+    /// <summary>
+    /// Signifier for functions that don't return anything. Functions returning this have side-effects!
+    /// </summary>
+    public sealed class Unit { internal Unit() { } };
+
     public static partial class FunctionalHelpers
-    {
+    {   
         /// <summary>
         /// Signifier for functions that don't return anything. Functions returning this have side-effects!
         /// </summary>
