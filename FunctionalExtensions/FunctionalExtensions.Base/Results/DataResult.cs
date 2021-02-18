@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define _USE_CONSTRUCTOR_FUNCS
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -58,16 +59,17 @@ namespace FunctionalExtensions.Base.Results
         }
     }
 
-    public static class DataResult
+    /// <summary>
+    /// Extensions methods for public creation of DataResult and Result
+    /// </summary>
+    public static partial class ResultExtensions
     {
-        public static DataResult<TResult> OnTry<TResult>(Try<TResult> @try) =>
-            @try switch
-            {
-                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorType.None, t.ExpectedData),
-                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorType.ExceptionThrown),
-                _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
-            };
-
+        /// <summary>
+        /// Extension method to transform a Try into a DataResult
+        /// </summary>
+        /// <typeparam name="TResult">Expected return data type</typeparam>
+        /// <param name="try">Try object</param>
+        /// <returns>DataResult object</returns>
         public static DataResult<TResult> ToDataResult<TResult>(this Try<TResult> @try) =>
             @try switch
             {
@@ -77,7 +79,13 @@ namespace FunctionalExtensions.Base.Results
                 _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
             };
 
-        public static async Task<DataResult<TResult>> OnTryAsync<TResult>(Task<Try<TResult>> @try) =>
+        /// <summary>
+        /// Async extension method to transform a Try into a DataResult
+        /// </summary>
+        /// <typeparam name="TResult">Expected return data type</typeparam>
+        /// <param name="try">Try object task</param>
+        /// <returns>DataResult object</returns>
+        public static async Task<DataResult<TResult>> ToDataResultAsync<TResult>(this Task<Try<TResult>> @try) =>
             (await @try) switch
             {
                 Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorType.NoData),
@@ -86,16 +94,19 @@ namespace FunctionalExtensions.Base.Results
                 _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
             };
 
-        //public static DataResult<TResult> OnException<TResult>(Exception exception) =>
-        //    new DataResult<TResult>(false, exception.Message, ErrorType.ExceptionThrown);
+#if USE_CONSTRUCTOR_FUNCS
+        
+        public static DataResult<TResult> OnException<TResult>(Exception exception) =>
+            new DataResult<TResult>(false, exception.Message, ErrorType.ExceptionThrown);
 
-        //public static DataResult<TResult> OnFail<TResult>(string message) =>
-        //    new DataResult<TResult>(false, message, ErrorType.Failure);
+        public static DataResult<TResult> OnFail<TResult>(string message) =>
+            new DataResult<TResult>(false, message, ErrorType.Failure);
 
-        //public static DataResult<TResult> OnSuccess<TResult>(TResult data) =>
-        //    data != null
-        //    ? new DataResult<TResult>(true, string.Empty, ErrorType.None, data)
-        //    : new DataResult<TResult>(false, "Null result", ErrorType.NoData);
+        public static DataResult<TResult> OnSuccess<TResult>(TResult data) =>
+            data != null
+            ? new DataResult<TResult>(true, string.Empty, ErrorType.None, data)
+            : new DataResult<TResult>(false, "Null result", ErrorType.NoData);
+#endif
 
     }
 }

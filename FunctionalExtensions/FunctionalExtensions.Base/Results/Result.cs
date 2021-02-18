@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define _USE_CONSTRUCTOR_FUNCS
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,19 +36,28 @@ namespace FunctionalExtensions.Base.Results
             ErrorType = errorType;
         }
 
-        //public static Result OnException(Exception exception) =>
-        //    new Result(false, exception.Message, ErrorType.ExceptionThrown);
+#if USE_CONSTRUCTOR_FUNCS
+        public static Result OnException(Exception exception) =>
+            new Result(false, exception.Message, ErrorType.ExceptionThrown);
 
-        //public static Result OnFail(string message) =>
-        //    new Result(false, message, ErrorType.Failure);
+        public static Result OnFail(string message) =>
+            new Result(false, message, ErrorType.Failure);
 
-        //public static Result OnSuccess() =>
-        //    new Result(true, string.Empty, ErrorType.None);
-       
+        public static Result OnSuccess() =>
+            new Result(true, string.Empty, ErrorType.None);
+#endif
     }
 
-    public static class ResultExtensions
+    /// <summary>
+    /// Extensions methods for public creation of DataResult and Result
+    /// </summary>
+    public static partial class ResultExtensions
     {
+        /// <summary>
+        /// Extension method to transform Try[Unit] into a Result 
+        /// </summary>
+        /// <param name="try">Try object</param>
+        /// <returns>Result</returns>
         public static Result ToResult(this Try<Unit> @try) =>
             @try switch
             {
@@ -56,6 +66,11 @@ namespace FunctionalExtensions.Base.Results
                 _ => new Result(false, "Null result", ErrorType.Unknown)
             };
 
+        /// <summary>
+        /// Async extension method to transform Try[Unit] into a Result 
+        /// </summary>
+        /// <param name="try">Try object</param>
+        /// <returns>Result object</returns>
         public static async Task<Result> ToResultAsync(this Task<Try<Unit>> @try) =>
             (await @try) switch
             {
@@ -64,6 +79,12 @@ namespace FunctionalExtensions.Base.Results
                 _ => new Result(false, "Null result", ErrorType.Unknown)
             };
 
+        /// <summary>
+        /// Extension method to transform a Try[bool] into a Result by the encapsulated bool.
+        /// Used for Try blocks that should notify an operation outcome
+        /// </summary>
+        /// <param name="try">Try object returning a bool</param>
+        /// <returns>Result object</returns>
         public static Result ToResult(this Try<bool> @try) =>
             @try switch
             {
@@ -73,6 +94,12 @@ namespace FunctionalExtensions.Base.Results
                 _ => new Result(false, "Null result", ErrorType.Unknown)
             };
 
+        /// <summary>
+        /// Async extension method to transform a Try[bool] into a Result by the encapsulated bool.
+        /// Used for Try blocks that should notify an operation outcome
+        /// </summary>
+        /// <param name="try">Try object returning a bool</param>
+        /// <returns>Result object</returns>
         public static async Task<Result> ToResultAsync(this Task<Try<bool>> @try) =>
             (await @try) switch
             {
