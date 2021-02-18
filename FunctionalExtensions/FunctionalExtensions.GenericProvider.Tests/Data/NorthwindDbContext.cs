@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using FunctionalExtensions.GenericProvider.Tests.Models;
+using FunctionalExtensions.GenericProvider.Tests.NorthwindModels;
 
 #nullable disable
 

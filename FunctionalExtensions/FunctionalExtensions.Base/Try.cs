@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-
+using static FunctionalExtensions.Base.FunctionalHelpers;
 namespace FunctionalExtensions.Base
 {
     /// <summary>
-    /// Try-catch resulting object
+    /// Try-catch resulting object. If expected data is Unit, then IsData is marked false.
     /// </summary>
     /// <typeparam name="TExpectedData">Type of expected data if exception not thrown</typeparam>
     public class Try<TExpectedData>
@@ -29,7 +29,7 @@ namespace FunctionalExtensions.Base
         /// <summary>
         /// Is there return data?
         /// </summary>
-        public bool IsData { get => _expectedData != null; }
+        public bool IsData { get => _expectedData != null && _expectedData.GetType() != typeof(Unit); }
 
         internal Try(TExpectedData expectedData)
         {
