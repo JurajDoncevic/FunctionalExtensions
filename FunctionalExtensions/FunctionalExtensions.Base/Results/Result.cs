@@ -35,16 +35,20 @@ namespace FunctionalExtensions.Base.Results
             ErrorType = errorType;
         }
 
-        public static Result OnException(Exception exception) =>
-            new Result(false, exception.Message, ErrorType.ExceptionThrown);
+        //public static Result OnException(Exception exception) =>
+        //    new Result(false, exception.Message, ErrorType.ExceptionThrown);
 
-        public static Result OnFail(string message) =>
-            new Result(false, message, ErrorType.Failure);
+        //public static Result OnFail(string message) =>
+        //    new Result(false, message, ErrorType.Failure);
 
-        public static Result OnSuccess() =>
-            new Result(true, string.Empty, ErrorType.None);
-        
-        public static Result OnTry(Try<Unit> @try) =>
+        //public static Result OnSuccess() =>
+        //    new Result(true, string.Empty, ErrorType.None);
+       
+    }
+
+    public static class ResultExtensions
+    {
+        public static Result ToResult(this Try<Unit> @try) =>
             @try switch
             {
                 Try<Unit> t when !t.IsException => new Result(true, string.Empty, ErrorType.None),
@@ -52,11 +56,29 @@ namespace FunctionalExtensions.Base.Results
                 _ => new Result(false, "Null result", ErrorType.Unknown)
             };
 
-        public static async Task<Result> OnTryAsync(Task<Try<Unit>> @try) =>
+        public static async Task<Result> ToResultAsync(this Task<Try<Unit>> @try) =>
             (await @try) switch
             {
                 Try<Unit> t when !t.IsException => new Result(true, string.Empty, ErrorType.None),
                 Try<Unit> t when t.IsException => new Result(false, t.Exception.Message, ErrorType.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorType.Unknown)
+            };
+
+        public static Result ToResult(this Try<bool> @try) =>
+            @try switch
+            {
+                Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorType.None)
+                                                                  : new Result(false, "Operation failed", ErrorType.Failure),
+                Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorType.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorType.Unknown)
+            };
+
+        public static async Task<Result> ToResultAsync(this Task<Try<bool>> @try) =>
+            (await @try) switch
+            {
+                Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorType.None)
+                                                                  : new Result(false, "Operation failed", ErrorType.Failure),
+                Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorType.ExceptionThrown),
                 _ => new Result(false, "Null result", ErrorType.Unknown)
             };
     }

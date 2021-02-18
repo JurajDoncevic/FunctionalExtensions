@@ -86,16 +86,16 @@ namespace FunctionalExtensions.Base.Results
                 _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
             };
 
-        public static DataResult<TResult> OnException<TResult>(Exception exception) =>
-            new DataResult<TResult>(false, exception.Message, ErrorType.ExceptionThrown);
+        //public static DataResult<TResult> OnException<TResult>(Exception exception) =>
+        //    new DataResult<TResult>(false, exception.Message, ErrorType.ExceptionThrown);
 
-        public static DataResult<TResult> OnFail<TResult>(string message) =>
-            new DataResult<TResult>(false, message, ErrorType.Failure);
+        //public static DataResult<TResult> OnFail<TResult>(string message) =>
+        //    new DataResult<TResult>(false, message, ErrorType.Failure);
 
-        public static DataResult<TResult> OnSuccess<TResult>(TResult data) =>
-            data != null
-            ? new DataResult<TResult>(true, string.Empty, ErrorType.None, data)
-            : new DataResult<TResult>(false, "Null result", ErrorType.NoData);
+        //public static DataResult<TResult> OnSuccess<TResult>(TResult data) =>
+        //    data != null
+        //    ? new DataResult<TResult>(true, string.Empty, ErrorType.None, data)
+        //    : new DataResult<TResult>(false, "Null result", ErrorType.NoData);
 
     }
 }
