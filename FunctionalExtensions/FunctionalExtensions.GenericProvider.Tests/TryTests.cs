@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
+using System.Linq;
 
 namespace FunctionalExtensions.GenericProvider.Tests
 {
@@ -68,6 +69,37 @@ namespace FunctionalExtensions.GenericProvider.Tests
             Assert.False(exceptionTry.IsData);
             Assert.True(exceptionTry.IsException);
             Assert.Equal(exceptionMessage, exceptionTry.Exception.Message);
+        }
+
+        [Fact]
+        public void TrySuccessOverDbContextTest()
+        {
+            var tryResult =
+                TryCatch(
+                    () => _ctx.Categories
+                              .Count(),
+                    (ex) => ex
+                    );
+
+            Assert.NotNull(tryResult);
+            Assert.True(tryResult.IsData);
+            Assert.False(tryResult.IsException);
+            Assert.True(tryResult.ExpectedData >= 0);
+        }
+
+        [Fact]
+        public void TryExceptionOverDbContextTest()
+        {
+            var tryResult =
+                TryCatch(
+                    () => _ctx.Find(typeof(int), 2),
+                    (ex) => ex
+                    );
+
+            Assert.NotNull(tryResult);
+            Assert.False(tryResult.IsData);
+            Assert.True(tryResult.IsException);
+            Assert.NotNull(tryResult.Exception);
         }
     }
 }

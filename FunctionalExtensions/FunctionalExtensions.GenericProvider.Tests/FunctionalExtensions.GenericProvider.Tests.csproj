@@ -34,4 +34,10 @@
     <ProjectReference Include="..\FunctionalExtensions.GenericProvider\FunctionalExtensions.GenericProvider.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="northwind_small.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
