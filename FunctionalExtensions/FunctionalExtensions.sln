@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalExtensions.Base",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalExtensions.GenericProvider", "FunctionalExtensions.GenericProvider\FunctionalExtensions.GenericProvider.csproj", "{69E80453-CD60-4E34-B702-1B6F67202DFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalExtensions.GenericProvider.Tests", "FunctionalExtensions.GenericProvider.Tests\FunctionalExtensions.GenericProvider.Tests.csproj", "{C9F55DFA-5997-4AD5-989E-CE4F85BBFC48}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalExtensions.Tests", "FunctionalExtensions.Tests\FunctionalExtensions.Tests.csproj", "{C9F55DFA-5997-4AD5-989E-CE4F85BBFC48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

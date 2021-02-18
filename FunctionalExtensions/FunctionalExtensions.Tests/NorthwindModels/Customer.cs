@@ -6,13 +6,14 @@ using Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-namespace FunctionalExtensions.GenericProvider.Tests.NorthwindModels
+namespace FunctionalExtensions.Tests.NorthwindModels
 {
-    [Table("Supplier")]
-    public partial class Supplier
+    [Table("Customer")]
+    public partial class Customer
     {
         [Key]
-        public long Id { get; set; }
+        [Column(TypeName = "VARCHAR(8000)")]
+        public string Id { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
         public string CompanyName { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
@@ -33,7 +34,5 @@ namespace FunctionalExtensions.GenericProvider.Tests.NorthwindModels
         public string Phone { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
         public string Fax { get; set; }
-        [Column(TypeName = "VARCHAR(8000)")]
-        public string HomePage { get; set; }
     }
 }

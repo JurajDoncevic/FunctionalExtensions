@@ -1,4 +1,4 @@
-﻿using FunctionalExtensions.GenericProvider.Tests.Data;
+﻿using FunctionalExtensions.Tests.Data;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.DependencyInjection;
 
-namespace FunctionalExtensions.GenericProvider.Tests
+namespace FunctionalExtensions.Tests
 {
     public class Startup
     {

@@ -6,25 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-namespace FunctionalExtensions.GenericProvider.Tests.NorthwindModels
+namespace FunctionalExtensions.Tests.NorthwindModels
 {
-    [Table("Employee")]
-    public partial class Employee
+    [Table("Supplier")]
+    public partial class Supplier
     {
         [Key]
         public long Id { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
-        public string LastName { get; set; }
+        public string CompanyName { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
-        public string FirstName { get; set; }
+        public string ContactName { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
-        public string Title { get; set; }
-        [Column(TypeName = "VARCHAR(8000)")]
-        public string TitleOfCourtesy { get; set; }
-        [Column(TypeName = "VARCHAR(8000)")]
-        public string BirthDate { get; set; }
-        [Column(TypeName = "VARCHAR(8000)")]
-        public string HireDate { get; set; }
+        public string ContactTitle { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
         public string Address { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
@@ -36,14 +30,10 @@ namespace FunctionalExtensions.GenericProvider.Tests.NorthwindModels
         [Column(TypeName = "VARCHAR(8000)")]
         public string Country { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
-        public string HomePhone { get; set; }
+        public string Phone { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
-        public string Extension { get; set; }
-        public byte[] Photo { get; set; }
+        public string Fax { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
-        public string Notes { get; set; }
-        public long? ReportsTo { get; set; }
-        [Column(TypeName = "VARCHAR(8000)")]
-        public string PhotoPath { get; set; }
+        public string HomePage { get; set; }
     }
 }

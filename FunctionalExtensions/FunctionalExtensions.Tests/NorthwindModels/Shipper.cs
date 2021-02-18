@@ -6,16 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-namespace FunctionalExtensions.GenericProvider.Tests.NorthwindModels
+namespace FunctionalExtensions.Tests.NorthwindModels
 {
-    [Table("Territory")]
-    public partial class Territory
+    [Table("Shipper")]
+    public partial class Shipper
     {
         [Key]
+        public long Id { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
-        public string Id { get; set; }
+        public string CompanyName { get; set; }
         [Column(TypeName = "VARCHAR(8000)")]
-        public string TerritoryDescription { get; set; }
-        public long RegionId { get; set; }
+        public string Phone { get; set; }
     }
 }

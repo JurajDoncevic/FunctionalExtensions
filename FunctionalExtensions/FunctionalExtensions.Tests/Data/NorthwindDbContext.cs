@@ -1,11 +1,11 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using FunctionalExtensions.GenericProvider.Tests.NorthwindModels;
+using FunctionalExtensions.Tests.NorthwindModels;
 
 #nullable disable
 
-namespace FunctionalExtensions.GenericProvider.Tests.Data
+namespace FunctionalExtensions.Tests.Data
 {
     public partial class NorthwindDbContext : DbContext
     {

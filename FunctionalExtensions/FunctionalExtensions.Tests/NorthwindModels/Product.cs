@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-namespace FunctionalExtensions.GenericProvider.Tests.NorthwindModels
+namespace FunctionalExtensions.Tests.NorthwindModels
 {
     [Table("Product")]
     public partial class Product

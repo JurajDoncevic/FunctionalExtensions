@@ -1,4 +1,4 @@
-﻿using FunctionalExtensions.GenericProvider.Tests.Data;
+﻿using FunctionalExtensions.Tests.Data;
 using static FunctionalExtensions.Base.Try;
 using static FunctionalExtensions.Base.ActionExtensions;
 using static FunctionalExtensions.Base.FunctionalHelpers;
@@ -8,7 +8,7 @@ using System.Text;
 using Xunit;
 using System.Linq;
 
-namespace FunctionalExtensions.GenericProvider.Tests
+namespace FunctionalExtensions.Tests
 {
 
     public class TryTests
