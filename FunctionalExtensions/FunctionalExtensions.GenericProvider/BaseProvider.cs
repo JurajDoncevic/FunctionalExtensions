@@ -135,12 +135,11 @@ namespace FunctionalExtensions.GenericProvider
         {
             DbSet<TEntity> dbSet = ctx.Set<TEntity>();
 
-            IQueryable<TEntity> query = null;
-            foreach (var includeExpression in includeExpressions)
-            {
-                query = dbSet.Include(includeExpression);
-            }
-
+            IQueryable<TEntity> query = 
+                includeExpressions.Aggregate(
+                                        ctx.Set<TEntity>().AsQueryable(), 
+                                        (q, e) => q.Include(e)
+                                        );
             return query ?? dbSet;
         }
     }

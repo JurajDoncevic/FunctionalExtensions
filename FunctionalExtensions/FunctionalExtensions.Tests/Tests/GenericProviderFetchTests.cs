@@ -8,21 +8,25 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using Xunit.DependencyInjection;
+using FunctionalExtensions.Tests.PeopleModels;
 
 namespace FunctionalExtensions.Tests
 {
-    
+
     public class GenericProviderFetchTests
     {
-        private readonly NorthwindDbContext _ctx;
+        private readonly NorthwindDbContext _northwindDbContext;
+        private readonly PeopleDbContext _peopleDbContext;
         private readonly CategoryProvider _categoryProvider;
         private readonly FalseProvider _falseProvider;
+        private readonly PersonProvider _personProvider;
 
-        public GenericProviderFetchTests([FromServices] NorthwindDbContext ctx)
+        public GenericProviderFetchTests([FromServices] NorthwindDbContext northwindDbContext, PeopleDbContext peopleDbContext)
         {
-            _ctx = ctx;
-            _categoryProvider = new CategoryProvider(ctx);
-            _falseProvider = new FalseProvider(ctx);
+            _northwindDbContext = northwindDbContext;
+            _categoryProvider = new CategoryProvider(northwindDbContext);
+            _falseProvider = new FalseProvider(northwindDbContext);
+            _personProvider = new PersonProvider(peopleDbContext);
         }
 
         [Fact]
@@ -94,7 +98,7 @@ namespace FunctionalExtensions.Tests
         }
 
         [Fact]
-        public async void FecthAllFailWithNoDataTest()
+        public async void FetchAllFailWithNoDataTest()
         {
             var resultTask =
                 _falseProvider.FetchAllNoData();
@@ -109,7 +113,7 @@ namespace FunctionalExtensions.Tests
         }
 
         [Fact]
-        public async void FecthAllFailWithExceptionTest()
+        public async void FetchAllFailWithExceptionTest()
         {
             var resultTask =
                 _falseProvider.FetchAll();
@@ -123,6 +127,60 @@ namespace FunctionalExtensions.Tests
             Assert.Null(result.Data);
         }
 
+        [Fact]
+        public async void FetchSuccessIncludingAggregate()
+        {
+            long id = 2;
+            var resultTask =
+                _personProvider.FetchIncluding(id, _ => _.Place, _ => _.Place.Country, _ => _.Job);
+
+            var result = await resultTask;
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.False(result.IsFailure);
+            Assert.True(result.HasData);
+            Assert.Equal(Base.Results.ErrorType.None, result.ErrorType);
+            Assert.NotNull(result.Data);
+            Assert.NotNull(result.Data.Place);
+            Assert.NotNull(result.Data.Place.Country);
+            Assert.NotNull(result.Data.Job);
+        }
+
+        [Fact]
+        public async void FetchAllSuccessIncludingAggregate()
+        {
+            var resultTask =
+                _personProvider.FetchAllIncluding( _ => _.Place, _ => _.Place.Country, _ => _.Job);
+
+            var result = await resultTask;
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.False(result.IsFailure);
+            Assert.True(result.HasData);
+            Assert.Equal(Base.Results.ErrorType.None, result.ErrorType);
+            Assert.NotNull(result.Data);
+            Assert.NotEmpty(result.Data);
+            Assert.All(result.Data,
+                    (item) =>
+                        {
+                            Assert.NotNull(item.Job);
+                            Assert.NotNull(item.Place);
+                            Assert.NotNull(item.Place.Country);
+                        }
+                    );
+        }
+
+        #region PERSON PROVIDER
+        private class PersonProvider : BaseProvider<long, Person, PeopleDbContext>
+        {
+            internal PersonProvider(PeopleDbContext ctx) : base(ctx)
+            {
+
+            }
+        }
+        #endregion
 
         #region CATEGORY PROVIDER
         private class CategoryProvider : BaseProvider<long, Category, NorthwindDbContext>

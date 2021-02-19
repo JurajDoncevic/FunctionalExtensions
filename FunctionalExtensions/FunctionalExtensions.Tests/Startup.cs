@@ -15,6 +15,7 @@ namespace FunctionalExtensions.Tests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<NorthwindDbContext>();
+            services.AddDbContext<PeopleDbContext>();
             services.LoadProviders();
         }
     }
