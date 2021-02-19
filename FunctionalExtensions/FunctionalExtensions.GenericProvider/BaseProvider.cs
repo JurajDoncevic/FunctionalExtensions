@@ -112,8 +112,12 @@ namespace FunctionalExtensions.GenericProvider
         /// <returns>Result</returns>
         public async Task<Result> Delete(TKey id) =>
             await TryCatchAsync(
-                async () => _dbContext.Remove<TEntity>(await _dbContext.FindAsync<TEntity>(id)).State == EntityState.Deleted
-                                && await _dbContext.SaveChangesAsync() > 0,
+                async () => await _dbContext.FindAsync<TEntity>(id) switch
+                            {
+                                TEntity entity => _dbContext.Remove<TEntity>(entity).State == EntityState.Deleted
+                                                    && await _dbContext.SaveChangesAsync() > 0,
+                                _ => false
+                            },
                 (ex) => ex
                 ).ToResultAsync();
 
@@ -135,9 +139,9 @@ namespace FunctionalExtensions.GenericProvider
         {
             DbSet<TEntity> dbSet = ctx.Set<TEntity>();
 
-            IQueryable<TEntity> query = 
+            IQueryable<TEntity> query =
                 includeExpressions.Aggregate(
-                                        ctx.Set<TEntity>().AsQueryable(), 
+                                        ctx.Set<TEntity>().AsQueryable(),
                                         (q, e) => q.Include(e)
                                         );
             return query ?? dbSet;
