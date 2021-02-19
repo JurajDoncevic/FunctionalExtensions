@@ -94,6 +94,43 @@ namespace FunctionalExtensions.Base.Results
                 _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
             };
 
+        /// <summary>
+        /// Bind resolution extension method for DataResult and Try. Sig: DR[TRY[T]] -> DR[T]
+        /// </summary>
+        /// <typeparam name="TResult">Result data type</typeparam>
+        /// <param name="dataResult">Data result</param>
+        /// <returns></returns>
+        public static DataResult<TResult> BindTry<TResult>(this DataResult<Try<TResult>> dataResult) =>
+            dataResult.HasData
+            ? dataResult.Data switch
+            {
+                Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorType.NoData),
+                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorType.None, t.ExpectedData),
+                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorType.ExceptionThrown),
+                _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
+            }
+            : new DataResult<TResult>(false, "Null result", ErrorType.Unknown);
+
+        /// <summary>
+        /// Async bind resolution extension method for DataResult and Try. Sig: DR[TRY[T]] -> DR[T]
+        /// </summary>
+        /// <typeparam name="TResult">Result data type</typeparam>
+        /// <param name="dataResult">Data result</param>
+        /// <returns></returns>
+        public static async Task<DataResult<TResult>> BindTryAsync<TResult>(this Task<DataResult<Try<TResult>>> dataResult) =>
+            await dataResult switch
+            {
+                DataResult<Try<TResult>> dr when dr.HasData =>
+                    dr.Data switch
+                    {
+                        Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorType.NoData),
+                        Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorType.None, t.ExpectedData),
+                        Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorType.ExceptionThrown),
+                        _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
+                    },
+                _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
+            };
+
 #if USE_CONSTRUCTOR_FUNCS
         
         public static DataResult<TResult> OnException<TResult>(Exception exception) =>

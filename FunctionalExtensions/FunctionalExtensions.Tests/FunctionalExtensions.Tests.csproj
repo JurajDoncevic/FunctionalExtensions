@@ -36,7 +36,7 @@
 
   <ItemGroup>
     <None Update="northwind_small.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

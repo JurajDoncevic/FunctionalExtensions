@@ -108,5 +108,6 @@ namespace FunctionalExtensions.Base.Results
                 Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorType.ExceptionThrown),
                 _ => new Result(false, "Null result", ErrorType.Unknown)
             };
+
     }
 }
