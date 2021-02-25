@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FunctionalExtensions.Base
 {
@@ -27,7 +28,7 @@ namespace FunctionalExtensions.Base
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="R"></typeparam>
-        /// <param name="dataResult"></param>
+        /// <param name="dataResult">Data result</param>
         /// <param name="func">Transformation function</param>
         /// <returns></returns>
         public static DataResult<R> Bind<T, R>(this DataResult<T> dataResult, Func<T, DataResult<R>> func)
@@ -36,6 +37,23 @@ namespace FunctionalExtensions.Base
                 dataResult.IsSuccess && dataResult.HasData
                 ? func(dataResult.Data)
                 : new DataResult<R>(dataResult.IsSuccess, dataResult.ErrorMessage, dataResult.ErrorType);
+        }
+
+        /// <summary>
+        /// Async bind over DataResult: D[T]->(T->D[R])->D[R]
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="dataResult">Data result</param>
+        /// <param name="func">Transformation function</param>
+        /// <returns></returns>
+        public static async Task<DataResult<R>> BindAsync<T, R>(this Task<DataResult<T>> dataResult, Func<T, Task<DataResult<R>>> func)
+        {
+            var awaitedResult = await dataResult;
+            return
+                awaitedResult.IsSuccess && awaitedResult.HasData
+                ? await func(awaitedResult.Data)
+                : new DataResult<R>(awaitedResult.IsSuccess, awaitedResult.ErrorMessage, awaitedResult.ErrorType);
         }
     }
 }

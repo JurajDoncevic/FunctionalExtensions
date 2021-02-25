@@ -31,7 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FunctionalExtensions.Base\FunctionalExtensions.Base.csproj" />
     <ProjectReference Include="..\FunctionalExtensions.GenericProvider\FunctionalExtensions.GenericProvider.csproj" />
+    <ProjectReference Include="..\FunctionalExtensions.Web\FunctionalExtensions.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

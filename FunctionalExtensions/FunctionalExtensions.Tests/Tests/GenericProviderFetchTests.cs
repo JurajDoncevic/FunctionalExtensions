@@ -9,6 +9,9 @@ using System.Text;
 using Xunit;
 using Xunit.DependencyInjection;
 using FunctionalExtensions.Tests.PeopleModels;
+using FunctionalExtensions.Base;
+using System.Linq;
+using FunctionalExtensions.Base.Results;
 
 namespace FunctionalExtensions.Tests
 {
@@ -20,6 +23,8 @@ namespace FunctionalExtensions.Tests
         private readonly CategoryProvider _categoryProvider;
         private readonly FalseProvider _falseProvider;
         private readonly PersonProvider _personProvider;
+        private readonly PlaceProvider _placeProvider;
+        private readonly CountryProvider _countryProvider;
 
         public GenericProviderFetchTests([FromServices] NorthwindDbContext northwindDbContext, PeopleDbContext peopleDbContext)
         {
@@ -27,6 +32,8 @@ namespace FunctionalExtensions.Tests
             _categoryProvider = new CategoryProvider(northwindDbContext);
             _falseProvider = new FalseProvider(northwindDbContext);
             _personProvider = new PersonProvider(peopleDbContext);
+            _placeProvider = new PlaceProvider(peopleDbContext);
+            _countryProvider = new CountryProvider(peopleDbContext);
         }
 
         [Fact]
@@ -151,7 +158,7 @@ namespace FunctionalExtensions.Tests
         public async void FetchAllSuccessIncludingAggregate()
         {
             var resultTask =
-                _personProvider.FetchAllIncluding( _ => _.Place, _ => _.Place.Country, _ => _.Job);
+                _personProvider.FetchAllIncluding(_ => _.Place, _ => _.Place.Country, _ => _.Job);
 
             var result = await resultTask;
 
@@ -172,10 +179,61 @@ namespace FunctionalExtensions.Tests
                     );
         }
 
-        #region PERSON PROVIDER
+
+        [Fact]
+        public void FetchChainedWithBind()
+        {
+            var chainedResults =
+                _personProvider.FetchAll().Result
+                               .Bind(_ => _placeProvider.Fetch(_.First().PlaceId.Value).Result)
+                               .Bind(_ => _countryProvider.Fetch(_.CountryId).Result)
+                               .Map(_ => _.Name);
+
+            Assert.NotNull(chainedResults);
+            Assert.True(chainedResults.IsSuccess);
+            Assert.False(chainedResults.IsFailure);
+            Assert.True(chainedResults.HasData);
+            Assert.True(chainedResults.Data.Length > 0);
+
+        }
+
+        [Fact]
+        public async void FetchChainedWithBindAsync()
+        {
+            var chainedResults =
+                await _personProvider.FetchAll()
+                                     .BindAsync(_ => _placeProvider.Fetch(_.First().PlaceId.Value))
+                                     .BindAsync(_ => _countryProvider.Fetch(_.CountryId))
+                                     .MapAsync(_ => _.Name);
+
+            Assert.NotNull(chainedResults);
+            Assert.True(chainedResults.IsSuccess);
+            Assert.False(chainedResults.IsFailure);
+            Assert.True(chainedResults.HasData);
+            Assert.True(chainedResults.Data.Length > 0);
+                           
+        }
+
+        #region PEOPLE DB PROVIDERS
         private class PersonProvider : BaseProvider<long, Person, PeopleDbContext>
         {
             internal PersonProvider(PeopleDbContext ctx) : base(ctx)
+            {
+
+            }
+        }
+
+        private class PlaceProvider : BaseProvider<long, Place, PeopleDbContext>
+        {
+            internal PlaceProvider(PeopleDbContext ctx) : base(ctx)
+            {
+
+            }
+        }
+
+        private class CountryProvider : BaseProvider<long, Place, PeopleDbContext>
+        {
+            internal CountryProvider(PeopleDbContext ctx) : base(ctx)
             {
 
             }

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using FunctionalExtensions.Base.Results;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FunctionalExtensions.Base
 {
@@ -48,5 +50,36 @@ namespace FunctionalExtensions.Base
             foreach (T t in target)
                 yield return func(t);
         }
+
+        /// <summary>
+        /// Map on DataResult: D[T]->(T->R)->D[R]
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="dataResult"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public static DataResult<R> Map<T, R> (this DataResult<T> dataResult, Func<T, R> func) =>
+                dataResult.HasData
+                ? new DataResult<R>(dataResult.IsSuccess, dataResult.ErrorMessage, dataResult.ErrorType, func(dataResult.Data))
+                : new DataResult<R>(dataResult.IsSuccess, dataResult.ErrorMessage, dataResult.ErrorType);
+
+        /// <summary>
+        /// Async Map on DataResult: D[T]->(T->R)->D[R]
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="dataResult"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public static async Task<DataResult<R>> MapAsync<T, R>(this Task<DataResult<T>> dataResult, Func<T, R> func)
+        {
+            var awaitedResult = await dataResult;
+            return
+                awaitedResult.HasData && awaitedResult.IsSuccess // disable passing default data on fail
+                    ? new DataResult<R>(awaitedResult.IsSuccess, awaitedResult.ErrorMessage, awaitedResult.ErrorType, func(awaitedResult.Data))
+                    : new DataResult<R>(awaitedResult.IsSuccess, awaitedResult.ErrorMessage, awaitedResult.ErrorType);
+        }
+                
     }
 }
