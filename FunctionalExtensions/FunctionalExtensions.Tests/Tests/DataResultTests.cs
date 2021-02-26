@@ -177,9 +177,9 @@ namespace FunctionalExtensions.Tests
             var result =
                 await TryCatchAsync(
                     async () => { await Task.Delay(100); return 1; },
-                    (ex) => ex
-                    ).ToDataResultAsync()
-                    .MapAsync(_ => _.ToString());
+                    (ex) => ex)
+                .ToDataResultAsync()
+                .MapAsync(_ => _.ToString());
 
             Assert.NotNull(result);
             Assert.True(result.IsSuccess);
