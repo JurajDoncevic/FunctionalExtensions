@@ -53,6 +53,7 @@ namespace FunctionalExtensions.Base.Results
     /// </summary>
     public static partial class ResultExtensions
     {
+        #region TRY RESOLVE
         /// <summary>
         /// Extension method to transform Try[Unit] into a Result 
         /// </summary>
@@ -108,6 +109,18 @@ namespace FunctionalExtensions.Base.Results
                 Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorType.ExceptionThrown),
                 _ => new Result(false, "Null result", ErrorType.Unknown)
             };
+        #endregion
 
+        /// <summary>
+        /// Used to pipe Result objects. Not a real Bind since Result is just a logical signifier for operational outcomes.
+        /// R[] -> (() -> R[]) -> R[]
+        /// </summary>
+        /// <param name="target">Original result</param>
+        /// <param name="func">Function to possibly construct next result in sequence</param>
+        /// <returns></returns>
+        public static Result Bind(this Result target, Func<Result> func) =>
+            target.IsSuccess
+            ? func()
+            : target;
     }
 }

@@ -8,7 +8,7 @@ namespace FunctionalExtensions.Base
     public static class Awaiting
     {
         /// <summary>
-        /// Extension method for awating a task result and operating over it.
+        /// Extension method for awating a task result and operating over it. Blocks thread!
         /// Uses Task.Result call - not to be used lightly!
         /// </summary>
         /// <typeparam name="T"></typeparam>

@@ -94,13 +94,78 @@ namespace FunctionalExtensions.Base.Results
                 _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
             };
 
+        #region MAPS
+        /// <summary>
+        /// Map on DataResult: D[T]->(T->R)->D[R]
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="dataResult"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public static DataResult<R> Map<T, R>(this DataResult<T> dataResult, Func<T, R> func) =>
+                dataResult.HasData
+                ? new DataResult<R>(dataResult.IsSuccess, dataResult.ErrorMessage, dataResult.ErrorType, func(dataResult.Data))
+                : new DataResult<R>(dataResult.IsSuccess, dataResult.ErrorMessage, dataResult.ErrorType);
+
+        /// <summary>
+        /// Async Map on DataResult: D[T]->(T->R)->D[R]
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="dataResult"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public static async Task<DataResult<R>> MapAsync<T, R>(this Task<DataResult<T>> dataResult, Func<T, R> func) =>
+            await dataResult.Map(result =>
+                result.HasData && result.IsSuccess // disable passing default data on fail
+                    ? new DataResult<R>(result.IsSuccess, result.ErrorMessage, result.ErrorType, func(result.Data))
+                    : new DataResult<R>(result.IsSuccess, result.ErrorMessage, result.ErrorType));
+        #endregion
+
+        #region BINDS
+        /// <summary>
+        /// Bind over DataResult: D[T]->(T->D[R])->D[R]
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="dataResult">Data result</param>
+        /// <param name="func">Transformation function</param>
+        /// <returns></returns>
+        public static DataResult<R> Bind<T, R>(this DataResult<T> dataResult, Func<T, DataResult<R>> func)
+        {
+            return
+                dataResult.IsSuccess && dataResult.HasData
+                ? func(dataResult.Data)
+                : new DataResult<R>(dataResult.IsSuccess, dataResult.ErrorMessage, dataResult.ErrorType);
+        }
+
+        /// <summary>
+        /// Async bind over DataResult: D[T]->(T->D[R])->D[R]
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="dataResult">Data result</param>
+        /// <param name="func">Transformation function</param>
+        /// <returns></returns>
+        public static async Task<DataResult<R>> BindAsync<T, R>(this Task<DataResult<T>> dataResult, Func<T, Task<DataResult<R>>> func)
+        {
+            var awaitedResult = await dataResult;
+            return
+                awaitedResult.IsSuccess && awaitedResult.HasData
+                ? await func(awaitedResult.Data)
+                : new DataResult<R>(awaitedResult.IsSuccess, awaitedResult.ErrorMessage, awaitedResult.ErrorType);
+        }
+        #endregion
+
+        #region TRY RESOLVE
         /// <summary>
         /// Bind resolution extension method for DataResult and Try. Sig: DR[TRY[T]] -> DR[T]
         /// </summary>
         /// <typeparam name="TResult">Result data type</typeparam>
         /// <param name="dataResult">Data result</param>
         /// <returns></returns>
-        public static DataResult<TResult> BindTry<TResult>(this DataResult<Try<TResult>> dataResult) =>
+        public static DataResult<TResult> TryResolve<TResult>(this DataResult<Try<TResult>> dataResult) =>
             dataResult.HasData
             ? dataResult.Data switch
             {
@@ -117,7 +182,7 @@ namespace FunctionalExtensions.Base.Results
         /// <typeparam name="TResult">Result data type</typeparam>
         /// <param name="dataResult">Data result</param>
         /// <returns></returns>
-        public static async Task<DataResult<TResult>> BindTryAsync<TResult>(this Task<DataResult<Try<TResult>>> dataResult) =>
+        public static async Task<DataResult<TResult>> TryResolveAsync<TResult>(this Task<DataResult<Try<TResult>>> dataResult) =>
             await dataResult switch
             {
                 DataResult<Try<TResult>> dr when dr.HasData =>
@@ -130,6 +195,7 @@ namespace FunctionalExtensions.Base.Results
                     },
                 _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
             };
+        #endregion
 
 #if USE_CONSTRUCTOR_FUNCS
         

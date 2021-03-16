@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FunctionalExtensions.Base
 {
+    /// <summary>
+    /// Mapping extensions for systems types
+    /// </summary>
     public static class Mapping
     {
         /// <summary>
@@ -50,33 +53,6 @@ namespace FunctionalExtensions.Base
             foreach (T t in target)
                 yield return func(t);
         }
-
-        /// <summary>
-        /// Map on DataResult: D[T]->(T->R)->D[R]
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="R"></typeparam>
-        /// <param name="dataResult"></param>
-        /// <param name="func"></param>
-        /// <returns></returns>
-        public static DataResult<R> Map<T, R> (this DataResult<T> dataResult, Func<T, R> func) =>
-                dataResult.HasData
-                ? new DataResult<R>(dataResult.IsSuccess, dataResult.ErrorMessage, dataResult.ErrorType, func(dataResult.Data))
-                : new DataResult<R>(dataResult.IsSuccess, dataResult.ErrorMessage, dataResult.ErrorType);
-
-        /// <summary>
-        /// Async Map on DataResult: D[T]->(T->R)->D[R]
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="R"></typeparam>
-        /// <param name="dataResult"></param>
-        /// <param name="func"></param>
-        /// <returns></returns>
-        public static async Task<DataResult<R>> MapAsync<T, R>(this Task<DataResult<T>> dataResult, Func<T, R> func)=>
-            await dataResult.Map(result =>
-                result.HasData && result.IsSuccess // disable passing default data on fail
-                    ? new DataResult<R>(result.IsSuccess, result.ErrorMessage, result.ErrorType, func(result.Data))
-                    : new DataResult<R>(result.IsSuccess, result.ErrorMessage, result.ErrorType));
 
         /// <summary>
         /// Map operation for a Task: Ta[T]->(T->R)->Ta[R]
