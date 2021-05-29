@@ -122,5 +122,18 @@ namespace FunctionalExtensions.Base.Results
             target.IsSuccess
             ? func()
             : target;
+
+
+        /// <summary>
+        /// Used to pipe Result objects. Not a real Bind since Result is just a logical signifier for operational outcomes.
+        /// R[] -> (() -> R[]) -> R[]
+        /// </summary>
+        /// <param name="target">Original result</param>
+        /// <param name="func">Function to possibly construct next result in sequence</param>
+        /// <returns></returns>
+        public static async Task<Result> Bind(this Task<Result> target, Func<Task<Result>> func) =>
+            (await target).IsSuccess
+            ? await func()
+            : await target;
     }
 }
