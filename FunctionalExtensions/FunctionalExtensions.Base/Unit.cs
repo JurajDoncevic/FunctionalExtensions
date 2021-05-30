@@ -17,6 +17,15 @@ namespace FunctionalExtensions.Base
         /// </summary>
         /// <returns>ValueTuple masked as Unit</returns>
         public static Unit Unit() => default(Unit);
+
+
+        /// <summary>
+        /// Used to ignore the result of a previous function - converts any type of data to Unit
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static Unit Ignore<T>(this T target) => Unit();
     }
 
     /// <summary>
