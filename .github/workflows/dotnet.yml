@@ -17,6 +17,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+    - name: Enter folder
+      run: cd FunctionalExtensions
     - name: we are here
       run: pwd
     - name: list some key files
