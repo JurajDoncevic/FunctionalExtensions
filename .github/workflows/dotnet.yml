@@ -18,8 +18,8 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore FunctionalExtensions.sln
+      run: dotnet restore ./FunctionalExtensions/FunctionalExtensions.sln
     - name: Build
-      run: dotnet build FunctionalExtensions.sln --configuration Release --no-restore
+      run: dotnet build ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test FunctionalExtensions.sln --no-build --no-restore --verbosity normal
+      run: dotnet test ./FunctionalExtensions/FunctionalExtensions.sln --no-build --no-restore --verbosity normal
