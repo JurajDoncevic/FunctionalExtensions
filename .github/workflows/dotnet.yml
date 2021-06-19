@@ -22,8 +22,8 @@ jobs:
     - name: list some key files
       run: ls -lrt
     - name: Restore dependencies
-      run: dotnet restore ./FucntionalExtensions/FunctionalExtensions.sln
+      run: dotnet restore ./FucntionalExtensions//FucntionalExtensions/FunctionalExtensions.sln
     - name: Build
-      run: dotnet build ./FucntionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
+      run: dotnet build ./FucntionalExtensions/FucntionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test ./FucntionalExtensions/FunctionalExtensions.sln --no-build --no-restore --verbosity normal
+      run: dotnet test ./FucntionalExtensions/FucntionalExtensions/FunctionalExtensions.sln --no-build --no-restore --verbosity normal
