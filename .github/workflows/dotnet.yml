@@ -19,6 +19,10 @@ jobs:
         dotnet-version: 5.0.x
     - name: we are here
       run: pwd
+    - name: enter folder
+      run: cd FunctionalExtensions
+    - name: we are here
+      run: pwd
     - name: list files
       run: ls -al
     - name: Restore dependencies
