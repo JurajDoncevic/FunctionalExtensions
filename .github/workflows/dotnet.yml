@@ -20,6 +20,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.sln
+      run: dotnet build --configuration Release --no-restore JurajDoncevic/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.sln
     - name: Test
-      run: dotnet test --no-build --no-restore --verbosity normal FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.sln
+      run: dotnet test --no-build --no-restore --verbosity normal JurajDoncevic/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.sln
