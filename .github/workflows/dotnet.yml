@@ -22,4 +22,4 @@ jobs:
     - name: Build
       run: dotnet build ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test ./FunctionalExtensions/FunctionalExtensions.sln --no-restore --verbosity normal
+      run: dotnet test ./FunctionalExtensions/FunctionalExtensions.sln --no-restore
