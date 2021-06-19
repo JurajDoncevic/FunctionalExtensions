@@ -19,7 +19,8 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
+      working-directory: FunctionalExtensions/FunctionalExtensions
     - name: Build
-      run: dotnet build --configuration Release --no-restore JurajDoncevic/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.sln
-    - name: Test
-      run: dotnet test --no-build --no-restore --verbosity normal JurajDoncevic/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.sln
+      run: dotnet build --configuration Release --no-restore 
+    - name: Teset
+      run: dotnet test --no-build --no-restore --verbosity normal
