@@ -26,8 +26,8 @@ jobs:
     - name: list files
       run: ls -al
     - name: Restore dependencies
-      run: dotnet restore ./FucntionalExtensions/FunctionalExtensions.sln
+      run: dotnet restore /home/runner/work/FunctionalExtensions/FucntionalExtensions/FucntionalExtensions/FunctionalExtensions.sln
     - name: Build
-      run: dotnet build ./FucntionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
+      run: dotnet build /home/runner/work/FunctionalExtensions/FucntionalExtensions/FucntionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test ./FucntionalExtensions/FunctionalExtensions.sln --no-build --no-restore --verbosity normal
+      run: dotnet test /home/runner/work/FunctionalExtensions/FucntionalExtensions/FucntionalExtensions/FunctionalExtensions.sln --no-build --no-restore --verbosity normal
