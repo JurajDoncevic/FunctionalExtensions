@@ -1,5 +1,4 @@
-﻿using FunctionalExtensions.Tests.Data;
-using static FunctionalExtensions.Base.Try;
+﻿using static FunctionalExtensions.Base.Try;
 using static FunctionalExtensions.Base.ActionExtensions;
 using static FunctionalExtensions.Base.FunctionalHelpers;
 using FunctionalExtensions.Base.Results;
@@ -9,16 +8,10 @@ using System.Text;
 using Xunit;
 using FunctionalExtensions.Base;
 
-namespace FunctionalExtensions.Tests
+namespace FunctionalExtensions.Base.Tests
 {
     public class ResultTests
     {
-        private readonly NorthwindDbContext _ctx;
-
-        public ResultTests(NorthwindDbContext ctx)
-        {
-            _ctx = ctx;
-        }
 
         [Fact]
         public void ResultSuccess()

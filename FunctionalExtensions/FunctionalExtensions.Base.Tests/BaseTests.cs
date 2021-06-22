@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using Xunit;
 
-namespace FunctionalExtensions.Tests
+namespace FunctionalExtensions.Base.Tests
 {
     public class BaseTests
     {

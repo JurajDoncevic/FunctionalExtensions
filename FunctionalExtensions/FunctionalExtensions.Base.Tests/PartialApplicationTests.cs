@@ -4,7 +4,7 @@ using System.Text;
 using Xunit;
 using static FunctionalExtensions.Base.PartialApplication;
 
-namespace FunctionalExtensions.Tests
+namespace FunctionalExtensions.Base.Tests
 {
     public class PartialApplicationTests
     {

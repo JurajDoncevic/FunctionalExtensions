@@ -1,39 +1,36 @@
-﻿using FunctionalExtensions.GenericProvider;
-using FunctionalExtensions.Tests.Data;
-using FunctionalExtensions.Tests.NorthwindModels;
+﻿using FunctionalExtensions.GenericProvider.Tests.Data;
+using FunctionalExtensions.GenericProvider.Tests.Providers;
+using FunctionalExtensions.Base;
+using FunctionalExtensions.Base.Results;
 using static FunctionalExtensions.Base.Try;
-using static FunctionalExtensions.Base.Results.ResultExtensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-using Xunit.DependencyInjection;
-using FunctionalExtensions.Tests.PeopleModels;
-using FunctionalExtensions.Base;
 using System.Linq;
-using FunctionalExtensions.Base.Results;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
-namespace FunctionalExtensions.Tests
+namespace FunctionalExtensions.GenericProvider.Tests
 {
-
-    public class GenericProviderFetchTests
+    public class QueryTests
     {
-        private readonly NorthwindDbContext _northwindDbContext;
-        private readonly PeopleDbContext _peopleDbContext;
-        private readonly CategoryProvider _categoryProvider;
-        private readonly FalseProvider _falseProvider;
         private readonly PersonProvider _personProvider;
         private readonly PlaceProvider _placeProvider;
+        private readonly JobProvider _jobProvider;
         private readonly CountryProvider _countryProvider;
+        private readonly FalseProvider _falseProvider;
 
-        public GenericProviderFetchTests([FromServices] NorthwindDbContext northwindDbContext, PeopleDbContext peopleDbContext)
+
+        public QueryTests(IConfiguration configuration)
         {
-            _northwindDbContext = northwindDbContext;
-            _categoryProvider = new CategoryProvider(northwindDbContext);
-            _falseProvider = new FalseProvider(northwindDbContext);
-            _personProvider = new PersonProvider(peopleDbContext);
-            _placeProvider = new PlaceProvider(peopleDbContext);
-            _countryProvider = new CountryProvider(peopleDbContext);
+            var context = DatabaseInitialization.CreateDbContext(configuration.GetConnectionString("InMemoryDb"));
+            _personProvider = new PersonProvider(context);
+            _placeProvider = new PlaceProvider(context);
+            _jobProvider = new JobProvider(context);
+            _countryProvider = new CountryProvider(context);
+            _falseProvider = new FalseProvider(context);
         }
 
         [Fact]
@@ -42,36 +39,36 @@ namespace FunctionalExtensions.Tests
             long existingId = 1;
 
             var goodResultTask =
-                _categoryProvider.Fetch(existingId);
+                _countryProvider.Fetch(existingId);
 
             var goodResult = await goodResultTask;
             Assert.NotNull(goodResult);
             Assert.True(goodResult.IsSuccess);
             Assert.False(goodResult.IsFailure);
             Assert.True(goodResult.HasData);
-            Assert.Equal(Base.Results.ErrorType.None, goodResult.ErrorType);
+            Assert.Equal(ErrorType.None, goodResult.ErrorType);
             Assert.NotNull(goodResult.Data);
         }
 
         [Fact]
-        public async void FecthFailWithNoDataTest()
+        public async void FetchFailWithNoDataTest()
         {
             long noSuchId = 0;
 
             var noResultTask =
-                _categoryProvider.Fetch(noSuchId);
+                _countryProvider.Fetch(noSuchId);
 
             var noResult = await noResultTask;
             Assert.NotNull(noResult);
             Assert.False(noResult.IsSuccess);
             Assert.True(noResult.IsFailure);
             Assert.False(noResult.HasData);
-            Assert.Equal(Base.Results.ErrorType.NoData, noResult.ErrorType);
+            Assert.Equal(ErrorType.NoData, noResult.ErrorType);
             Assert.Null(noResult.Data);
         }
 
         [Fact]
-        public async void FecthFailWithExceptionTest()
+        public async void FetchFailWithExceptionTest()
         {
             int id = 1;
 
@@ -83,7 +80,7 @@ namespace FunctionalExtensions.Tests
             Assert.False(result.IsSuccess);
             Assert.True(result.IsFailure);
             Assert.False(result.HasData);
-            Assert.Equal(Base.Results.ErrorType.ExceptionThrown, result.ErrorType);
+            Assert.Equal(ErrorType.ExceptionThrown, result.ErrorType);
             Assert.Null(result.Data);
         }
 
@@ -92,14 +89,14 @@ namespace FunctionalExtensions.Tests
         {
 
             var goodResultTask =
-                _categoryProvider.FetchAll();
+                _countryProvider.FetchAll();
 
             var goodResult = await goodResultTask;
             Assert.NotNull(goodResult);
             Assert.True(goodResult.IsSuccess);
             Assert.False(goodResult.IsFailure);
             Assert.True(goodResult.HasData);
-            Assert.Equal(Base.Results.ErrorType.None, goodResult.ErrorType);
+            Assert.Equal(ErrorType.None, goodResult.ErrorType);
             Assert.NotNull(goodResult.Data);
             Assert.NotEmpty(goodResult.Data);
         }
@@ -115,7 +112,7 @@ namespace FunctionalExtensions.Tests
             Assert.False(result.IsSuccess);
             Assert.True(result.IsFailure);
             Assert.False(result.HasData);
-            Assert.Equal(Base.Results.ErrorType.NoData, result.ErrorType);
+            Assert.Equal(ErrorType.NoData, result.ErrorType);
             Assert.Null(result.Data);
         }
 
@@ -130,7 +127,7 @@ namespace FunctionalExtensions.Tests
             Assert.False(result.IsSuccess);
             Assert.True(result.IsFailure);
             Assert.False(result.HasData);
-            Assert.Equal(Base.Results.ErrorType.ExceptionThrown, result.ErrorType);
+            Assert.Equal(ErrorType.ExceptionThrown, result.ErrorType);
             Assert.Null(result.Data);
         }
 
@@ -147,7 +144,7 @@ namespace FunctionalExtensions.Tests
             Assert.True(result.IsSuccess);
             Assert.False(result.IsFailure);
             Assert.True(result.HasData);
-            Assert.Equal(Base.Results.ErrorType.None, result.ErrorType);
+            Assert.Equal(ErrorType.None, result.ErrorType);
             Assert.NotNull(result.Data);
             Assert.NotNull(result.Data.Place);
             Assert.NotNull(result.Data.Place.Country);
@@ -166,16 +163,16 @@ namespace FunctionalExtensions.Tests
             Assert.True(result.IsSuccess);
             Assert.False(result.IsFailure);
             Assert.True(result.HasData);
-            Assert.Equal(Base.Results.ErrorType.None, result.ErrorType);
+            Assert.Equal(ErrorType.None, result.ErrorType);
             Assert.NotNull(result.Data);
             Assert.NotEmpty(result.Data);
             Assert.All(result.Data,
                     (item) =>
-                        {
-                            Assert.NotNull(item.Job);
-                            Assert.NotNull(item.Place);
-                            Assert.NotNull(item.Place.Country);
-                        }
+                    {
+                        Assert.NotNull(item.Job);
+                        Assert.NotNull(item.Place);
+                        Assert.NotNull(item.Place.Country);
+                    }
                     );
         }
 
@@ -211,61 +208,9 @@ namespace FunctionalExtensions.Tests
             Assert.False(chainedResults.IsFailure);
             Assert.True(chainedResults.HasData);
             Assert.True(chainedResults.Data.Length > 0);
-                           
+
         }
 
-        #region PEOPLE DB PROVIDERS
-        private class PersonProvider : BaseProvider<long, Person, PeopleDbContext>
-        {
-            internal PersonProvider(PeopleDbContext ctx) : base(ctx)
-            {
-
-            }
-        }
-
-        private class PlaceProvider : BaseProvider<long, Place, PeopleDbContext>
-        {
-            internal PlaceProvider(PeopleDbContext ctx) : base(ctx)
-            {
-
-            }
-        }
-
-        private class CountryProvider : BaseProvider<long, Place, PeopleDbContext>
-        {
-            internal CountryProvider(PeopleDbContext ctx) : base(ctx)
-            {
-
-            }
-        }
-        #endregion
-
-        #region CATEGORY PROVIDER
-        private class CategoryProvider : BaseProvider<long, Category, NorthwindDbContext>
-        {
-            internal CategoryProvider(NorthwindDbContext dbContext) : base(dbContext)
-            {
-            }
-        }
-        #endregion
-
-        #region FALSE PROVIDER AND MODEL
-
-        private class FalseModel : BaseModel<int> { }
-
-        private class FalseProvider : BaseProvider<int, FalseModel, NorthwindDbContext>
-        {
-            internal FalseProvider(NorthwindDbContext ctx) : base(ctx) { }
-
-            public async System.Threading.Tasks.Task<Base.Results.DataResult<List<FalseModel>>> FetchAllNoData() =>
-                TryCatch<List<FalseModel>>(
-                    () => null,
-                    (ex) => ex
-                    ).ToDataResult();
-        }
-        #endregion
 
     }
-
-
 }

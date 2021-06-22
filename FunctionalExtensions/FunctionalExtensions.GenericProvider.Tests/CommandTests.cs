@@ -1,33 +1,31 @@
-﻿using FunctionalExtensions.GenericProvider;
-using FunctionalExtensions.Tests.Data;
-using FunctionalExtensions.Tests.NorthwindModels;
-using FunctionalExtensions.Tests.PeopleModels;
-using static FunctionalExtensions.Base.Try;
+﻿using FunctionalExtensions.Base.Results;
+using FunctionalExtensions.GenericProvider.Tests.Data;
+using FunctionalExtensions.GenericProvider.Tests.Providers;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Xunit.DependencyInjection;
-using FunctionalExtensions.Base.Results;
 using Xunit;
 
-namespace FunctionalExtensions.Tests
+namespace FunctionalExtensions.GenericProvider.Tests
 {
-    public class GenericProviderCommandTests
+    public class CommandTests
     {
-        private readonly NorthwindDbContext _northwindDbContext;
-        private readonly PeopleDbContext _peopleDbContext;
-        private readonly CategoryProvider _categoryProvider;
+        private readonly JobProvider _jobProvider;
         private readonly FalseProvider _falseProvider;
         private readonly PersonProvider _personProvider;
         private readonly CountryProvider _countryProvider;
+        private readonly PlaceProvider _placeProvider;
+        private readonly TestDbContext _testDbContext;
 
-        public GenericProviderCommandTests([FromServices] NorthwindDbContext northwindDbContext, PeopleDbContext peopleDbContext)
+        public CommandTests(IConfiguration configuration)
         {
-            _northwindDbContext = northwindDbContext;
-            _categoryProvider = new CategoryProvider(northwindDbContext);
-            _falseProvider = new FalseProvider(northwindDbContext);
-            _personProvider = new PersonProvider(peopleDbContext);
-            _countryProvider = new CountryProvider(peopleDbContext);
+            _testDbContext = DatabaseInitialization.CreateDbContext(configuration.GetConnectionString("InMemoryDb"));
+            _personProvider = new PersonProvider(_testDbContext);
+            _placeProvider = new PlaceProvider(_testDbContext);
+            _jobProvider = new JobProvider(_testDbContext);
+            _countryProvider = new CountryProvider(_testDbContext);
+            _falseProvider = new FalseProvider(_testDbContext);
         }
 
         [Fact]
@@ -35,7 +33,7 @@ namespace FunctionalExtensions.Tests
         {
             var testCountry = new Country()
             {
-                Name = "Test Country"
+                Name = "TestCountry"
             };
 
             var result =
@@ -45,6 +43,9 @@ namespace FunctionalExtensions.Tests
             Assert.True(result.IsSuccess);
             Assert.False(result.IsFailure);
             Assert.Equal(ErrorType.None, result.ErrorType);
+
+            _testDbContext.Remove(testCountry);
+            await _testDbContext.SaveChangesAsync();
         }
 
         [Fact]
@@ -67,9 +68,16 @@ namespace FunctionalExtensions.Tests
         [Fact]
         public async void DeleteSuccessTest()
         {
-            const long id = 5;
+            var testCountry = new Country()
+            {
+                Name = "TestCountry"
+            };
+
+            await _testDbContext.AddAsync<Country>(testCountry);
+            await _testDbContext.SaveChangesAsync();
+
             var result =
-                await _countryProvider.Delete(id);
+                await _countryProvider.Delete(testCountry.Id);
 
             Assert.NotNull(result);
             Assert.True(result.IsSuccess);
@@ -93,13 +101,19 @@ namespace FunctionalExtensions.Tests
         [Fact]
         public async void UpdateSuccessTest()
         {
-            const long id = 1;
-            const string updatedName = "TEST NAME";
-            var countryResult = await _countryProvider.Fetch(id);
-            countryResult.Data.Name = updatedName;
+            var testCountry = new Country()
+            {
+                Name = "Original Name"
+            };
+            await _testDbContext.AddAsync(testCountry);
+            await _testDbContext.SaveChangesAsync();
+            const string updatedName = "UpdatedName";
+
+            testCountry.Name = updatedName;
+            
             var result =
-                await _countryProvider.Update(countryResult.Data);
-            countryResult = await _countryProvider.Fetch(id);
+                await _countryProvider.Update(testCountry);
+            var countryResult = await _countryProvider.Fetch(testCountry.Id);
 
 
             Assert.NotNull(countryResult.Data);
@@ -108,6 +122,9 @@ namespace FunctionalExtensions.Tests
             Assert.False(result.IsFailure);
             Assert.Equal(ErrorType.None, result.ErrorType);
             Assert.Equal(updatedName, countryResult.Data.Name);
+
+            _testDbContext.Remove(testCountry);
+            await _testDbContext.SaveChangesAsync();
         }
 
         [Fact]
@@ -137,52 +154,5 @@ namespace FunctionalExtensions.Tests
             Assert.True(result.IsFailure);
             Assert.Equal(ErrorType.ExceptionThrown, result.ErrorType);
         }
-
-        #region COUNTRY PROVIDER
-        private class CountryProvider : BaseProvider<long, Country, PeopleDbContext>
-        {
-            internal CountryProvider(PeopleDbContext ctx) : base(ctx)
-            {
-
-            }
-        }
-        #endregion
-
-        #region PERSON PROVIDER
-        private class PersonProvider : BaseProvider<long, Person, PeopleDbContext>
-        {
-            internal PersonProvider(PeopleDbContext ctx) : base(ctx)
-            {
-
-            }
-        }
-        #endregion
-
-        #region CATEGORY PROVIDER
-        private class CategoryProvider : BaseProvider<long, Category, NorthwindDbContext>
-        {
-            internal CategoryProvider(NorthwindDbContext dbContext) : base(dbContext)
-            {
-            }
-        }
-        #endregion
-
-        #region FALSE PROVIDER AND MODEL
-
-        private class FalseModel : BaseModel<int> { }
-
-        private class FalseProvider : BaseProvider<int, FalseModel, NorthwindDbContext>
-        {
-            internal FalseProvider(NorthwindDbContext ctx) : base(ctx) { }
-
-            public async System.Threading.Tasks.Task<Base.Results.DataResult<List<FalseModel>>> FetchAllNoData() =>
-                TryCatch<List<FalseModel>>(
-                    () => null,
-                    (ex) => ex
-                    ).ToDataResult();
-        }
-        #endregion
     }
-
-
 }

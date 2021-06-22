@@ -5,9 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using FunctionalExtensions.GenericProvider;
 using Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
-namespace FunctionalExtensions.Tests.PeopleModels
+namespace FunctionalExtensions.GenericProvider.Tests.Data
 {
     public partial class Job : BaseModel<long>
     {

@@ -2,22 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 using FunctionalExtensions.Base.Results;
-using FunctionalExtensions.Tests.Data;
 using static FunctionalExtensions.Base.Try;
 using Xunit;
 using FunctionalExtensions.Base;
 using System.Threading.Tasks;
 
-namespace FunctionalExtensions.Tests
+namespace FunctionalExtensions.Base.Tests
 {
     public class DataResultTests
     {
-        private readonly NorthwindDbContext _ctx;
-
-        public DataResultTests(NorthwindDbContext ctx)
-        {
-            _ctx = ctx;
-        }
 
         [Fact]
         public void DataResultSuccess()

@@ -1,1 +1,0 @@
-﻿Scaffold-DbContext "DataSource=northwind_small.db;" Microsoft.EntityFrameworkCore.Sqlite -ContextDir Data -OutputDir Models -Context NorthwindDbContext -DataAnnotations
