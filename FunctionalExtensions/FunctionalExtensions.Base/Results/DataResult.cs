@@ -116,7 +116,7 @@ namespace FunctionalExtensions.Base.Results
         /// <param name="dataResult"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public static async Task<DataResult<R>> MapAsync<T, R>(this Task<DataResult<T>> dataResult, Func<T, R> func) =>
+        public static async Task<DataResult<R>> Map<T, R>(this Task<DataResult<T>> dataResult, Func<T, R> func) =>
             await dataResult.Map(result =>
                 result.HasData && result.IsSuccess // disable passing default data on fail
                     ? new DataResult<R>(result.IsSuccess, result.ErrorMessage, result.ErrorType, func(result.Data))
@@ -148,7 +148,7 @@ namespace FunctionalExtensions.Base.Results
         /// <param name="dataResult">Data result</param>
         /// <param name="func">Transformation function</param>
         /// <returns></returns>
-        public static async Task<DataResult<R>> BindAsync<T, R>(this Task<DataResult<T>> dataResult, Func<T, Task<DataResult<R>>> func)
+        public static async Task<DataResult<R>> Bind<T, R>(this Task<DataResult<T>> dataResult, Func<T, Task<DataResult<R>>> func)
         {
             var awaitedResult = await dataResult;
             return
@@ -182,7 +182,7 @@ namespace FunctionalExtensions.Base.Results
         /// <typeparam name="TResult">Result data type</typeparam>
         /// <param name="dataResult">Data result</param>
         /// <returns></returns>
-        public static async Task<DataResult<TResult>> TryResolveAsync<TResult>(this Task<DataResult<Try<TResult>>> dataResult) =>
+        public static async Task<DataResult<TResult>> TryResolve<TResult>(this Task<DataResult<Try<TResult>>> dataResult) =>
             await dataResult switch
             {
                 DataResult<Try<TResult>> dr when dr.HasData =>

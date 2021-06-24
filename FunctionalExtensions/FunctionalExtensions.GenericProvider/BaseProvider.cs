@@ -91,7 +91,7 @@ namespace FunctionalExtensions.GenericProvider
                 async () => (await _dbContext.AddAsync<TEntity>(entity)).State == EntityState.Added
                                 && await _dbContext.SaveChangesAsync() > 0,
                 (ex) => ex
-                ).ToResultAsync();
+                ).ToResult();
 
         /// <summary>
         /// Update an entity in the database. Id must be present in entity model!
@@ -103,7 +103,7 @@ namespace FunctionalExtensions.GenericProvider
                 async () => _dbContext.Update<TEntity>(entity).State == EntityState.Modified
                                 && await _dbContext.SaveChangesAsync() > 0,
                 (ex) => ex
-                ).ToResultAsync();
+                ).ToResult();
 
         /// <summary>
         /// Delete an entity with given id from the database
@@ -119,7 +119,7 @@ namespace FunctionalExtensions.GenericProvider
                                 _ => false
                             },
                 (ex) => ex
-                ).ToResultAsync();
+                ).ToResult();
 
     }
 

@@ -172,7 +172,7 @@ namespace FunctionalExtensions.Base.Tests
                     async () => { await Task.Delay(100); return 1; },
                     (ex) => ex)
                 .ToDataResultAsync()
-                .MapAsync(_ => _.ToString());
+                .Map((int _) => _.ToString());
 
             Assert.NotNull(result);
             Assert.True(result.IsSuccess);
@@ -190,7 +190,7 @@ namespace FunctionalExtensions.Base.Tests
                     async () => { await Task.Delay(100); throw new Exception(exceptionMessage); return 1; },
                     (ex) => ex
                     ).ToDataResultAsync()
-                    .MapAsync(_ => _ + 1);
+                    .Map(_ => _ + 1);
 
             Assert.NotNull(result);
             Assert.False(result.IsSuccess);

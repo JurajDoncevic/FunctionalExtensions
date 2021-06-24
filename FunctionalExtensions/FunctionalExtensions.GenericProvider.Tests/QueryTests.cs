@@ -199,9 +199,9 @@ namespace FunctionalExtensions.GenericProvider.Tests
         {
             var chainedResults =
                 await _personProvider.FetchAll()
-                                     .BindAsync(_ => _placeProvider.Fetch(_.First().PlaceId.Value))
-                                     .BindAsync(_ => _countryProvider.Fetch(_.CountryId))
-                                     .MapAsync(_ => _.Name);
+                                     .Bind(_ => _placeProvider.Fetch(_.First().PlaceId.Value))
+                                     .Bind(_ => _countryProvider.Fetch(_.CountryId))
+                                     .Map(_ => _.Name);
 
             Assert.NotNull(chainedResults);
             Assert.True(chainedResults.IsSuccess);

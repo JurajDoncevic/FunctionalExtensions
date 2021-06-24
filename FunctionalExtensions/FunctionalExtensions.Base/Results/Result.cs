@@ -72,7 +72,7 @@ namespace FunctionalExtensions.Base.Results
         /// </summary>
         /// <param name="try">Try object</param>
         /// <returns>Result object</returns>
-        public static async Task<Result> ToResultAsync(this Task<Try<Unit>> @try) =>
+        public static async Task<Result> ToResult(this Task<Try<Unit>> @try) =>
             (await @try) switch
             {
                 Try<Unit> t when !t.IsException => new Result(true, string.Empty, ErrorType.None),
@@ -101,7 +101,7 @@ namespace FunctionalExtensions.Base.Results
         /// </summary>
         /// <param name="try">Try object returning a bool</param>
         /// <returns>Result object</returns>
-        public static async Task<Result> ToResultAsync(this Task<Try<bool>> @try) =>
+        public static async Task<Result> ToResult(this Task<Try<bool>> @try) =>
             (await @try) switch
             {
                 Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorType.None)
