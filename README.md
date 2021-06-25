@@ -84,7 +84,10 @@ int resH = h(4); // 9
 int resX = f.Apply(1)(2, 3) // 6
 ```
 ### Aggregation
-LINQ already offers an aggregation operation `Aggregate`, but this library also has the `Fold` operation for `IEnumerable` and `Task<IEnumerable>`. `Foldi` is also provided, with the enumaration size limit of `LONG_MAX`.
+LINQ already offers an aggregation operation `Aggregate`, but this library also has the `Fold` operation for `IEnumerable` and `Task<IEnumerable>`. 
+```
+Fold: IEnumerable<T> -> R -> (T -> R -> R) -> R
+```
 Example:
 ```csharp
 const string testString = "12345";
@@ -101,7 +104,12 @@ System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
                 .ToList()
                 .Fold(services, (provider, services) => services.AddTransient(provider)); // returns appended IServiceCollection
 ```
+`Foldi` is also provided by this library, with the enumaration size limit of `LONG_MAX`. The `Foldi` folding function receives the index of the currently folded element 
+```
+IEnumerable<T> -> R -> (long -> T -> R -> R) -> R
+```
 ### Fork
+Fork is a helper function used to execute multiple "prong" functions and finalize their results into a final result.
 ### Validation
 ### Map
 ### Bind
