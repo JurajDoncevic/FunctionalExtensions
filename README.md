@@ -104,14 +104,85 @@ System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
                 .ToList()
                 .Fold(services, (provider, services) => services.AddTransient(provider)); // returns appended IServiceCollection
 ```
-`Foldi` is also provided by this library, with the enumaration size limit of `LONG_MAX`. The `Foldi` folding function receives the index of the currently folded element 
+`Foldi` is also provided by this library, with the enumerable size limit of `LONG_MAX`. The `Foldi` folding function receives the index of the currently folded element 
 ```
-IEnumerable<T> -> R -> (long -> T -> R -> R) -> R
+Foldi: IEnumerable<T> -> R -> (long -> T -> R -> R) -> R
+```
+```csharp
+List<string> names = new List<string> { "John", "Barry", "Steven", "Joe" };
+// John is 1 Barry is 2 Steven is 3 Joe is 4
+string result = names.Foldi("", (idx, item, seed) => item + " is " + (idx + 1).ToString() + " ");
 ```
 ### Fork
-Fork is a helper function used to execute multiple "prong" functions and finalize their results into a final result.
+`Fork` is a helper function used to execute multiple "prong" functions in parallel and finalize their results into a final result.
+```
+Fork: T -> (IEnumerable<R> -> R) -> Array<(T -> R)> -> R 
+```
+Examples:
+```csharp
+int x = 5;
+x.Fork(_ => _.Sum(), // finalization function
+       _ => _ + 1, // 6
+       _ => _ * 2, // 10
+       _ => _ / 5, // 1
+       _ => _ - 2 // 3
+    ); // gives result of 20
+
+// example services for getting prices of gas from different gas stations
+GasService gasService1, gasService2, gasService3 = ...;
+Fork(_ => _.Min(),
+     () => gasService1.GetPrice(),
+     () => gasService2.GetPrice(),
+     () => gasService3.GetPrice(),
+    ); // queries all the services and finds the minimum price
+```
 ### Validation
+`Validate` is used to check if the given value passes all the predicates.
+```
+T -> Array<(T -> bool)> -> bool
+```
+Example:
+```csharp
+Person person = new Person
+{
+    Name = "John",
+    Surname = "Doe",
+    Age = 20
+};
+
+bool isPersonValid = person.Validate(
+    _ => !_.Name.IsNullOrEmpty(),
+    _ => _.Surname.Length >= 3,
+    _ => Age > 14
+); // true
+```
 ### Map
+`Map` is the functor mapping function. `Map` is defined generically for all data types and specifically for `IEnumerable` and `Task`. For `IEnumerable` the `Mapi` function is also provided, allowing mapping with the elements' indices (the enumerable maximum size is `LONG_MAX`).
+```
+Map: T -> (T -> R) -> R
+Map: IEnumerable<T> -> (T -> R) -> IEnumerable<R>
+Map: Task<T> -> (T -> R) -> Task<R>
+Mapi: IEnumerable<T> -> (long -> T -> R) -> IEnumerable<R>
+```
+Examples:
+```csharp
+2.Map(_ => _ + 3); // 5
+
+List<string> someWords = new List<string> { "these", "are", "some", "words" };
+
+// "THESE", "ARE", "SOME", "UPPER", "WORDS"
+someWords.Map(_ => _.ToUpper()); 
+
+// "1:these", "2:are", "3:some", "4:words"
+someWords.Mapi((idx, _) => (idx + 1).ToString() + ":" + _);
+
+// within an async method
+await Task.Run(
+    () => { System.Threading.Thread.Sleep(2000); return 1; }
+    ).Map(_ => _ + 1); // 2
+```
+`Map` is also defined for Result types and kinds (see below).
+
 ### Bind
 ### Using
 ### TryCatch
