@@ -29,6 +29,29 @@ namespace FunctionalExtensions.Base
         }
 
         /// <summary>
+        /// Used to async fold a IEnumerable into a single value with element index as parameter to folding func.
+        /// E[T] -> R -> (T -> R -> R) -> R
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="ts">Target enumerable</param>
+        /// <param name="initalizer">Initial value</param>
+        /// <param name="foldingFunc">Accumulation function</param>
+        /// <returns></returns>
+        public static R Foldi<T, R>(this IEnumerable<T> ts, R seed, Func<long, T, R, R> foldingFunc)
+        {
+            R result = seed;
+            long idx = 0;
+            foreach (T item in ts)
+            {
+                result = foldingFunc(idx, item, result);
+                idx++;
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Used to async fold a IEnumerable into a single value.
         /// E[T] -> R -> (T -> R -> R) -> R
         /// </summary>
