@@ -6,7 +6,7 @@ using System.Text;
 namespace FunctionalExtensions.Base
 {
     /// <summary>
-    /// Signifier for functions that don't return anything. Functions returning this have side-effects!
+    /// Terminal data type. Signifier for functions that don't return anything. Functions returning this have side-effects!
     /// </summary>
     public struct Unit { };
 
