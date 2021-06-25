@@ -4,7 +4,7 @@ Currently built for: **.NET Core 3.1**
 
 ![Build](https://github.com/JurajDoncevic/FunctionalExtensions/actions/workflows/build.yml/badge.svg)
 
-![Test](https://github.com/JurajDoncevic/FunctionalExtensions/actions/workflows/test.yml/badge.svg)
+![Tests](https://github.com/JurajDoncevic/FunctionalExtensions/actions/workflows/test.yml/badge.svg)
 
 ## About
 FunctionalExtensions is a library for .NET Core providing functional-styled helper methods and types for C#. It allows production of safer and cleaner code.
