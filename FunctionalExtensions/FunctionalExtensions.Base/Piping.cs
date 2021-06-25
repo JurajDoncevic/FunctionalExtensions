@@ -7,7 +7,7 @@ namespace FunctionalExtensions.Base
     public static class Piping
     {
         /// <summary>
-        /// Executes a Unit returning/side-effect function wiht target as param and passes the target onward.
+        /// Executes a Unit returning/side-effect function with target as the parameter and passes the target onward in the pipeline.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="target">Target object</param>
