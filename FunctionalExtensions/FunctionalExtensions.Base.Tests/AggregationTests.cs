@@ -7,10 +7,10 @@ using Xunit;
 
 namespace FunctionalExtensions.Base.Tests
 {
-    public class BaseTests
+    public class AggregationTests
     {
         [Fact]
-        public static void FoldOnSameTypesTest()
+        public void FoldOnSameTypesTest()
         {
             const string testCsv = "This;is;some;rediculous;Csv;line";
 
@@ -24,17 +24,31 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
-        public static void FoldOnDifferentTypesTest()
+        public void FoldOnDifferentTypesTest()
         {
             const string testString = "12345";
 
-            List<int> testInts = new List<int>{ 1, 2, 3, 4, 5 };
+            List<int> testInts = new List<int> { 1, 2, 3, 4, 5 };
 
             string finalCsv = testInts.Skip(1).Fold(testInts.First().ToString(), (item, seed) => seed + item.ToString());
 
             Assert.NotNull(finalCsv);
             Assert.NotEmpty(finalCsv);
             Assert.Equal(testString, finalCsv);
+        }
+
+        [Fact]
+        public void FoldiTest()
+        {
+            List<int> testInts = new List<int> { 1, 2, 3, 4, 5 };
+
+            string expectedResultString = "1122334455";
+
+            string resultString = testInts.Foldi("", (idx, item, seed) => seed + (idx + 1).ToString() + item.ToString());
+
+            Assert.NotNull(resultString);
+            Assert.NotEmpty(resultString);
+            Assert.Equal(resultString, expectedResultString);
         }
     }
 }
