@@ -9,7 +9,7 @@ Currently built for: **.NET Core 3.1**
 ## About
 FunctionalExtensions is a library for .NET Core providing functional-styled helper methods and types for C#. It allows production of safer and cleaner code.
 
-The **Base** library provides high-order-functions and types for:
+The **Base** library provides helper functions, high-order functions, and types for:
 - the `Unit` terminal object
 - conversion of `Action<...>` into `Func<..., Unit>`
 - partial application via `Apply`
