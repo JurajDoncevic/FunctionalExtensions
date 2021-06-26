@@ -112,7 +112,7 @@ namespace FunctionalExtensions.Base.Results
         #endregion
 
         /// <summary>
-        /// Used to pipe Result objects. Not a real Bind since Result is just a logical signifier for operational outcomes.
+        /// Used to pipe Result objects. 
         /// R[] -> (() -> R[]) -> R[]
         /// </summary>
         /// <param name="target">Original result</param>
@@ -125,7 +125,7 @@ namespace FunctionalExtensions.Base.Results
 
 
         /// <summary>
-        /// Used to pipe Result objects. Not a real Bind since Result is just a logical signifier for operational outcomes.
+        /// Used to pipe Result objects.
         /// R[] -> (() -> R[]) -> R[]
         /// </summary>
         /// <param name="target">Original result</param>
