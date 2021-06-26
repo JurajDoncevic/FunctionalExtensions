@@ -184,6 +184,30 @@ await Task.Run(
 `Map` is also defined for Result types and kinds (see below).
 
 ### Bind
+`Bind` is the monad binding function. `Bind` is defined for `IEnumerable` and `Task`.
+```
+Bind: M<T> -> (T -> M<R>) -> M<R>
+Bind: Task<T> -> (T -> Task<R>) -> Task<R>
+Bind: IEnumerable<T> -> (T -> IEnumerable<R>) -> IEnumerable<R>
+```
+Examples:
+```csharp
+List<List<int>> list = new List<List<int>>
+{
+    new List<int> { 1, 2, 3, 4 },
+    new List<int> { 5, 6, 7, 8, 9 },
+    new List<int> { 10, 11, 12 }
+};
+List<int> flatList = list.Bind(_ => _); // 1 2 3 4 5 6 7 8 9 10 11 12
+
+// within an async method
+Task<int> startTask = Task<int>.Run(() => { System.Threading.Thread.Sleep(1000);  return 1; });
+string result = // "3"
+    await startTask.Bind(_ => Task<int>.Run(() => _ + 1))
+                   .Bind(_ => Task<int>.Run(() => _ + 1))
+                   .Bind(_ => Task<string>.Run(() => _.ToString()));
+```
+`Bind` is also defined for Result types and kinds (see below).
 ### Using
 ### TryCatch
 
