@@ -19,3 +19,9 @@ jobs:
       run: dotnet restore ./FunctionalExtensions/FunctionalExtensions.sln
     - name: Build release
       run: dotnet build ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
+    - uses: actions/upload-artifact@v2
+      with:
+        name: my-artifact
+        path: |
+              /FunctionalExtensions.GenericProvider/bin/Release/netcoreapp3.1/FunctionalExtensions.GenericProvider.dll
+              /FunctionalExtensions.Base/bin/Release/netcoreapp3.1/FunctionalExtensions.Base.dll
