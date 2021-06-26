@@ -4,7 +4,7 @@ Currently built for: **.NET Core 3.1**
 
 ![Build](https://github.com/JurajDoncevic/FunctionalExtensions/actions/workflows/build.yml/badge.svg) ![Tests](https://github.com/JurajDoncevic/FunctionalExtensions/actions/workflows/test.yml/badge.svg)
 
-Currenty built artifacts linked by [nightly.link](https://nightly.link)
+Currenty built artifacts (.dll) linked by [nightly.link](https://nightly.link)
 
 [Base library](https://nightly.link/JurajDoncevic/FunctionalExtensions/workflows/build/master/FunctionalExtensions.Base.zip)
 
