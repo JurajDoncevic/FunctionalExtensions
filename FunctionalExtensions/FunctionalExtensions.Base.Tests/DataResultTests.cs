@@ -168,7 +168,7 @@ namespace FunctionalExtensions.Base.Tests
         public async void DataResultSuccessAsyncMap()
         {
             var result =
-                await TryCatchAsync(
+                await TryCatch(
                     async () => { await Task.Delay(100); return 1; },
                     (ex) => ex)
                 .ToDataResultAsync()
@@ -186,7 +186,7 @@ namespace FunctionalExtensions.Base.Tests
         {
             const string exceptionMessage = "Exception occured";
             var result =
-                await TryCatchAsync(
+                await TryCatch(
                     async () => { await Task.Delay(100); throw new Exception(exceptionMessage); return 1; },
                     (ex) => ex
                     ).ToDataResultAsync()

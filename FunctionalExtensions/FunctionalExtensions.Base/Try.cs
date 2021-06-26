@@ -68,7 +68,7 @@ namespace FunctionalExtensions.Base
         /// <param name="operate">Operations in try block () -> T</param>
         /// <param name="catchOperate">Operations in catch block: Ex -> Ex</param>
         /// <returns></returns>
-        public static async Task<Try<T>> TryCatchAsync<T>(Func<Task<T>> operate, Func<Exception, Exception> catchOperate)
+        public static async Task<Try<T>> TryCatch<T>(Func<Task<T>> operate, Func<Exception, Exception> catchOperate)
         {
             try
             { return new Try<T>(await operate()); }

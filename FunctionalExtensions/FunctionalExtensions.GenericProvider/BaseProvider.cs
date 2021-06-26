@@ -39,7 +39,7 @@ namespace FunctionalExtensions.GenericProvider
         /// </summary>
         /// <returns>DataResult of list of entity</returns>
         public async Task<DataResult<List<TEntity>>> FetchAll() =>
-            await TryCatchAsync(
+            await TryCatch(
                 async () => await _dbContext.Set<TEntity>()
                                             .ToListAsync(),
                 (ex) => ex
@@ -51,7 +51,7 @@ namespace FunctionalExtensions.GenericProvider
         /// <param name="includeExpressions">Lambdas for includes</param>
         /// <returns>DataResult of list of entity</returns>
         public async Task<DataResult<List<TEntity>>> FetchAllIncluding(params Expression<Func<TEntity, object>>[] includeExpressions) =>
-            await TryCatchAsync(
+            await TryCatch(
                 async () => await _dbContext.Include(includeExpressions)
                                             .ToListAsync<TEntity>(),
                 (ex) => ex
@@ -63,7 +63,7 @@ namespace FunctionalExtensions.GenericProvider
         /// <param name="id">Id of entity</param>
         /// <returns>Dataresult of entity</returns>
         public async Task<DataResult<TEntity>> Fetch(TKey id) =>
-            await TryCatchAsync(
+            await TryCatch(
                 async () => await _dbContext.FindAsync<TEntity>(id),
                 (ex) => ex
                 ).ToDataResultAsync();
@@ -75,7 +75,7 @@ namespace FunctionalExtensions.GenericProvider
         /// <param name="includeExpressions">Lambdas for includes</param>
         /// <returns>DataResult of entity</returns>
         public async Task<DataResult<TEntity>> FetchIncluding(TKey id, params Expression<Func<TEntity, object>>[] includeExpressions) =>
-            await TryCatchAsync(
+            await TryCatch(
                 async () => await _dbContext.Include(includeExpressions)
                                             .SingleOrDefaultAsync<TEntity>(_ => _.Id.Equals(id)),
                 (ex) => ex
@@ -87,7 +87,7 @@ namespace FunctionalExtensions.GenericProvider
         /// <param name="entity">Entity to insert</param>
         /// <returns>Result</returns>
         public async Task<Result> Insert(TEntity entity) =>
-            await TryCatchAsync(
+            await TryCatch(
                 async () => (await _dbContext.AddAsync<TEntity>(entity)).State == EntityState.Added
                                 && await _dbContext.SaveChangesAsync() > 0,
                 (ex) => ex
@@ -99,7 +99,7 @@ namespace FunctionalExtensions.GenericProvider
         /// <param name="entity">Entity object with correct id</param>
         /// <returns>Result</returns>
         public async Task<Result> Update(TEntity entity) =>
-            await TryCatchAsync(
+            await TryCatch(
                 async () => _dbContext.Update<TEntity>(entity).State == EntityState.Modified
                                 && await _dbContext.SaveChangesAsync() > 0,
                 (ex) => ex
@@ -111,7 +111,7 @@ namespace FunctionalExtensions.GenericProvider
         /// <param name="id">Entity id</param>
         /// <returns>Result</returns>
         public async Task<Result> Delete(TKey id) =>
-            await TryCatchAsync(
+            await TryCatch(
                 async () => await _dbContext.FindAsync<TEntity>(id) switch
                             {
                                 TEntity entity => _dbContext.Remove<TEntity>(entity).State == EntityState.Deleted

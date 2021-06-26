@@ -13,8 +13,8 @@ namespace FunctionalExtensions.GenericProvider.Tests.Providers
         public FalseProvider(TestDbContext ctx) : base(ctx) { }
 
         public async Task<DataResult<List<FalseModel>>> FetchAllNoData() =>
-            TryCatch<List<FalseModel>>(
-                () => null,
+            TryCatch(
+                (Func<List<FalseModel>>)(() => null),
                 (ex) => ex
                 ).ToDataResult();
     }
