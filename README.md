@@ -209,7 +209,62 @@ string result = // "3"
 ```
 `Bind` is also defined for Result types and kinds (see below).
 ### Using
+`Using` is a high-order-function over the `using` block, so it can be seamlessly integrated into the functional pipeline. As parameters it accepts a *setup* function to setup the `IDisposable` and an *operate* function to operate over the `IDisposable`.
+```
+Using: () -> IDisposable -> (IDisposable -> T) -> T
+Using: () -> IDisposable -> (IDisposable -> Task<T>) -> Task<T>
+
+```
+Example:
+```csharp
+Person result =
+    Using(
+        () => new PersonDbContext(), // setup IDisposable
+        _ => _.Person.Find(id) // operate over IDisposable
+        );
+```
+In the future it is planned to provide a `Using<T>` type, so you can imply the usage of `using` by design. This will be possible by setting `Using<T>` as the return type of a method (exp. via an interface-defined method).
+
 ### TryCatch
+`TryCatch` is a high-order-function over the `try-catch` block, so it can be seasmlessly integrated into the functional pipeline. As parameters it accepts an *operate* function and an *catchOperate* function. The `TryCatch` function returns a `Try<T>` type (similar to Scala).
+
+Due to the existence of the `Try<T>` type, the usage of a `try-catch` block is implied for a function returning `Try<T>` or its derivates (see Results).
+```
+Try: (() -> T) -> (Exception -> Exception) -> Try<T>
+Try: (() -> Task<T>) -> (Exception -> Exception) -> Task<Try<T>>
+```
+Examples:
+```csharp
+// IsException = true, IsData = false
+Try<int> exceptionTry = 
+    TryCatch(
+        ((Action)(() =>
+        {
+            throw new Exception(exceptionMessage);
+            return 1;
+        })).ToFunc(),
+        (ex) => ex
+        );
+
+// IsException = true, IsData = false, ExpectedData = 1
+Try<int> exceptionTry = 
+    TryCatch(
+        ((Action)(() =>
+        {
+            return 1;
+        })).ToFunc(),
+        (ex) => ex
+        );
+
+// If expected data is Unit, then IsData is marked false.
+// IsException = false, IsData = false, ExpectedData = Unit
+Try<Unit> unitTry =
+    TryCatch(
+        ((Action)(() => Console.WriteLine())).ToFunc(),
+        (ex) => ex
+        );
+
+```
 
 ## Results
 ### Result
