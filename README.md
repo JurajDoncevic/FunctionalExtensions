@@ -267,9 +267,140 @@ Try<Unit> unitTry =
 ```
 
 ## Results
-### Result
-### DataResult\<T>
+Result kinds are used to encapsulate results of complex operations that return data or a logical result signifying the operation's outcome.
 
+All results can have the following ErrorType states:
+- ExceptionThrown
+- Failure
+- NoData
+- Unknown
+- None
+
+This is implemented in the `ErrorTypes` enum. 
+### Result
+`Result` is a monadic type that embellish an operation's outcome. `Result` can be constructed from the `Try<Unit>` or `Try<bool>` type (asnychronously or synchronously) using the `ToResult` function. The `Bind` function allows piping multiple operations.
+
+```csharp
+// IsSuccess = false, IsFailure = true, 
+// ErrorMessage = Operation failed, ErrorType = Failure
+Result result =
+    TryCatch( // Try<bool>
+        () => false,
+        (ex) => ex
+        ).ToResult();
+
+// IsSuccess = true, IsFailure = false, 
+// ErrorMessage = string.Empty, ErrorType = None
+Result result =
+    TryCatch( // Try<bool>
+        () => true,
+        (ex) => ex
+        ).ToResult();
+
+// IsSuccess = false, IsFailure = true, 
+// ErrorMessage = "Exception message", ErrorType = ExceptionThrown
+Result result =
+    TryCatch( // Try<bool>
+        () => { throw new Exception("Exception message"); return true},
+        (ex) => ex
+        ).ToResult();
+
+// all is good unless an exception appears
+// IsSuccess = true, IsFailure = false, 
+// ErrorMessage = string.Empty, ErrorType = None
+Result result =
+    TryCatch( // Try<Unit>
+        ((Action)(() => Console.WriteLine())).ToFunc(),
+        (ex) => ex
+        ).ToResult();
+
+
+Result result =
+    TryCatch( // Try<bool>
+        () => true,
+        (ex) => ex
+        ).ToResult()
+        .Bind(
+            _ => TryCatch( // this simulates another operation
+                    () => true,
+                    (ex) => ex
+                    ).ToResult()
+            )
+        .Bind(
+            _ => TryCatch( // this simulates another operation
+                    () => true,
+                    (ex) => ex
+                    ).ToResult()
+            );
+```
+
+### DataResult
+The `DataResult<T>` is a monadic kind used to embellish an operation's outcome and returning data. `DataResult` can be constructed from the `Try<T>` kind. The `Bind` function allows piping multiple operations.
+```csharp
+// IsSuccess = true, IsFailure = false, 
+// ErrorMessage = string.Empty, ErrorType = None, 
+// HasData = true, Data = { Name = "test" }
+DataResult<a> dataResult =
+    TryCatch(
+        () => new { Name = "test" },
+        (ex) => ex
+        ).ToDataResult();
+
+// IsSuccess = false, IsFailure = true, 
+// ErrorMessage = <exceptionMessage>, ErrorType = ExceptionThrown, 
+// HasData = false, Data = default
+DataResult<a> dataResult =
+    TryCatch(
+        () => { throw new Exception(exceptionMessage); return new { Name = "test" }; },
+        (ex) => ex
+        ).ToDataResult();
+
+DataResult<string> dataResult = // "1234"
+    TryCatch(
+        () => 1,
+        (ex) => ex
+        ).ToDataResult()
+    .Bind(x => 
+        TryCatch(
+            () => x.ToString() + "2",
+            (ex) => ex
+            ).ToDataResult())
+    .Bind(x =>
+        TryCatch(
+            () => x.ToString() + "3",
+            (ex) => ex
+            ).ToDataResult())
+    .Bind(x =>
+        TryCatch(
+            () => x.ToString() + "4",
+            (ex) => ex
+            ).ToDataResult()
+    );
+
+DataResult<string> dataResult = // ExceptionThrown, 3rd Bind not executed
+    TryCatch(
+        () => 1,
+        (ex) => ex
+        ).ToDataResult()
+    .Bind(x =>
+        TryCatch(
+            () => x.ToString() + "2",
+            (ex) => ex
+            ).ToDataResult())
+    .Bind(x =>
+        TryCatch(
+            () => { throw new Exception(exceptionMessage; return "3"; },
+            (ex) => ex
+            ).ToDataResult())
+    .Bind(x =>
+        TryCatch(
+            () => x.ToString() + "4",
+            (ex) => ex
+            ).ToDataResult()
+    );
+```
+
+In the future `Bind` will be extended so it can seamlessly operate over a pipeline containing both Results and DataResults
 ## GenericProvider over EF Core
-### BaseModel\<TKey>
-### BaseProvider<TKey, TModel, TDbContext>
+### BaseModel
+### BaseProvider
