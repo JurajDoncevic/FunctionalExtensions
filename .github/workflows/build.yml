@@ -20,13 +20,13 @@ jobs:
       run: dotnet restore ./FunctionalExtensions/FunctionalExtensions.sln
     - name: Build release
       run: dotnet build ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
-    - uses: actions/upload-artifact@v2
     - name: Deploy Base
+    - uses: actions/upload-artifact@v2
       with:
         name: FunctionalExtensions.Base
         path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.Base/bin/Release/netcoreapp3.1/FunctionalExtensions.Base.dll
-    - uses: actions/upload-artifact@v2
     - name: Deploy GenericProvider
+    - uses: actions/upload-artifact@v2
       with:
         name: FunctionalExtensions.GenericProvider
         path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.GenericProvider/bin/Release/netcoreapp3.1/FunctionalExtensions.GenericProvider.dll
