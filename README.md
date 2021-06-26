@@ -439,7 +439,7 @@ public class PersonProvider : BaseProvider<Guid, Person, PersonDbContext>
         // additional user-defined methods go here
 }
 ```
-With just this, the provider can be used:
+With just that, the provider can be used:
 ```csharp
 // dbContext and id are initialized somewhere above
 ...
