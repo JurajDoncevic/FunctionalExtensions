@@ -361,7 +361,7 @@ DataResult<string> dataResult = // "1234"
         (ex) => ex
         ).ToDataResult()
     .Bind(x => 
-        TryCatch(
+        TryCatch( // this mocks a complex data returning operation
             () => x.ToString() + "2",
             (ex) => ex
             ).ToDataResult())
@@ -401,6 +401,57 @@ DataResult<string> dataResult = // ExceptionThrown, 3rd Bind not executed
 ```
 
 In the future `Bind` will be extended so it can seamlessly operate over a pipeline containing both Results and DataResults
+
 ## GenericProvider over EF Core
+A generic repository for Entity Framework Core has been implementing using the Base library.
 ### BaseModel
+All models, scaffolded from or migrated to a database, must inherit the `BaseModel` class. This class contains the primary key identifier `Id` and its basic annotations. The data type of the key is determined by the generic parameter `TKey` 
+```csharp
+// this model has the Id of type Guid
+public class Person : BaseModel<Guid>  
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public int Age { get; set; }
+    public Place Place { get; set; }
+}
+``` 
 ### BaseProvider
+On each model inheriting the `BaseModel` class, a provider can be implemented by inheriting the generic `BaseProvider` class. The following methods are generically and asynchronously implemented using EF Core:
+
+- `Fetch` - fetches an instance with given id from the DB
+- `FetchAll` - fetches all instances from the DB
+- `FetchIncluding` - `Fetch` but additional elements from the aggregate can be loaded with multiple expressions
+- `FetchAllIncluding` - `FetchAll` but additional elements from the aggregate can be loaded with multiple expressions
+- `Insert` - inserts a new entity into the DB
+- `Delete` - deletes an entity with given id from the DB
+
+The `BaseProvider` returns embellished results using `Result` and `DataResult`.
+
+The class `Person` (from the previous example) can have its provider implemented as follows:
+```csharp
+public class PersonProvider : BaseProvider<Guid, Person, PersonDbContext>
+{
+        public PersonProvider(PersonDbContext dbContext) : base(dbContext)
+        {
+        }
+
+        // additional user-defined methods go here
+}
+```
+With just this, the provider can be used:
+```csharp
+// dbContext and id are initialized somewhere above
+...
+PersonProvider personProvider = new PersonProvider(dbContext);
+
+var dataResult = await personProvider.FetchIncluding(id, _ => Place, _ => Place.Country);
+``` 
+By extensions, the Bind function can also be used to chain Provider operations:
+```csharp
+var chainedResults =
+    await _personProvider.FetchAll()
+                         .Bind(_ => _placeProvider.Fetch(_.First().PlaceId.Value))
+                         .Bind(_ => _countryProvider.Fetch(_.CountryId))
+                         .Map(_ => _.Name);
+```
