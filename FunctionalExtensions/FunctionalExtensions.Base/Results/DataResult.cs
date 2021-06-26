@@ -14,7 +14,7 @@ namespace FunctionalExtensions.Base.Results
     {
         private bool _isSuccess;
         private string _errorMessage;
-        private ErrorType _errorType;
+        private ErrorTypes _errorType;
         private TResult _data;
 
         /// <summary>
@@ -36,13 +36,13 @@ namespace FunctionalExtensions.Base.Results
         /// <summary>
         /// Error type for failure
         /// </summary>
-        public ErrorType ErrorType { get => _errorType; }
+        public ErrorTypes ErrorType { get => _errorType; }
         /// <summary>
         /// The data
         /// </summary>
         public TResult Data { get => _data; }
 
-        internal DataResult(bool isSuccess, string errorMessage, ErrorType errorType, TResult data)
+        internal DataResult(bool isSuccess, string errorMessage, ErrorTypes errorType, TResult data)
         {
             IsSuccess = isSuccess;
             _errorMessage = errorMessage;
@@ -50,7 +50,7 @@ namespace FunctionalExtensions.Base.Results
             _data = data;
         }
 
-        internal DataResult(bool isSuccess, string errorMessage, ErrorType errorType)
+        internal DataResult(bool isSuccess, string errorMessage, ErrorTypes errorType)
         {
             IsSuccess = isSuccess;
             _errorMessage = errorMessage;
@@ -73,10 +73,10 @@ namespace FunctionalExtensions.Base.Results
         public static DataResult<TResult> ToDataResult<TResult>(this Try<TResult> @try) =>
             @try switch
             {
-                Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorType.NoData),
-                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorType.None, t.ExpectedData),
-                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorType.ExceptionThrown),
-                _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
+                Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorTypes.NoData),
+                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorTypes.None, t.ExpectedData),
+                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown)
             };
 
         /// <summary>
@@ -88,10 +88,10 @@ namespace FunctionalExtensions.Base.Results
         public static async Task<DataResult<TResult>> ToDataResultAsync<TResult>(this Task<Try<TResult>> @try) =>
             (await @try) switch
             {
-                Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorType.NoData),
-                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorType.None, t.ExpectedData),
-                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorType.ExceptionThrown),
-                _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
+                Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorTypes.NoData),
+                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorTypes.None, t.ExpectedData),
+                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown)
             };
 
         #region MAPS
@@ -169,12 +169,12 @@ namespace FunctionalExtensions.Base.Results
             dataResult.HasData
             ? dataResult.Data switch
             {
-                Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorType.NoData),
-                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorType.None, t.ExpectedData),
-                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorType.ExceptionThrown),
-                _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
+                Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorTypes.NoData),
+                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorTypes.None, t.ExpectedData),
+                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown)
             }
-            : new DataResult<TResult>(false, "Null result", ErrorType.Unknown);
+            : new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown);
 
         /// <summary>
         /// Async bind resolution extension method for DataResult and Try. Sig: DR[TRY[T]] -> DR[T]
@@ -188,12 +188,12 @@ namespace FunctionalExtensions.Base.Results
                 DataResult<Try<TResult>> dr when dr.HasData =>
                     dr.Data switch
                     {
-                        Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorType.NoData),
-                        Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorType.None, t.ExpectedData),
-                        Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorType.ExceptionThrown),
-                        _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
+                        Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorTypes.NoData),
+                        Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorTypes.None, t.ExpectedData),
+                        Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                        _ => new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown)
                     },
-                _ => new DataResult<TResult>(false, "Null result", ErrorType.Unknown)
+                _ => new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown)
             };
         #endregion
 

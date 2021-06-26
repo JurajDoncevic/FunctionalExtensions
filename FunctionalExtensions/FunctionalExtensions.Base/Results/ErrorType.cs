@@ -7,7 +7,7 @@ namespace FunctionalExtensions.Base.Results
     /// <summary>
     /// Possible error types for Results
     /// </summary>
-    public enum ErrorType
+    public enum ErrorTypes
     {
         /// <summary>
         /// An exception was thrown

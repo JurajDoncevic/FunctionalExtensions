@@ -27,9 +27,9 @@ namespace FunctionalExtensions.Base.Results
         /// <summary>
         /// Error type for failure
         /// </summary>
-        public ErrorType ErrorType { get; private set; }
+        public ErrorTypes ErrorType { get; private set; }
 
-        internal Result(bool isSuccess, string errorMessage, ErrorType errorType)
+        internal Result(bool isSuccess, string errorMessage, ErrorTypes errorType)
         {
             IsSuccess = isSuccess;
             ErrorMessage = errorMessage;
@@ -62,9 +62,9 @@ namespace FunctionalExtensions.Base.Results
         public static Result ToResult(this Try<Unit> @try) =>
             @try switch
             {
-                Try<Unit> t when !t.IsException => new Result(true, string.Empty, ErrorType.None),
-                Try<Unit> t when t.IsException => new Result(false, t.Exception.Message, ErrorType.ExceptionThrown),
-                _ => new Result(false, "Null result", ErrorType.Unknown)
+                Try<Unit> t when !t.IsException => new Result(true, string.Empty, ErrorTypes.None),
+                Try<Unit> t when t.IsException => new Result(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorTypes.Unknown)
             };
 
         /// <summary>
@@ -75,9 +75,9 @@ namespace FunctionalExtensions.Base.Results
         public static async Task<Result> ToResult(this Task<Try<Unit>> @try) =>
             (await @try) switch
             {
-                Try<Unit> t when !t.IsException => new Result(true, string.Empty, ErrorType.None),
-                Try<Unit> t when t.IsException => new Result(false, t.Exception.Message, ErrorType.ExceptionThrown),
-                _ => new Result(false, "Null result", ErrorType.Unknown)
+                Try<Unit> t when !t.IsException => new Result(true, string.Empty, ErrorTypes.None),
+                Try<Unit> t when t.IsException => new Result(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorTypes.Unknown)
             };
 
         /// <summary>
@@ -89,10 +89,10 @@ namespace FunctionalExtensions.Base.Results
         public static Result ToResult(this Try<bool> @try) =>
             @try switch
             {
-                Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorType.None)
-                                                                  : new Result(false, "Operation failed", ErrorType.Failure),
-                Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorType.ExceptionThrown),
-                _ => new Result(false, "Null result", ErrorType.Unknown)
+                Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorTypes.None)
+                                                                  : new Result(false, "Operation failed", ErrorTypes.Failure),
+                Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorTypes.Unknown)
             };
 
         /// <summary>
@@ -104,10 +104,10 @@ namespace FunctionalExtensions.Base.Results
         public static async Task<Result> ToResult(this Task<Try<bool>> @try) =>
             (await @try) switch
             {
-                Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorType.None)
-                                                                  : new Result(false, "Operation failed", ErrorType.Failure),
-                Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorType.ExceptionThrown),
-                _ => new Result(false, "Null result", ErrorType.Unknown)
+                Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorTypes.None)
+                                                                  : new Result(false, "Operation failed", ErrorTypes.Failure),
+                Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorTypes.Unknown)
             };
         #endregion
 
@@ -118,9 +118,9 @@ namespace FunctionalExtensions.Base.Results
         /// <param name="target">Original result</param>
         /// <param name="func">Function to possibly construct next result in sequence</param>
         /// <returns></returns>
-        public static Result Bind(this Result target, Func<Result> func) =>
+        public static Result Bind(this Result target, Func<Result, Result> func) =>
             target.IsSuccess
-            ? func()
+            ? func(target)
             : target;
 
 
@@ -131,9 +131,9 @@ namespace FunctionalExtensions.Base.Results
         /// <param name="target">Original result</param>
         /// <param name="func">Function to possibly construct next result in sequence</param>
         /// <returns></returns>
-        public static async Task<Result> Bind(this Task<Result> target, Func<Task<Result>> func) =>
+        public static async Task<Result> Bind(this Task<Result> target, Func<Result, Task<Result>> func) =>
             (await target).IsSuccess
-            ? await func()
+            ? await func(await target)
             : await target;
     }
 }

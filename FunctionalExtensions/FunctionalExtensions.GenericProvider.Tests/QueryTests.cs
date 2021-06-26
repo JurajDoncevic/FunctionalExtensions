@@ -46,7 +46,7 @@ namespace FunctionalExtensions.GenericProvider.Tests
             Assert.True(goodResult.IsSuccess);
             Assert.False(goodResult.IsFailure);
             Assert.True(goodResult.HasData);
-            Assert.Equal(ErrorType.None, goodResult.ErrorType);
+            Assert.Equal(ErrorTypes.None, goodResult.ErrorType);
             Assert.NotNull(goodResult.Data);
         }
 
@@ -63,7 +63,7 @@ namespace FunctionalExtensions.GenericProvider.Tests
             Assert.False(noResult.IsSuccess);
             Assert.True(noResult.IsFailure);
             Assert.False(noResult.HasData);
-            Assert.Equal(ErrorType.NoData, noResult.ErrorType);
+            Assert.Equal(ErrorTypes.NoData, noResult.ErrorType);
             Assert.Null(noResult.Data);
         }
 
@@ -80,7 +80,7 @@ namespace FunctionalExtensions.GenericProvider.Tests
             Assert.False(result.IsSuccess);
             Assert.True(result.IsFailure);
             Assert.False(result.HasData);
-            Assert.Equal(ErrorType.ExceptionThrown, result.ErrorType);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
             Assert.Null(result.Data);
         }
 
@@ -96,7 +96,7 @@ namespace FunctionalExtensions.GenericProvider.Tests
             Assert.True(goodResult.IsSuccess);
             Assert.False(goodResult.IsFailure);
             Assert.True(goodResult.HasData);
-            Assert.Equal(ErrorType.None, goodResult.ErrorType);
+            Assert.Equal(ErrorTypes.None, goodResult.ErrorType);
             Assert.NotNull(goodResult.Data);
             Assert.NotEmpty(goodResult.Data);
         }
@@ -112,7 +112,7 @@ namespace FunctionalExtensions.GenericProvider.Tests
             Assert.False(result.IsSuccess);
             Assert.True(result.IsFailure);
             Assert.False(result.HasData);
-            Assert.Equal(ErrorType.NoData, result.ErrorType);
+            Assert.Equal(ErrorTypes.NoData, result.ErrorType);
             Assert.Null(result.Data);
         }
 
@@ -127,7 +127,7 @@ namespace FunctionalExtensions.GenericProvider.Tests
             Assert.False(result.IsSuccess);
             Assert.True(result.IsFailure);
             Assert.False(result.HasData);
-            Assert.Equal(ErrorType.ExceptionThrown, result.ErrorType);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
             Assert.Null(result.Data);
         }
 
@@ -144,7 +144,7 @@ namespace FunctionalExtensions.GenericProvider.Tests
             Assert.True(result.IsSuccess);
             Assert.False(result.IsFailure);
             Assert.True(result.HasData);
-            Assert.Equal(ErrorType.None, result.ErrorType);
+            Assert.Equal(ErrorTypes.None, result.ErrorType);
             Assert.NotNull(result.Data);
             Assert.NotNull(result.Data.Place);
             Assert.NotNull(result.Data.Place.Country);
@@ -163,7 +163,7 @@ namespace FunctionalExtensions.GenericProvider.Tests
             Assert.True(result.IsSuccess);
             Assert.False(result.IsFailure);
             Assert.True(result.HasData);
-            Assert.Equal(ErrorType.None, result.ErrorType);
+            Assert.Equal(ErrorTypes.None, result.ErrorType);
             Assert.NotNull(result.Data);
             Assert.NotEmpty(result.Data);
             Assert.All(result.Data,

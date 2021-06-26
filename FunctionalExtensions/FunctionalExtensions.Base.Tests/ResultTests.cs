@@ -25,7 +25,7 @@ namespace FunctionalExtensions.Base.Tests
             Assert.NotNull(result);
             Assert.True(result.IsSuccess);
             Assert.False(result.IsFailure);
-            Assert.Equal(ErrorType.None, result.ErrorType);
+            Assert.Equal(ErrorTypes.None, result.ErrorType);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace FunctionalExtensions.Base.Tests
             Assert.NotNull(result);
             Assert.False(result.IsSuccess);
             Assert.True(result.IsFailure);
-            Assert.Equal(ErrorType.ExceptionThrown, result.ErrorType);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace FunctionalExtensions.Base.Tests
             Assert.True(result.IsSuccess);
             Assert.False(result.IsFailure);
             Assert.Equal(string.Empty, result.ErrorMessage);
-            Assert.Equal(ErrorType.None, result.ErrorType);
+            Assert.Equal(ErrorTypes.None, result.ErrorType);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace FunctionalExtensions.Base.Tests
             Assert.False(result.IsSuccess);
             Assert.True(result.IsFailure);
             Assert.Equal("Operation failed", result.ErrorMessage);
-            Assert.Equal(ErrorType.Failure, result.ErrorType);
+            Assert.Equal(ErrorTypes.Failure, result.ErrorType);
         }
     }
 }

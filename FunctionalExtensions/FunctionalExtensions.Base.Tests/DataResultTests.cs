@@ -42,7 +42,7 @@ namespace FunctionalExtensions.Base.Tests
             Assert.False(dataResult.IsSuccess);
             Assert.True(dataResult.IsFailure);
             Assert.Equal(exceptionMessage, dataResult.ErrorMessage);
-            Assert.Equal(ErrorType.ExceptionThrown, dataResult.ErrorType);
+            Assert.Equal(ErrorTypes.ExceptionThrown, dataResult.ErrorType);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace FunctionalExtensions.Base.Tests
             Assert.False(dataResult2.IsSuccess);
             Assert.True(dataResult2.IsFailure);
             Assert.Equal(exceptionMessage, dataResult2.ErrorMessage);
-            Assert.Equal(ErrorType.ExceptionThrown, dataResult2.ErrorType);
+            Assert.Equal(ErrorTypes.ExceptionThrown, dataResult2.ErrorType);
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace FunctionalExtensions.Base.Tests
             Assert.True(finalDataResult.IsFailure);
             Assert.False(finalDataResult.HasData);
             Assert.Equal(exceptionMessage, finalDataResult.ErrorMessage);
-            Assert.Equal(ErrorType.ExceptionThrown, finalDataResult.ErrorType);
+            Assert.Equal(ErrorTypes.ExceptionThrown, finalDataResult.ErrorType);
         }
 
         [Fact]
@@ -195,7 +195,7 @@ namespace FunctionalExtensions.Base.Tests
             Assert.NotNull(result);
             Assert.False(result.IsSuccess);
             Assert.True(result.IsFailure);
-            Assert.Equal(ErrorType.ExceptionThrown, result.ErrorType);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
         }
     }
 }
