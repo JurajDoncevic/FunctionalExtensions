@@ -29,7 +29,7 @@ namespace FunctionalExtensions.Base.Tests
                 {
                     System.Threading.Thread.Sleep(100);
                     return 1;
-                }).WaitFor(r => r + 1, 150);
+                }).WaitFor(r => r + 1, 1000);
 
             Assert.Equal(2, result);
         }
@@ -40,7 +40,7 @@ namespace FunctionalExtensions.Base.Tests
             int result =
                 Task.Run(() =>
                 {
-                    System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(1000);
                     return 1;
                 }).WaitFor(r => r + 1, 50);
 
