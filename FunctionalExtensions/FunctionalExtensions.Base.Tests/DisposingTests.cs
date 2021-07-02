@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace FunctionalExtensions.Base.Tests
@@ -16,6 +17,22 @@ namespace FunctionalExtensions.Base.Tests
                                 disp => disp.RunOperation());
 
             Assert.NotNull(mockDisposable);
+            Assert.Equal(1, result);
+            Assert.True(mockDisposable.HasRunOperation);
+            Assert.True(mockDisposable.IsDisposed);
+
+        }
+
+        [Fact]
+        public async void UsingDisposedCorrectlyAsyncTest()
+        {
+            MockDisposable mockDisposable = null;
+            var result =
+                await Disposing.Using(() => { mockDisposable = new MockDisposable(); return mockDisposable; },
+                                      disp => Task.Run(disp.RunOperation));
+
+            Assert.NotNull(mockDisposable);
+            Assert.Equal(1, result);
             Assert.True(mockDisposable.HasRunOperation);
             Assert.True(mockDisposable.IsDisposed);
 
