@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-using FunctionalExtensions.Base;
 using System.Threading.Tasks;
 
 namespace FunctionalExtensions.Base.Tests
