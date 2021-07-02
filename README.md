@@ -135,9 +135,9 @@ x.Fork(_ => _.Sum(), // finalization function
 // example services for getting prices of gas from different gas stations
 GasService gasService1, gasService2, gasService3 = ...;
 Fork(_ => _.Min(),
-     () => gasService1.GetPrice(),
-     () => gasService2.GetPrice(),
-     () => gasService3.GetPrice(),
+     async () => await gasService1.GetPrice(),
+     async () => await gasService2.GetPrice(),
+     async () => await gasService3.GetPrice(),
     ); // queries all the services and finds the minimum price
 ```
 ### Validation
