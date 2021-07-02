@@ -201,11 +201,11 @@ List<List<int>> list = new List<List<int>>
 List<int> flatList = list.Bind(_ => _); // 1 2 3 4 5 6 7 8 9 10 11 12
 
 // within an async method
-Task<int> startTask = Task<int>.Run(() => { System.Threading.Thread.Sleep(1000);  return 1; });
-string result = // "3"
-    await startTask.Bind(_ => Task<int>.Run(() => _ + 1))
-                   .Bind(_ => Task<int>.Run(() => _ + 1))
-                   .Bind(_ => Task<string>.Run(() => _.ToString()));
+var result = // List of 1, 2, 3, 4
+    await Task.Run(() => new List<int> { 1 })
+              .Bind(_ => Task.Run(() => _.Append(2)))
+              .Bind(_ => Task.Run(() => _.Append(3)))
+              .Bind(_ => Task.Run(() => _.Append(4)));
 ```
 `Bind` is also defined for Result types and kinds (see below).
 ### Using
@@ -218,7 +218,7 @@ Using: () -> IDisposable -> (IDisposable -> Task<T>) -> Task<T>
 Example:
 ```csharp
 Person result =
-    Using(
+    Disposable.Using(
         () => new PersonDbContext(), // setup IDisposable
         _ => _.Person.Find(id) // operate over IDisposable
         );
