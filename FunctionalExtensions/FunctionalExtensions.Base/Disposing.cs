@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FunctionalExtensions.Base
 {
-    public static class Disposable
+    public static class Disposing
     {
         public static TResult Using<TWith, TResult>(
                 Func<TWith> setup,
