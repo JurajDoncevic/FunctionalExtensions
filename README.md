@@ -158,7 +158,7 @@ Fork(_ => _.Min(),
 ### Validation
 `Validate` is used to check if the given value passes all the predicates.
 ```
-T -> Array<(T -> bool)> -> bool
+Validate: T -> Array<(T -> bool)> -> bool
 ```
 Example:
 ```csharp
@@ -174,6 +174,33 @@ bool isPersonValid = person.Validate(
     _ => _.Surname.Length >= 3,
     _ => Age > 14
 ); // true
+```
+`Validator` creates a validation function over a given set of validation functions
+```
+Validator: Array<(T -> bool)> -> (T -> bool)
+```
+Example:
+```csharp
+var person1 = new Person
+{
+    FirstName = "John",
+    LastName = "Doe",
+    Age = 24
+};
+var person2 = new Person
+{
+    FirstName = "Joe",
+    LastName = "Smith",
+    Age = 18
+};
+var validator = 
+    Validation.Validator<Person>(
+        _ => _.FirstName.Length > 2,
+        _ => _.LastName.Length > 2,
+        _ => _.Age > 18
+        );
+var result1 = validator(person1); // True
+var result2 = validator(person2); // False
 ```
 ### Map
 `Map` is the functor mapping function. `Map` is defined generically for all data types and specifically for `IEnumerable` and `Task`. For `IEnumerable` the `Mapi` function is also provided, allowing mapping with the elements' indices (the enumerable maximum size is `LONG_MAX`).
