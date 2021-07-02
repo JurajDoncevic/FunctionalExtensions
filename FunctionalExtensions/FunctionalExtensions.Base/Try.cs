@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using static FunctionalExtensions.Base.FunctionalHelpers;
+using static FunctionalExtensions.Base.UnitExtensions;
 namespace FunctionalExtensions.Base
 {
     /// <summary>

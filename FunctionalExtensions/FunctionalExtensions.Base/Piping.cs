@@ -8,6 +8,7 @@ namespace FunctionalExtensions.Base
     {
         /// <summary>
         /// Executes a Unit returning/side-effect function with target as the parameter and passes the target onward in the pipeline.
+        /// Side effects preserved if done on a mutable-type target (class)! 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="target">Target object</param>

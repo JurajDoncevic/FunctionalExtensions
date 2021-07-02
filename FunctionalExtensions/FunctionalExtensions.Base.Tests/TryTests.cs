@@ -1,6 +1,6 @@
 ﻿using static FunctionalExtensions.Base.Try;
 using static FunctionalExtensions.Base.ActionExtensions;
-using static FunctionalExtensions.Base.FunctionalHelpers;
+using static FunctionalExtensions.Base.UnitExtensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
