@@ -58,7 +58,7 @@ var result = funcShowSum(3, 4); // this is a Unit
 ```
 `ToFunc` can be called over Actions of up to 10 parameters. Need more params? Go ask Uncle Bob what he thinks of that...
 ### Pass
-The `Pass` function is used to execute a Unit-returning/side-effect function with the currenty piped data as the parameter. The data is passed onward without mutation down the pipe.
+The `Pass` function is used to execute a Unit-returning/side-effect function with the currenty piped data as the parameter. The data is passed onward down the pipe.
 ```
 Pass: T -> (T -> Unit) -> T
 ```
@@ -69,6 +69,21 @@ Example:
 .Pass(_ => Console.Writeline("I got this: " + _.ToString())
 .DoSomethingWithSomeData() // receives SomeData as param
 ...
+```
+**The side-effect function can mutate a mutable object (class type)!**
+```csharp
+// LastName remains "Doe"
+Func<string, string, PersonStruct> func = (x, y) => new PersonStruct { FirstName = x, LastName = y };
+var person = func("John", "Doe")
+             .Pass(_ => { _.LastName = "Smith"; return _.Ignore(); });
+
+// LastName changed to "Smith"
+Func<string, string, PersonClass> func = (x, y) => new PersonClass { FirstName = x, LastName = y };
+var person = func("John", "Doe").Pass(_ => { _.LastName = "Smith"; return _.Ignore(); });
+
+// result is 3 - primitives are not changed
+Func<int, int, int> func = (x, y) => x + y;
+var result = func(1, 2).Pass(_ => { _ = _ + 1; return Unit(); });
 ```
 ### Apply
 Partial application is an important mechanism of functional programming languages, as it enables abstraction. The layers of abstraction are lowered as each parameter of a function is applied to; and the function becomes more specialized. A strategy pattern can also be designed if a high-order function is partially applied to.
