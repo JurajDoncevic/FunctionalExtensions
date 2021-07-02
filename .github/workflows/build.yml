@@ -1,10 +1,7 @@
 name: Build
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,3 +16,13 @@ jobs:
       run: dotnet restore ./FunctionalExtensions/FunctionalExtensions.sln
     - name: Build release
       run: dotnet build ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
+    - name: Deploy Base
+      uses: actions/upload-artifact@v2
+      with:
+        name: FunctionalExtensions.Base
+        path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.Base/bin/Release/netcoreapp3.1/FunctionalExtensions.Base.dll
+    - name: Deploy GenericProvider
+      uses: actions/upload-artifact@v2
+      with:
+        name: FunctionalExtensions.GenericProvider
+        path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.GenericProvider/bin/Release/netcoreapp3.1/FunctionalExtensions.GenericProvider.dll
