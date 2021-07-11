@@ -63,5 +63,24 @@ namespace FunctionalExtensions.Base.Tests
             Assert.True(exceptionTry.IsException);
             Assert.Equal(exceptionMessage, exceptionTry.Exception.Message);
         }
+
+        [Fact]
+        public void TryExceptionSubclassTest()
+        {
+
+            var exceptionTry =
+                TryCatch<Unit, ArgumentOutOfRangeException>(
+                    ((Action)(() =>
+                    {
+                        throw new ArgumentOutOfRangeException();
+                    })).ToFunc(),
+                    (ex) => ex
+                    );
+
+            Assert.NotNull(exceptionTry);
+            Assert.False(exceptionTry.IsData);
+            Assert.True(exceptionTry.IsException);
+            Assert.Equal(typeof(ArgumentOutOfRangeException), exceptionTry.Exception.GetType());
+        }
     }
 }

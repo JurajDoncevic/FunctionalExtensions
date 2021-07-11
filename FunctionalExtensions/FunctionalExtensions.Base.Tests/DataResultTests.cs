@@ -46,6 +46,23 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
+        public void DataResultTypedExceptionFail()
+        {
+
+            var dataResult =
+                TryCatch(
+                    () => { throw new ArgumentNullException(); return new { Name = "test" }; },
+                    (ex) => ex
+                    ).ToDataResult();
+
+            Assert.NotNull(dataResult);
+            Assert.False(dataResult.IsSuccess);
+            Assert.True(dataResult.IsFailure);
+            Assert.Equal(new ArgumentNullException().Message, dataResult.ErrorMessage);
+            Assert.Equal(ErrorTypes.ExceptionThrown, dataResult.ErrorType);
+        }
+
+        [Fact]
         public void DataResultBindingSuccess()
         {
 

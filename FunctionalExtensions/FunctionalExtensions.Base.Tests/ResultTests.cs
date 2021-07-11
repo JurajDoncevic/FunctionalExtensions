@@ -46,6 +46,22 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
+        public void ResultTypedExceptionFail()
+        {
+            var result =
+                TryCatch(
+                    ((Action)(() => { throw new ArgumentNullException(); Console.WriteLine(); })).ToFunc(),
+                    (ex) => ex
+                    ).ToResult();
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.True(result.IsFailure);
+            Assert.Equal(new ArgumentNullException().Message, result.ErrorMessage);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
+        }
+
+        [Fact]
         public void ResultLogicSuccess()
         {
             const string exceptionMessage = "Exception message";

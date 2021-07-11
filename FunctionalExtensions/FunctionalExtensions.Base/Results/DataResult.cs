@@ -94,6 +94,38 @@ namespace FunctionalExtensions.Base.Results
                 _ => new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown)
             };
 
+        /// <summary>
+        /// Extension method to transform a Try into a DataResult
+        /// </summary>
+        /// <typeparam name="TResult">Expected return data type</typeparam>
+        /// <typeparam name="TException">Type of expected exception</typeparam>
+        /// <param name="try">Try object</param>
+        /// <returns>DataResult object</returns>
+        public static DataResult<TResult> ToDataResult<TResult, TException>(this Try<TResult, TException> @try) where TException : Exception =>
+            @try switch
+            {
+                Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorTypes.NoData),
+                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorTypes.None, t.ExpectedData),
+                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown)
+            };
+
+        /// <summary>
+        /// Async extension method to transform a Try into a DataResult
+        /// </summary>
+        /// <typeparam name="TResult">Expected return data type</typeparam>
+        /// <typeparam name="TException">Type of expected exception</typeparam>
+        /// <param name="try">Try object task</param>
+        /// <returns>DataResult object</returns>
+        public static async Task<DataResult<TResult>> ToDataResultAsync<TResult, TException>(this Task<Try<TResult, TException>> @try)  where TException : Exception =>
+            (await @try) switch
+            {
+                Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorTypes.NoData),
+                Try<TResult> t when !t.IsException => new DataResult<TResult>(true, string.Empty, ErrorTypes.None, t.ExpectedData),
+                Try<TResult> t when t.IsException => new DataResult<TResult>(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown)
+            };
+
         #region MAPS
         /// <summary>
         /// Map on DataResult: D[T]->(T->R)->D[R]

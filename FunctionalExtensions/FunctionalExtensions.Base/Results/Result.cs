@@ -81,6 +81,34 @@ namespace FunctionalExtensions.Base.Results
             };
 
         /// <summary>
+        /// Extension method to transform Try[Unit] into a Result 
+        /// </summary>
+        /// <param name="try">Try object</param>
+        /// <typeparam name="TException">Type of expected exception from Try</typeparam>
+        /// <returns>Result</returns>
+        public static Result ToResult<TExpection>(this Try<Unit, TExpection> @try) where TExpection : Exception =>
+            @try switch
+            {
+                Try<Unit> t when !t.IsException => new Result(true, string.Empty, ErrorTypes.None),
+                Try<Unit> t when t.IsException => new Result(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorTypes.Unknown)
+            };
+
+        /// <summary>
+        /// Async extension method to transform Try[Unit] into a Result 
+        /// </summary>
+        /// <param name="try">Try object</param>
+        /// <typeparam name="TException">Type of expected exception from Try</typeparam>
+        /// <returns>Result object</returns>
+        public static async Task<Result> ToResult<TExpection>(this Task<Try<Unit, TExpection>> @try) where TExpection : Exception =>
+            (await @try) switch
+            {
+                Try<Unit> t when !t.IsException => new Result(true, string.Empty, ErrorTypes.None),
+                Try<Unit> t when t.IsException => new Result(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorTypes.Unknown)
+            };
+
+        /// <summary>
         /// Extension method to transform a Try[bool] into a Result by the encapsulated bool.
         /// Used for Try blocks that should notify an operation outcome
         /// </summary>
@@ -102,6 +130,39 @@ namespace FunctionalExtensions.Base.Results
         /// <param name="try">Try object returning a bool</param>
         /// <returns>Result object</returns>
         public static async Task<Result> ToResult(this Task<Try<bool>> @try) =>
+            (await @try) switch
+            {
+                Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorTypes.None)
+                                                                  : new Result(false, "Operation failed", ErrorTypes.Failure),
+                Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorTypes.Unknown)
+            };
+
+
+        /// <summary>
+        /// Extension method to transform a Try[bool] into a Result by the encapsulated bool.
+        /// Used for Try blocks that should notify an operation outcome
+        /// </summary>
+        /// <param name="try">Try object returning a bool</param>
+        /// <typeparam name="TException">Type of expected exception from Try</typeparam>
+        /// <returns>Result object</returns>
+        public static Result ToResult<TException>(this Try<bool, TException> @try) where TException : Exception =>
+            @try switch
+            {
+                Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorTypes.None)
+                                                                  : new Result(false, "Operation failed", ErrorTypes.Failure),
+                Try<bool> t when t.IsException => new Result(false, t.Exception.Message, ErrorTypes.ExceptionThrown),
+                _ => new Result(false, "Null result", ErrorTypes.Unknown)
+            };
+
+        /// <summary>
+        /// Async extension method to transform a Try[bool] into a Result by the encapsulated bool.
+        /// Used for Try blocks that should notify an operation outcome
+        /// </summary>
+        /// <param name="try">Try object returning a bool</param>
+        /// <typeparam name="TException">Type of expected exception from Try</typeparam>
+        /// <returns>Result object</returns>
+        public static async Task<Result> ToResult<TException>(this Task<Try<bool, TException>> @try) where TException : Exception =>
             (await @try) switch
             {
                 Try<bool> t when !t.IsException => t.ExpectedData ? new Result(true, string.Empty, ErrorTypes.None)
