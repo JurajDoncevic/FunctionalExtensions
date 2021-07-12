@@ -43,7 +43,7 @@ namespace FunctionalExtensions.GenericProvider
                 async () => await _dbContext.Set<TEntity>()
                                             .ToListAsync(),
                 (ex) => ex
-                ).ToDataResultAsync();
+                ).ToDataResult();
 
         /// <summary>
         /// Fetch all entities of table including connected data from other tables. Used to get aggregates
@@ -55,7 +55,7 @@ namespace FunctionalExtensions.GenericProvider
                 async () => await _dbContext.Include(includeExpressions)
                                             .ToListAsync<TEntity>(),
                 (ex) => ex
-                ).ToDataResultAsync();
+                ).ToDataResult();
 
         /// <summary>
         /// Fetch an entity of table with given id.
@@ -66,7 +66,7 @@ namespace FunctionalExtensions.GenericProvider
             await TryCatch(
                 async () => await _dbContext.FindAsync<TEntity>(id),
                 (ex) => ex
-                ).ToDataResultAsync();
+                ).ToDataResult();
 
         /// <summary>
         /// Fetch and entity of table with given id, including connected data from other tables. Used to get an aggregate
@@ -79,7 +79,7 @@ namespace FunctionalExtensions.GenericProvider
                 async () => await _dbContext.Include(includeExpressions)
                                             .SingleOrDefaultAsync<TEntity>(_ => _.Id.Equals(id)),
                 (ex) => ex
-                ).ToDataResultAsync();
+                ).ToDataResult();
 
         /// <summary>
         /// Insert an new entity into the database table

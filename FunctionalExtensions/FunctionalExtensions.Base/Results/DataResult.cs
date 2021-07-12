@@ -85,7 +85,7 @@ namespace FunctionalExtensions.Base.Results
         /// <typeparam name="TResult">Expected return data type</typeparam>
         /// <param name="try">Try object task</param>
         /// <returns>DataResult object</returns>
-        public static async Task<DataResult<TResult>> ToDataResultAsync<TResult>(this Task<Try<TResult>> @try) =>
+        public static async Task<DataResult<TResult>> ToDataResult<TResult>(this Task<Try<TResult>> @try) =>
             (await @try) switch
             {
                 Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorTypes.NoData),
@@ -117,7 +117,7 @@ namespace FunctionalExtensions.Base.Results
         /// <typeparam name="TException">Type of expected exception</typeparam>
         /// <param name="try">Try object task</param>
         /// <returns>DataResult object</returns>
-        public static async Task<DataResult<TResult>> ToDataResultAsync<TResult, TException>(this Task<Try<TResult, TException>> @try)  where TException : Exception =>
+        public static async Task<DataResult<TResult>> ToDataResult<TResult, TException>(this Task<Try<TResult, TException>> @try)  where TException : Exception =>
             (await @try) switch
             {
                 Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorTypes.NoData),

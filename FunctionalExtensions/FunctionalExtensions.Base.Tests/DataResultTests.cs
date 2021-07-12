@@ -188,7 +188,7 @@ namespace FunctionalExtensions.Base.Tests
                 await TryCatch(
                     async () => { await Task.Delay(100); return 1; },
                     (ex) => ex)
-                .ToDataResultAsync()
+                .ToDataResult()
                 .Map((int _) => _.ToString());
 
             Assert.NotNull(result);
@@ -206,7 +206,7 @@ namespace FunctionalExtensions.Base.Tests
                 await TryCatch(
                     async () => { await Task.Delay(100); throw new Exception(exceptionMessage); return 1; },
                     (ex) => ex
-                    ).ToDataResultAsync()
+                    ).ToDataResult()
                     .Map(_ => _ + 1);
 
             Assert.NotNull(result);
