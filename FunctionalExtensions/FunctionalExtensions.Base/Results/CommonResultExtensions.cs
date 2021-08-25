@@ -11,7 +11,7 @@ namespace FunctionalExtensions.Base.Results
     public static partial class ResultExtensions
     {
         /// <summary>
-        /// Used to pipe Result objects. 
+        /// Reversed natural transformation from Result to DataResult.
         /// R[] -> (bool -> DR[T]) -> DR[T]
         /// </summary>
         /// <param name="target">Original result</param>
@@ -24,7 +24,7 @@ namespace FunctionalExtensions.Base.Results
 
 
         /// <summary>
-        /// Used to pipe Result objects.
+        /// Reversed natural transformation from Result to DataResult.
         /// R[] -> (bool -> DR[T]) -> DR[T]
         /// </summary>
         /// <param name="target">Original result</param>
@@ -38,7 +38,7 @@ namespace FunctionalExtensions.Base.Results
             };
 
         /// <summary>
-        /// Used to pipe Result objects. 
+        /// Natural transformation from DataResult to Result. 
         /// DR[T] -> (DR[T] -> R[]) -> R[]
         /// </summary>
         /// <param name="target">Original result</param>
@@ -51,7 +51,7 @@ namespace FunctionalExtensions.Base.Results
 
 
         /// <summary>
-        /// Used to pipe Result objects.
+        /// Natural transformation from DataResult to Result.
         /// R[] -> (bool -> DR[T]) -> DR[T]
         /// </summary>
         /// <param name="target">Original result</param>
