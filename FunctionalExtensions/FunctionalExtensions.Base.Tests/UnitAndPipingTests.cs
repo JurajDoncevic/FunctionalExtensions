@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FunctionalEtargettensions.Base;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
@@ -59,6 +60,25 @@ namespace FunctionalExtensions.Base.Tests
             var person = func("John", "Doe").Pass(_ => { _.LastName = "Smith"; return _.Ignore(); });
 
             Assert.Equal("Doe", person.LastName);
+        }
+
+        [Fact]
+        public void IfNotNullTest()
+        {
+            var person = new PersonClass() { FirstName = "John", LastName = "Doe" };
+
+            var resultTrue = 
+                person.IfNotNull(_ => _.LastName)
+                      .IfNotNull(_ => _.Trim())
+                      .IfNotNull(_ => (bool?)(_.Length == 3));
+
+            var resultNull =
+                person.IfNotNull(_ => _.LastName)
+                      .IfNotNull(_ => (int?) null)
+                      .IfNotNull(_ => (bool?)(_ == 3));
+
+            Assert.True(resultTrue);
+            Assert.Null(resultNull);
         }
 
         private struct PersonStruct

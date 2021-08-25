@@ -1,8 +1,10 @@
-﻿using System;
+﻿using FunctionalExtensions.Base;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace FunctionalExtensions.Base
+#nullable enable
+namespace FunctionalEtargettensions.Base
 {
     public static class Piping
     {
@@ -19,5 +21,68 @@ namespace FunctionalExtensions.Base
             func(target);
             return target;
         }
+
+
+        /// <summary>
+        /// Passes argument to function if it is not equal to null. Turns classes into Monads.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="target">Target object</param>
+        /// <param name="func">Operation function</param>
+        /// <returns></returns>
+        public static R? IfNotNull<T, R>(this T? target, Func<T, R> func)
+            where T : class
+            where R : class
+            => target != null
+                ? (R?)func(target)
+                : null;
+
+        /// <summary>
+        /// Passes argument to function if it is not equal to null. Turns structs into Monads.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="target">Target object</param>
+        /// <param name="func">Operation function</param>
+        /// <returns></returns>
+        public static R? IfNotNull<T, R>(this T? target, Func<T, R?> func)
+            where T : struct
+            where R : struct
+            => target.HasValue
+                ? (R?)func(target.Value)
+                : null;
+
+        /// <summary>
+        /// Passes argument to function if it is not equal to null. Natural transformation between classes and structs.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="target">Target object</param>
+        /// <param name="func">Operation function</param>
+        /// <returns></returns>
+        public static R? IfNotNull<T, R>(this T? target, Func<T, R?> func)
+            where T : class
+            where R : struct
+            => target != null
+                ? (R?)func(target)
+                : null;
+
+        /// <summary>
+        /// Passes argument to function if it is not equal to null. Natural transformation between classes and structs.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="target">Target object</param>
+        /// <param name="func">Operation function</param>
+        /// <returns></returns>
+        public static R? IfNotNull<T, R>(this T? target, Func<T, R?> func)
+            where T : struct
+            where R : class
+            => target.HasValue
+                ? (R?)func(target.Value)
+                : null;
+
     }
 }
+
