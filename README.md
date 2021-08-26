@@ -449,7 +449,7 @@ DataResult<string> dataResult = // ExceptionThrown, 3rd Bind not executed
 In the future `Bind` will be extended so it can seamlessly operate over a pipeline containing both Results and DataResults
 
 ## GenericProvider over EF Core
-A generic repository for Entity Framework Core has been implementing using the Base library.
+A generic repository for Entity Framework Core has been implemented using the Base library.
 ### BaseModel
 All models, scaffolded from or migrated to a database, must inherit the `BaseModel` class. This class contains the primary key identifier `Id` and its basic annotations. The data type of the key is determined by the generic parameter `TKey` 
 ```csharp
