@@ -10,29 +10,59 @@ namespace FunctionalExtensions.Base.Tests
     {
 
         [Fact]
-        public void OneParamFuncCompositionTest()
+        public void OneParamFuncBeforeTest()
         {
             Func<int, int> inc5 = Increment5;
 
             var operation =
-                inc5.Compose(Decrement2)
-                    .Compose(Decrement2)
-                    .Compose(Decrement2)
-                    .Compose(IsNegative);
+                inc5.Before(Decrement2)
+                    .Before(Decrement2)
+                    .Before(Decrement2)
+                    .Before(IsNegative);
 
             Assert.True(operation(0));
             Assert.False(operation(1));
         }
 
         [Fact]
-        public void MultiParamFuncCompositionTest()
+        public void MultiParamFuncBeforeTest()
         {
             Func<int, int, int, int> sum3 = Sum3;
-            Functional x = Sum3;
+
             var operation =
-                sum3.Compose(Increment5)
-                    .Compose(((Func<int, int, int>)(Sub)).Apply(5))
-                    .Compose(IsPositive);
+                sum3.Before(Increment5)
+                    .Before(((Func<int, int, int>)(Sub)).Apply(5))
+                    .Before(IsPositive);
+
+            Assert.True(operation(0, 0, 0));
+            Assert.False(operation(1, 0, 0));
+        }
+
+        [Fact]
+        public void OneParamFuncAfterTest()
+        {
+            Func<int, bool> isNeg = IsNegative;
+
+            var operation =
+                isNeg.After((Func<int, int>)Decrement2)
+                     .After((Func<int, int>)Decrement2)
+                     .After((Func<int, int>)Decrement2)
+                     .After((Func<int, int>)Increment5);
+                     
+
+            Assert.True(operation(0));
+            Assert.False(operation(1));
+        }
+
+        [Fact]
+        public void MultiParamFuncAfterTest()
+        {
+            Func<int, bool> isPos = IsPositive;
+
+            var operation =
+                isPos.After(((Func<int, int, int>)(Sub)).Apply(5))
+                     .After((Func<int, int>)Increment5)
+                     .After((Func<int, int, int, int>)Sum3);
 
             Assert.True(operation(0, 0, 0));
             Assert.False(operation(1, 0, 0));
