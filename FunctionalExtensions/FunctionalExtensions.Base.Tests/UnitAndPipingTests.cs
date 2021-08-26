@@ -1,4 +1,4 @@
-﻿using FunctionalEtargettensions.Base;
+﻿using FunctionalExtensions.Base;
 using System;
 using System.Collections.Generic;
 using System.Text;
