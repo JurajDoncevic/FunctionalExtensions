@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 
 #nullable enable
-namespace FunctionalEtargettensions.Base
+namespace FunctionalExtensions.Base
 {
     public static class Piping
     {
