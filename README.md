@@ -294,7 +294,7 @@ var result = // List of 1, 2, 3, 4
 ```
 `Bind` is also defined for Result types and kinds (see below).
 
-**Note:** *Due to the nature of `Task` and as the Roslyn compilers takes the most generic extension method possible, it is usually not clear whether `Bind` referes to a user-defined monad or the `Task`, hence the bind method over `Task` is called `BindTask`.* 
+**Note:** *Due to the nature of `Task` and as the Roslyn compiler takes the most generic extension method possible, it is usually not clear whether `Bind` referes to a user-defined monad or the `Task`, hence the bind method over `Task` is called `BindTask`.* 
 
 ### Fish (Kleisli operator)
 The Fish operator is implemented to allow composition of functions working with `Result` and `DataResult<T>` via the HOF `Fish`. Synchronous and asynchronous variants are implemented.
