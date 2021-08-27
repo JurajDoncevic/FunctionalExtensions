@@ -217,6 +217,20 @@ namespace FunctionalExtensions.Base.Results
                     Result r => r
                 };
 
+        public static Func<Result> Fish(this Func<Result> before, Func<Result, Result> after)
+            => () => before() switch
+            {
+                Result { IsSuccess: true } r => after(r),
+                Result r => r
+            };
+
+        public static Func<Task<Result>> Fish(this Func<Task<Result>> before, Func<Result, Task<Result>> after)
+            => async () => await before() switch
+            {
+                Result { IsSuccess: true } r => await after(r),
+                Result r => r
+            };
+
         #endregion
 
     }

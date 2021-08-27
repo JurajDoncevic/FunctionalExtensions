@@ -245,7 +245,93 @@ namespace FunctionalExtensions.Base.Tests
             Assert.False(result.IsSuccess);
         }
 
+        [Fact]
+        public void DataResultSuccessFishTest()
+        {
+
+            var composition =
+                ((Func<bool, DataResult<PersonStruct>>)GetResult)
+                    .Fish(_ => GetSuccessResult())
+                    .Fish(_ => GetSuccessResult())
+                    .Fish(_ => GetSuccessResult());
+
+            var result = composition(false);
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.False(result.IsFailure);
+            Assert.True(result.HasData);
+            Assert.Equal(new PersonStruct { FirstName = "John", LastName = "Doe" }, result.Data);
+        }
+
+        [Fact]
+        public void DataResultFailFishTest()
+        {
+            string exceptionMessage = "EXCEPTION MESSAGE";
+
+            var composition =
+                ((Func<bool, DataResult<PersonStruct>>)GetResult)
+                    .Fish(_ => GetSuccessResult())
+                    .Fish(_ => GetExceptionFail(exceptionMessage))
+                    .Fish(_ => GetSuccessResult());
+
+            var result = composition(true);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.True(result.IsFailure);
+        }
+
+        [Fact]
+        public async void DataResultSuccessFishAsyncTest()
+        {
+
+            var composition =
+                ((Func<bool, Task<DataResult<PersonStruct>>>)GetResultAsync)
+                    .Fish(_ => GetSuccessResultAsync())
+                    .Fish(_ => GetSuccessResultAsync2())
+                    .Fish(_ => GetSuccessResultAsync());
+
+            var result = await composition(false);
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.False(result.IsFailure);
+            Assert.True(result.HasData);
+            Assert.Equal(new PersonStruct { FirstName = "John", LastName = "Doe" }, result.Data);
+        }
+
+        [Fact]
+        public async void DataResultFailFishAsyncTest()
+        {
+            string exceptionMessage = "EXCEPTION MESSAGE";
+
+            var composition =
+                ((Func<bool, Task<DataResult<PersonStruct>>>)GetResultAsync)
+                    .Fish(_ => GetSuccessResultAsync())
+                    .Fish(_ => GetExceptionFailAsync(exceptionMessage))
+                    .Fish(_ => GetSuccessResultAsync());
+
+            var result = await composition(true);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.True(result.IsFailure);
+        }
+
         #region HELPER METHODS
+
+        private DataResult<PersonStruct> GetResult(bool throwsException)
+            => TryCatch(
+                    () => { if(throwsException) throw new Exception(); return new PersonStruct { FirstName = "John", LastName = "Doe" }; },
+                    (ex) => ex
+                    ).ToDataResult();
+
+        private async Task<DataResult<PersonStruct>> GetResultAsync(bool throwsException)
+            => await TryCatch(
+                    async () => { if (throwsException) throw new Exception(); return await Task.Run(() => new PersonStruct { FirstName = "John", LastName = "Doe" }); },
+                    (ex) => ex
+                    ).ToDataResult();
 
         private DataResult<PersonStruct> GetSuccessResult()
             => TryCatch(

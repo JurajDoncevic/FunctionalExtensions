@@ -245,6 +245,20 @@ namespace FunctionalExtensions.Base.Results
                     DataResult<R1> dr => new DataResult<R2>(dr.IsSuccess, dr.ErrorMessage, dr.ErrorType)
                 };
 
+        public static Func<DataResult<R2>> Fish<R1, R2>(this Func<DataResult<R1>> before, Func<R1, DataResult<R2>> after)
+            => () => before() switch
+                {
+                    DataResult<R1> { IsSuccess: true, HasData: true } dr => after(dr.Data),
+                    DataResult<R1> dr => new DataResult<R2>(dr.IsSuccess, dr.ErrorMessage, dr.ErrorType)
+                };
+
+        public static Func<Task<DataResult<R2>>> Fish<R1, R2>(this Func<Task<DataResult<R1>>> before, Func<R1, Task<DataResult<R2>>> after)
+            => async () => await before() switch
+            {
+                DataResult<R1> { IsSuccess: true, HasData: true } dr => await after(dr.Data),
+                DataResult<R1> dr => new DataResult<R2>(dr.IsSuccess, dr.ErrorMessage, dr.ErrorType)
+            };
+
         #endregion
 
 #if USE_CONSTRUCTOR_FUNCS
