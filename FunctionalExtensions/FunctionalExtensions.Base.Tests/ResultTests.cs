@@ -191,6 +191,122 @@ namespace FunctionalExtensions.Base.Tests
             Assert.Equal(exceptionMessage, result.ErrorMessage);
         }
 
+
+
+        [Fact]
+        public void ResultFishSuccessTest()
+        {
+            var composition =
+                ((Func<bool, Result>)GetResultByLogic)
+                    .Fish(_ => GetSuccessResult())
+                    .Fish(_ => GetLogicSuccess())
+                    .Fish(_ => GetSuccessResult());
+
+
+            var result = composition(true);
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.False(result.IsFailure);
+            Assert.Equal(ErrorTypes.None, result.ErrorType);
+        }
+
+        [Fact]
+        public void ResultFishLogicFailTest()
+        {
+            var composition =
+                ((Func<bool, Result>)GetResultByLogic)
+                    .Fish(_ => GetSuccessResult())
+                    .Fish(_ => GetLogicSuccess())
+                    .Fish(_ => GetSuccessResult());
+
+
+            var result = composition(false);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.True(result.IsFailure);
+            Assert.Equal(ErrorTypes.Failure, result.ErrorType);
+        }
+
+        [Fact]
+        public void ResultFishExceptionFailTest()
+        {
+            string exceptionMessage = "EXCEPTION MESSAGE";
+
+            var composition =
+                ((Func<bool, Result>)GetResultByLogic)
+                    .Fish(_ => GetSuccessResult())
+                    .Fish(_ => GetExceptionFail(exceptionMessage))
+                    .Fish(_ => GetSuccessResult());
+
+
+            var result = composition(true);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.True(result.IsFailure);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
+            Assert.Equal(exceptionMessage, result.ErrorMessage);
+        }
+
+        [Fact]
+        public async void ResultFishSuccessAsyncTest()
+        {
+            var composition =
+                ((Func<bool, Task<Result>>)GetResultByLogicAsync)
+                    .Fish(_ => GetSuccessResultAsync())
+                    .Fish(_ => GetLogicSuccessAsync())
+                    .Fish(_ => GetSuccessResultAsync());
+
+
+            var result = await composition(true);
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.False(result.IsFailure);
+            Assert.Equal(ErrorTypes.None, result.ErrorType);
+        }
+
+        [Fact]
+        public async void ResultFishLogicFailAsyncTest()
+        {
+            var composition =
+                ((Func<bool, Task<Result>>)GetResultByLogicAsync)
+                    .Fish(_ => GetSuccessResultAsync())
+                    .Fish(_ => GetLogicSuccessAsync())
+                    .Fish(_ => GetSuccessResultAsync());
+
+
+            var result = await composition(false);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.True(result.IsFailure);
+            Assert.Equal(ErrorTypes.Failure, result.ErrorType);
+        }
+
+        [Fact]
+        public async void ResultFishExceptionFailAsyncTest()
+        {
+            string exceptionMessage = "EXCEPTION MESSAGE";
+
+            var composition =
+                ((Func<bool, Task<Result>>)GetResultByLogicAsync)
+                    .Fish(_ => GetSuccessResultAsync())
+                    .Fish(_ => GetExceptionFailAsync(exceptionMessage))
+                    .Fish(_ => GetSuccessResultAsync());
+
+
+            var result = await composition(true);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.True(result.IsFailure);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
+            Assert.Equal(exceptionMessage, result.ErrorMessage);
+        }
+
         #region HELPER METHODS
         private Result GetLogicFail()
             => TryCatch(
@@ -237,6 +353,18 @@ namespace FunctionalExtensions.Base.Tests
         private async Task<Result> GetExceptionFailAsync(string exceptionMessage)
             => await TryCatch(
                     async () => { throw new Exception(exceptionMessage); return await Task.Run(() => Unit()); },
+                    (ex) => ex
+                    ).ToResult();
+
+        private Result GetResultByLogic(bool isSuccess)
+            => TryCatch(
+                    () => isSuccess,
+                    (ex) => ex
+                    ).ToResult();
+
+        private async Task<Result> GetResultByLogicAsync(bool isSuccess)
+            => await TryCatch(
+                    async () => { await Task.Run(() => 0); return isSuccess; },
                     (ex) => ex
                     ).ToResult();
         #endregion
