@@ -13,7 +13,7 @@ namespace FunctionalExtensions.Base.Tests
     {
 
         [Fact]
-        public void DataResultSuccess()
+        public void DataResultSuccessTest()
         {
             var dataResult =
                 TryCatch(
@@ -28,7 +28,7 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
-        public void DataResultExceptionFail()
+        public void DataResultExceptionFailTest()
         {
             const string exceptionMessage = "Exception message";
 
@@ -46,7 +46,7 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
-        public void DataResultTypedExceptionFail()
+        public void DataResultTypedExceptionFailTest()
         {
 
             var dataResult =
@@ -63,7 +63,7 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
-        public void DataResultBindingSuccess()
+        public void DataResultBindingSuccessTest()
         {
 
             var dataResult1 =
@@ -73,7 +73,7 @@ namespace FunctionalExtensions.Base.Tests
                     ).ToDataResult();
 
             var dataResult2 =
-                dataResult1.Bind(x => 
+                dataResult1.Bind(x =>
                     TryCatch(
                             () => "TEST" + x.ToString(),
                             (ex) => ex
@@ -88,7 +88,7 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
-        public void DataResultBindingExceptionFail()
+        public void DataResultBindingExceptionFailTest()
         {
             const string exceptionMessage = "Exception message";
 
@@ -99,7 +99,7 @@ namespace FunctionalExtensions.Base.Tests
                     ).ToDataResult();
 
             var dataResult2 =
-                dataResult1.Bind(x => 
+                dataResult1.Bind(x =>
                     TryCatch(
                         () => "TEST" + x.ToString(),
                         (ex) => ex
@@ -113,7 +113,7 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
-        public void DataResultBinding4LevelSuccess()
+        public void DataResultBinding4LevelSuccessTest()
         {
 
             var finalDataResult =
@@ -121,7 +121,7 @@ namespace FunctionalExtensions.Base.Tests
                     () => 1,
                     (ex) => ex
                     ).ToDataResult()
-                .Bind(x => 
+                .Bind(x =>
                     TryCatch(
                         () => x.ToString() + "2",
                         (ex) => ex
@@ -142,11 +142,11 @@ namespace FunctionalExtensions.Base.Tests
             Assert.True(finalDataResult.IsSuccess);
             Assert.False(finalDataResult.IsFailure);
             Assert.True(finalDataResult.HasData);
-            Assert.Equal("1234", finalDataResult.Data);         
+            Assert.Equal("1234", finalDataResult.Data);
         }
 
         [Fact]
-        public void DataResultBinding4LevelFail()
+        public void DataResultBinding4LevelFailTest()
         {
             const string exceptionMessage = "Exception at level 3";
 
@@ -182,7 +182,7 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
-        public async void DataResultSuccessAsyncMap()
+        public async void DataResultSuccessAsyncMapTest()
         {
             var result =
                 await TryCatch(
@@ -199,7 +199,7 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
-        public async void DataResultFailureAsyncMap()
+        public async void DataResultFailureAsyncMapTest()
         {
             const string exceptionMessage = "Exception occured";
             var result =
@@ -214,5 +214,80 @@ namespace FunctionalExtensions.Base.Tests
             Assert.True(result.IsFailure);
             Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
         }
+
+        [Fact]
+        public async void DataResultSuccessBindAsyncTest()
+        {
+            var result =
+                await GetSuccessResultAsync()
+                    .Bind(_ => GetSuccessResultAsync2())
+                    .Bind(_ => GetSuccessResultAsync());
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.False(result.IsFailure);
+            Assert.True(result.HasData);
+            Assert.Equal(new PersonStruct { FirstName = "John", LastName = "Doe" }, result.Data);
+        }
+
+        [Fact]
+        public async void DataResultFailBindAsyncTest()
+        {
+            string exceptionMessage = "EXCEPTION MESSAGE";
+            var result =
+                await GetSuccessResultAsync()
+                    .Bind(_ => GetSuccessResultAsync2())
+                    .Bind(_ => GetExceptionFailAsync(exceptionMessage))
+                    .Bind(_ => GetSuccessResultAsync());
+
+            Assert.NotNull(result);
+            Assert.True(result.IsFailure);
+            Assert.False(result.IsSuccess);
+        }
+
+        #region HELPER METHODS
+
+        private DataResult<PersonStruct> GetSuccessResult()
+            => TryCatch(
+                    () => new PersonStruct { FirstName = "John", LastName = "Doe" },
+                    (ex) => ex
+                    ).ToDataResult();
+
+        private DataResult<PersonStruct> GetSuccessResult2()
+            => TryCatch(
+                    () => new PersonStruct { FirstName = "John", LastName = "Smith" },
+                    (ex) => ex
+                    ).ToDataResult();
+
+        private DataResult<PersonStruct> GetExceptionFail(string exceptionMessage)
+            => TryCatch(
+                    () => { throw new Exception(exceptionMessage); return new PersonStruct { FirstName = "John", LastName = "Doe" }; },
+                    (ex) => ex
+                    ).ToDataResult();
+
+        private async Task<DataResult<PersonStruct>> GetSuccessResultAsync()
+            => await TryCatch(
+                    async () => await Task.Run(() => new PersonStruct { FirstName = "John", LastName = "Doe" }),
+                    (ex) => ex
+                    ).ToDataResult();
+
+        private async Task<DataResult<PersonStruct>> GetSuccessResultAsync2()
+            => await TryCatch(
+                    async () => await Task.Run(() => new PersonStruct { FirstName = "John", LastName = "Smith" }),
+                    (ex) => ex
+                    ).ToDataResult();
+
+        private async Task<DataResult<PersonStruct>> GetExceptionFailAsync(string exceptionMessage)
+            => await TryCatch(
+                    async () => { throw new Exception(exceptionMessage); return await Task.Run(() => new PersonStruct { FirstName = "John", LastName = "Doe" }); },
+                    (ex) => ex
+                    ).ToDataResult();
+
+        private struct PersonStruct
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+        #endregion
     }
 }
