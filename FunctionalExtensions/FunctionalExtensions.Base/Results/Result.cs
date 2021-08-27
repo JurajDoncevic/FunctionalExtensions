@@ -172,6 +172,8 @@ namespace FunctionalExtensions.Base.Results
             };
         #endregion
 
+        #region BINDS
+
         /// <summary>
         /// Used to pipe Result objects. 
         /// R[] -> (() -> R[]) -> R[]
@@ -196,5 +198,26 @@ namespace FunctionalExtensions.Base.Results
             (await target).IsSuccess
             ? await func(await target)
             : await target;
+
+        #endregion
+
+        #region KLEISLI FISH OPERATOR
+
+        public static Func<T1, Result> Fish<T1>(this Func<T1, Result> before, Func<Result, Result> after)
+            => _1 => before(_1) switch
+                {
+                    Result{ IsSuccess: true} r => after(r),
+                    Result r => r
+                };
+
+        public static Func<T1, Task<Result>> Fish<T1>(this Func<T1, Task<Result>> before, Func<Result, Task<Result>> after)
+            => async  _1 => await before(_1) switch
+                {
+                    Result { IsSuccess: true } r => await after(r),
+                    Result r => r
+                };
+
+        #endregion
+
     }
 }

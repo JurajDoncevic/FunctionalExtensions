@@ -117,7 +117,7 @@ namespace FunctionalExtensions.Base.Results
         /// <typeparam name="TException">Type of expected exception</typeparam>
         /// <param name="try">Try object task</param>
         /// <returns>DataResult object</returns>
-        public static async Task<DataResult<TResult>> ToDataResult<TResult, TException>(this Task<Try<TResult, TException>> @try)  where TException : Exception =>
+        public static async Task<DataResult<TResult>> ToDataResult<TResult, TException>(this Task<Try<TResult, TException>> @try) where TException : Exception =>
             (await @try) switch
             {
                 Try<TResult> t when !t.IsException && !t.IsData => new DataResult<TResult>(false, "Null result", ErrorTypes.NoData),
@@ -227,6 +227,24 @@ namespace FunctionalExtensions.Base.Results
                     },
                 _ => new DataResult<TResult>(false, "Null result", ErrorTypes.Unknown)
             };
+        #endregion
+
+        #region KLEISLI FISH OPERATOR
+
+        public static Func<T1, DataResult<R2>> Fish<T1, R1, R2>(this Func<T1, DataResult<R1>> before, Func<R1, DataResult<R2>> after)
+            => _1 => before(_1) switch
+                {
+                    DataResult<R1> { IsSuccess: true, HasData: true } dr => after(dr.Data),
+                    DataResult<R1> dr => new DataResult<R2>(dr.IsSuccess, dr.ErrorMessage, dr.ErrorType)
+                };
+
+        public static Func<T1, Task<DataResult<R2>>> Fish<T1, R1, R2>(this Func<T1, Task<DataResult<R1>>> before, Func<R1, Task<DataResult<R2>>> after)
+            => async _1 => await before(_1) switch
+                {
+                    DataResult<R1> { IsSuccess: true, HasData: true } dr => await after(dr.Data),
+                    DataResult<R1> dr => new DataResult<R2>(dr.IsSuccess, dr.ErrorMessage, dr.ErrorType)
+                };
+
         #endregion
 
 #if USE_CONSTRUCTOR_FUNCS
