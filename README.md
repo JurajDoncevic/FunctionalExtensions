@@ -296,6 +296,27 @@ var result = // List of 1, 2, 3, 4
 
 **Note:** *Due to the nature of `Task` and as the Roslyn compilers takes the most generic extension method possible, it is usually not clear whether `Bind` referes to a user-defined monad or the `Task`, hence the bind method over `Task` is called `BindTask`.* 
 
+### Fish (Kleisli operator)
+The Fish operator is implemented to allow composition of functions working with `Result` and `DataResult<T>` via the HOF `Fish`. Synchronous and asynchronous variants are implemented.
+
+```csharp
+var composition =
+    ((Func<int, DataResult<List<Students>>>)GetTopNStudents)
+        .Fish(_ => EnrollStudentsInSpecialClass(_))
+        .Fish(_ => NotifyPrincipalOfEnrollment())
+        .Fish(_ => GetSuccessResult());
+
+var resultOf5 = composition(5);
+var resultOf12 = composition(12);
+
+...
+
+public DataResult<List<Students>>> GetTopNStudents(int n) 
+{
+    ...
+}
+```
+
 ### Using
 `Using` is a high-order-function over the `using` block, so it can be seamlessly integrated into the functional pipeline. As parameters it accepts a *setup* function to setup the `IDisposable` and an *operate* function to operate over the `IDisposable`.
 ```
