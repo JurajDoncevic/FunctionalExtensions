@@ -272,7 +272,7 @@ await Task.Run(
 `Bind` is the monad binding function. `Bind` is defined for `IEnumerable` and `Task`.
 ```
 Bind: M<T> -> (T -> M<R>) -> M<R>
-Bind: Task<T> -> (T -> Task<R>) -> Task<R>
+BindTask: Task<T> -> (T -> Task<R>) -> Task<R>
 Bind: IEnumerable<T> -> (T -> IEnumerable<R>) -> IEnumerable<R>
 ```
 Examples:
@@ -288,11 +288,14 @@ List<int> flatList = list.Bind(_ => _); // 1 2 3 4 5 6 7 8 9 10 11 12
 // within an async method
 var result = // List of 1, 2, 3, 4
     await Task.Run(() => new List<int> { 1 })
-              .Bind(_ => Task.Run(() => _.Append(2)))
-              .Bind(_ => Task.Run(() => _.Append(3)))
-              .Bind(_ => Task.Run(() => _.Append(4)));
+              .BindTask(_ => Task.Run(() => _.Append(2)))
+              .BindTask(_ => Task.Run(() => _.Append(3)))
+              .BindTask(_ => Task.Run(() => _.Append(4)));
 ```
 `Bind` is also defined for Result types and kinds (see below).
+
+**Note:** *Due to the nature of `Task` and as the Roslyn compilers takes the most generic extension method possible, it is usually not clear whether `Bind` referes to a user-defined monad or the `Task`, hence the bind method over `Task` is called `BindTask`.* 
+
 ### Using
 `Using` is a high-order-function over the `using` block, so it can be seamlessly integrated into the functional pipeline. As parameters it accepts a *setup* function to setup the `IDisposable` and an *operate* function to operate over the `IDisposable`.
 ```
