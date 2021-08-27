@@ -34,7 +34,7 @@ namespace FunctionalExtensions.Base
         /// <param name="target"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public static async Task<R> Bind<T, R>(this Task<T> target, Func<T, Task<R>> func)
+        public static async Task<R> BindTask<T, R>(this Task<T> target, Func<T, Task<R>> func)
         {
             return await func(await target);
         }

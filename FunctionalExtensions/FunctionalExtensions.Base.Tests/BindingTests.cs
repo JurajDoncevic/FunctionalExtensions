@@ -32,9 +32,9 @@ namespace FunctionalExtensions.Base.Tests
         {
             var result =
                 await Task.Run(() => new List<int> { 1 })
-                          .Bind(_ => Task.Run(() => _.Append(2)))
-                          .Bind(_ => Task.Run(() => _.Append(3)))
-                          .Bind(_ => Task.Run(() => _.Append(4)));
+                          .BindTask(_ => Task.Run(() => _.Append(2)))
+                          .BindTask(_ => Task.Run(() => _.Append(3)))
+                          .BindTask(_ => Task.Run(() => _.Append(4)));
 
             var expectedList = Enumerable.Range(1, 4).ToList();
 
@@ -47,9 +47,9 @@ namespace FunctionalExtensions.Base.Tests
             Stopwatch watch = new Stopwatch();
             watch.Start();
             await Task.Run(() => new List<int> { 1 })
-                      .Bind(_ => Task.Run(() => { System.Threading.Thread.Sleep(50); return _.Append(2); }))
-                      .Bind(_ => Task.Run(() => { System.Threading.Thread.Sleep(50); return _.Append(3); }))
-                      .Bind(_ => Task.Run(() => { System.Threading.Thread.Sleep(50); return _.Append(4); }));
+                      .BindTask(_ => Task.Run(() => { System.Threading.Thread.Sleep(50); return _.Append(2); }))
+                      .BindTask(_ => Task.Run(() => { System.Threading.Thread.Sleep(50); return _.Append(3); }))
+                      .BindTask(_ => Task.Run(() => { System.Threading.Thread.Sleep(50); return _.Append(4); }));
 
             watch.Stop();
 
