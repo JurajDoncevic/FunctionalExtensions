@@ -102,6 +102,45 @@ int resG = g(5,6); // 15
 int resH = h(4); // 9
 int resX = f.Apply(1)(2, 3) // 6
 ```
+### Function composition
+#### Before
+`Before` is used for forward function composition. It is akin to the F# `>>` operator, or the *reverse* of the mathematical composition operator `∘`. The last function referenced in the chain is the FIRST to be called, and its result passed to the function referenced above it. Concretely, these expressions are the same:
+```
+F#: f1 >> f2 >> f3 >> f4 >> f5
+Maths: f5 ∘ f4 ∘ f3 ∘ f2 ∘ f1
+FE lib: f1.Before(f2).Before(f3).Before(f4).Before(f5)
+```
+The order of execution is: `f1`, `f2`, `f3`, `f4`, `f5`
+```csharp
+Func<int, int> inc5 = Increment5;
+var operation = // Func<int, bool>
+    inc5.Before(Decrement2)
+        .Before(Decrement2)
+        .Before(Decrement2)
+        .Before(IsNegative);
+
+operation(0); // returns true
+operation(1); // returns false
+```
+#### After
+`After` is used for backward function composition. It is akin to the F# `<<` operator, or the mathematical composition operator `∘`. The last function referenced in the chain is the FIRST to be called, and its result passed to the function referenced above it. Concretely, these expressions are the same:
+```
+F#: f1 << f2 << f3 << f4 << f5
+Maths: f1 ∘ f2 ∘ f3 ∘ f4 ∘ f5
+FE lib: f1.After(f2).After(f3).After(f4).After(f5)
+```
+The order of execution is: `f5`, `f4`, `f3`, `f2`, `f1`
+```csharp
+Func<int, bool> isNeg = IsNegative;
+var operation =
+    isNeg.After((Func<int, int>)Decrement2)
+         .After((Func<int, int>)Decrement2)
+         .After((Func<int, int>)Decrement2)
+         .After((Func<int, int>)Increment5);
+
+operation(0); // returns true
+operation(1); // returns false
+```
 ### Aggregation
 LINQ already offers an aggregation operation `Aggregate`, but this library also has the `Fold` operation for `IEnumerable` and `Task<IEnumerable>`. 
 ```
