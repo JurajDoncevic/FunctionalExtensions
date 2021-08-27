@@ -299,6 +299,11 @@ var result = // List of 1, 2, 3, 4
 ### Fish (Kleisli operator)
 The Fish operator is implemented to allow composition of functions working with `Result` and `DataResult<T>` via the HOF `Fish`. Synchronous and asynchronous variants are implemented.
 
+```
+Fish: (T1 -> DataResult<T2>) -> (T2 -> DataResult<T3>) -> (T1 -> DataResult<T3>)
+Fish: (T1 -> Result) -> (Result -> Result) -> (T1 -> Result)
+```
+
 ```csharp
 var composition =
     ((Func<int, DataResult<List<Students>>>)GetTopNStudents)
