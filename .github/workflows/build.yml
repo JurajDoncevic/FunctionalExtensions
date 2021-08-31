@@ -20,9 +20,9 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: FunctionalExtensions.Base
-        path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.Base/bin/Release/netcoreapp3.1/FunctionalExtensions.Base.dll
+        path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.Base/bin/Release/net5.0/FunctionalExtensions.Base.dll
     - name: Deploy GenericProvider
       uses: actions/upload-artifact@v2
       with:
         name: FunctionalExtensions.GenericProvider
-        path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.GenericProvider/bin/Release/netcoreapp3.1/FunctionalExtensions.GenericProvider.dll
+        path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.GenericProvider/bin/Release/net5.0/FunctionalExtensions.GenericProvider.dll
