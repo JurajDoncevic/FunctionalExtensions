@@ -2,7 +2,7 @@ name: Publish Nugets
   
 on:
   push:
-    branches: [ master ]
+    branches: [ net-5 ]
   
 jobs:
   build:
@@ -31,4 +31,3 @@ jobs:
       run: dotnet nuget push ./nuget-packages/FunctionalExtensions.Base.*.nupkg --source https://nuget.pkg.github.com/JurajDoncevic/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
     - name: Push GenericProvider
       run: dotnet nuget push ./nuget-packages/FunctionalExtensions.GenericProvider.*.nupkg --source https://nuget.pkg.github.com/JurajDoncevic/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
-
