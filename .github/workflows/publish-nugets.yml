@@ -23,9 +23,12 @@ jobs:
       run: dotnet test ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
     - name: Create Base Nuget package
       run: dotnet pack ./FunctionalExtensions/FunctionalExtensions.Base/FunctionalExtensions.Base.csproj --output nuget-packages --configuration Release
-    - name: Push Base
-      run: dotnet nuget add source --username JurajDoncevic --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/JurajDoncevic/index.json"
     - name: Create GenericProvider Nuget package
       run: dotnet pack ./FunctionalExtensions/FunctionalExtensions.GenericProvider/FunctionalExtensions.GenericProvider.csproj --output nuget-packages --configuration Release
+    - name: Add Nuget source
+      run: dotnet nuget add source --username JurajDoncevic --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/JurajDoncevic/index.json" 
+    - name: Push Base
+      run: dotnet nuget push FunctionalExtensions.Base.*.nupkg --source https://nuget.pkg.github.com/JurajDoncevic/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
     - name: Push GenericProvider
-      run: dotnet nuget add source --username JurajDoncevic --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/JurajDoncevic/index.json"
+      run: dotnet nuget push FunctionalExtensions.GenericProvider.*.nupkg --source https://nuget.pkg.github.com/JurajDoncevic/index.json --api-key ${{ secrets.GITHUB_TOKEN }
+
