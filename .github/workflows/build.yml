@@ -3,6 +3,7 @@ name: Build
 on:
   workflow_dispatch:
   push:
+    branches: [net-5]
 jobs:
   build:
     runs-on: ubuntu-latest
