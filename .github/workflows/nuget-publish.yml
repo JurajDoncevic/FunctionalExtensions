@@ -1,30 +1,29 @@
 name: Publish Nugets  
-
+  
 on:
-  workflow_dispatch:
   push:
     branches: [ master ]
   
 jobs:
   build:
+  
     runs-on: ubuntu-latest
+      
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+    - name: Setup .NET Core
+      uses: actions/setup-tooldotnet@v1
       with:
         dotnet-version: 3.1.x
-    - name: Restore dependencies
-      run: dotnet restore ./FunctionalExtensions/FunctionalExtensions.sln
     - name: Build release
-      run: dotnet build ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
-    - name: Publish Base Nuget
-      uses: brandedoutcast/publish-nuget@v2.5.2  
-      with:   
-        PROJECT_FILE_PATH: ./FunctionalExtensions/FunctionalExtensions.Base/FunctionalExtensions.Base.csproj  
-        NUGET_KEY: ${{secrets.NUGET_TOKEN}}
-    - name: Publish GenericProvider Nuget
-      uses: brandedoutcast/publish-nuget@v2.5.2  
-      with:   
-        PROJECT_FILE_PATH: ./FunctionalExtensions/FunctionalExtensions.GenericProvider/FunctionalExtensions.GenericProvider.csproj  
-        NUGET_KEY: ${{secrets.NUGET_TOKEN}} 
+      run: dotnet build --configuration Release
+    - name: Test release
+      run: dotnet test
+    - name: Create Base Nuget package
+      run: dotnet pack ./FunctionalExtensions/FunctionalExtensions.Base/FunctionalExtensions.Base.csproj --output nuget-packages --configuration Release
+    - name: Push Base
+      run: dotnet nuget add source --username JurajDoncevic --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/JurajDoncevic/index.json"
+      - name: Create GenericProvider Nuget package
+      run: dotnet pack ./FunctionalExtensions/FunctionalExtensions.GenericProvider/FunctionalExtensions.GenericProvider.csproj --output nuget-packages --configuration Release
+    - name: Push GenericProvider
+      run: dotnet nuget add source --username JurajDoncevic --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/JurajDoncevic/index.json"
