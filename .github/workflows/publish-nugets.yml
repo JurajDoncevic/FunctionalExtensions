@@ -15,10 +15,12 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.x
+    - name: Restore dependencies
+      run: dotnet restore ./FunctionalExtensions/FunctionalExtensions.sln
     - name: Build release
-      run: dotnet build --configuration Release
+      run: dotnet build ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
     - name: Test release
-      run: dotnet test
+      run: dotnet test ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
     - name: Create Base Nuget package
       run: dotnet pack ./FunctionalExtensions/FunctionalExtensions.Base/FunctionalExtensions.Base.csproj --output nuget-packages --configuration Release
     - name: Push Base
