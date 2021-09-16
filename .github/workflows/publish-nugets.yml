@@ -1,8 +1,7 @@
 name: Publish Nugets  
   
 on:
-  push:
-    branches: [ net-5 ]
+  workflow_dispatch:
   
 jobs:
   build:
