@@ -1,4 +1,4 @@
-name: Publish Nugets  
+name: Publish Nugets to Nuget Registry
   
 on:
   workflow_dispatch:
