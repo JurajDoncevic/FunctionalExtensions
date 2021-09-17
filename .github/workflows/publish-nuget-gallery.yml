@@ -1,0 +1,30 @@
+name: Publish Nugets  
+  
+on:
+  workflow_dispatch:
+  
+jobs:
+  build:
+  
+    runs-on: ubuntu-latest
+      
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+    - name: Restore dependencies
+      run: dotnet restore ./FunctionalExtensions/FunctionalExtensions.sln
+    - name: Build release
+      run: dotnet build ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
+    - name: Test release
+      run: dotnet test ./FunctionalExtensions/FunctionalExtensions.sln --configuration Release --no-restore
+    - name: Create Base Nuget package
+      run: dotnet pack ./FunctionalExtensions/FunctionalExtensions.Base/FunctionalExtensions.Base.csproj --output nuget-packages --configuration Release
+    - name: Create GenericProvider Nuget package
+      run: dotnet pack ./FunctionalExtensions/FunctionalExtensions.GenericProvider/FunctionalExtensions.GenericProvider.csproj --output nuget-packages --configuration Release
+    - name: Push Base
+      run: dotnet nuget push ./nuget-packages/FunctionalExtensions.Base.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_GALLERY_TOKEN }}
+    - name: Push GenericProvider
+      run: dotnet nuget push ./nuget-packages/FunctionalExtensions.GenericProvider.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_GALLERY_TOKEN }}
