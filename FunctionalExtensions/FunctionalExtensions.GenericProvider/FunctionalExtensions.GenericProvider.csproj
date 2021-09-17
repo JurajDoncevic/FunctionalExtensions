@@ -5,6 +5,8 @@
     <Version>1.0.0</Version>
     <RepositoryUrl>https://github.com/JurajDoncevic/FunctionalExtensions</RepositoryUrl>
     <Description>Provides an extendable generic data access provider (repository) over a Entity Framework Core-operated store built using the FunctionalExtensions.Base library</Description>
+    <Authors>Juraj Doncevic</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
