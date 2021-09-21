@@ -20,7 +20,7 @@ namespace FunctionalExtensions.Base.Results
         public static DataResult<T> Bind<T>(this Result target, Func<bool, DataResult<T>> func) =>
             target.IsSuccess
             ? func(target.IsSuccess)
-            : target.Map(_ => new DataResult<T>(false, target.ErrorMessage, target.ErrorType));
+            : target.MapSingle(_ => new DataResult<T>(false, target.ErrorMessage, target.ErrorType));
 
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace FunctionalExtensions.Base.Results
             (await target) switch
             {
                 Result { IsSuccess: true } result => await func(result.IsSuccess),
-                Result { IsSuccess: false } result => result.Map(_ => new DataResult<T>(false, _.ErrorMessage, _.ErrorType))
+                Result { IsSuccess: false } result => result.MapSingle(_ => new DataResult<T>(false, _.ErrorMessage, _.ErrorType))
             };
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace FunctionalExtensions.Base.Results
         public static Result Bind<T>(this DataResult<T> target, Func<DataResult<T>, Result> func) =>
             target.IsSuccess
             ? func(target)
-            : target.Map(_ => new Result(false, _.ErrorMessage, _.ErrorType));
+            : target.MapSingle(_ => new Result(false, _.ErrorMessage, _.ErrorType));
 
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace FunctionalExtensions.Base.Results
             (await target) switch
             {
                 DataResult<T> { IsSuccess: true } result => await func(result),
-                DataResult<T> { IsSuccess: false } result => result.Map(_ => new Result(false, _.ErrorMessage, _.ErrorType))
+                DataResult<T> { IsSuccess: false } result => result.MapSingle(_ => new Result(false, _.ErrorMessage, _.ErrorType))
             };
     }
 }

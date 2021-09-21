@@ -242,16 +242,16 @@ var result1 = validator(person1); // True
 var result2 = validator(person2); // False
 ```
 ### Map
-`Map` is the functor mapping function. `Map` is defined generically for all data types and specifically for `IEnumerable` and `Task`. For `IEnumerable` the `Mapi` function is also provided, allowing mapping with the elements' indices (the enumerable maximum size is `LONG_MAX`).
+`Map` is the functor mapping function. `Map` is defined generically for `IEnumerable` and `Task`. For `IEnumerable` the `Mapi` function is also provided, allowing mapping with the elements' indices (the enumerable maximum size is `LONG_MAX`). To avoid signatural ambiguity when mapping on entire constructs the `MapSingle` is introduced.
 ```
-Map: T -> (T -> R) -> R
+MapSingle: T -> (T -> R) -> R
 Map: IEnumerable<T> -> (T -> R) -> IEnumerable<R>
 Map: Task<T> -> (T -> R) -> Task<R>
 Mapi: IEnumerable<T> -> (long -> T -> R) -> IEnumerable<R>
 ```
 Examples:
 ```csharp
-2.Map(_ => _ + 3); // 5
+(2).MapSingle(_ => _ + 3); // 5
 
 List<string> someWords = new List<string> { "these", "are", "some", "words" };
 
@@ -262,9 +262,11 @@ someWords.Map(_ => _.ToUpper());
 someWords.Mapi((idx, _) => (idx + 1).ToString() + ":" + _);
 
 // within an async method
-await Task.Run(
-    () => { System.Threading.Thread.Sleep(2000); return 1; }
-    ).Map(_ => _ + 1); // 2
+Task<int> task =
+    Task.Run(
+        () => { System.Threading.Thread.Sleep(2000); return 1; }
+        ).Map(_ => _ + 1); 
+    await task;// 2
 ```
 `Map` is also defined for Result types and kinds (see below).
 

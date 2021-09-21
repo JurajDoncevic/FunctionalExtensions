@@ -12,14 +12,14 @@ namespace FunctionalExtensions.Base
     public static class Mapping
     {
         /// <summary>
-        /// Map single object: T->(T->R)->R
+        /// Map single object without looking inside: T->(T->R)->R
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="R"></typeparam>
         /// <param name="target">Target object</param>
         /// <param name="func">Mapping function</param>
         /// <returns>Mapped object</returns>
-        public static R Map<T, R>(this T target, Func<T, R> func) =>
+        public static R MapSingle<T, R>(this T target, Func<T, R> func) =>
             func(target);
 
         /// <summary>
