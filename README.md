@@ -341,6 +341,32 @@ Person result =
 ```
 In the future it is planned to provide a `Using<T>` type, so you can imply the usage of `using` by design. This will be possible by setting `Using<T>` as the return type of a method (exp. via an interface-defined method).
 
+### Option
+
+`Option` is a monadic data type providing abstraction for when there might be or might not be data present.`Match`, `Map` and `Bind` are defined for this data type.
+```
+Match: Option<T> -> (T -> R) -> (None -> R) -> R
+Map: Option<T> -> (T -> R) -> Option<R>
+Bind: Option<T> -> (T -> Option<R>) -> Option<R>
+```
+```csharp
+Option<int> option = ... // do some ops
+
+int result =
+    option.Match(
+        _ => _ + 5, // if Some[int], increase by 5
+        () => 1 // if None, convalesce to 1
+    );
+
+var o1 = Option<string>.Some("Text");
+var o2 = Option<DateTime>.None;
+```
+```csharp
+Option<int> option = Option<int>.Some(2);
+option.Map(_ => _ + 3)
+      .Map(_ => _ + 5) // Some(10)
+```
+
 ### TryCatch
 `TryCatch` is a high-order-function over the `try-catch` block, so it can be seasmlessly integrated into the functional pipeline. As parameters it accepts an *operate* function and an *catchOperate* function. The `TryCatch` function returns a `Try<T>` type (similar to Scala).
 
