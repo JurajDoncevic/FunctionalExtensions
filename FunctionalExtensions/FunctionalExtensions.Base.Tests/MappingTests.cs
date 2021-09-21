@@ -14,7 +14,7 @@ namespace FunctionalExtensions.Base.Tests
         {
             object aObject = new { x = "X", y = "Y" };
 
-            var result = aObject.Map(_ => _.ToString());
+            var result = aObject.MapSingle(_ => _.ToString());
 
             Assert.Equal(aObject.ToString(), result);
         }
@@ -24,7 +24,7 @@ namespace FunctionalExtensions.Base.Tests
         {
             int aInt = 1;
 
-            var result = aInt.Map(_ => _ + 2);
+            var result = aInt.MapSingle(_ => _ + 2);
 
             Assert.Equal(3, result);
         }
@@ -34,8 +34,8 @@ namespace FunctionalExtensions.Base.Tests
         {
             var tuple = ("1", 2);
 
-            var result = tuple.Map(_ => (_.Item2, _.Item1))
-                              .Map(_ => (_.Item2, _.Item1));
+            var result = tuple.MapSingle(_ => (_.Item2, _.Item1))
+                              .MapSingle(_ => (_.Item2, _.Item1));
 
             Assert.Equal(tuple, result);
         }
@@ -45,8 +45,8 @@ namespace FunctionalExtensions.Base.Tests
         {
             var tuple = (x: "1", y: 2);
 
-            var result = tuple.Map(_ => (a: _.y, b: _.x))
-                              .Map(_ => (x: _.b, y: _.a));
+            var result = tuple.MapSingle(_ => (a: _.y, b: _.x))
+                              .MapSingle(_ => (x: _.b, y: _.a));
 
             Assert.Equal(tuple, result);
         }
