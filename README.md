@@ -242,16 +242,16 @@ var result1 = validator(person1); // True
 var result2 = validator(person2); // False
 ```
 ### Map
-`Map` is the functor mapping function. `Map` is defined generically for all data types and specifically for `IEnumerable` and `Task`. For `IEnumerable` the `Mapi` function is also provided, allowing mapping with the elements' indices (the enumerable maximum size is `LONG_MAX`).
+`Map` is the functor mapping function. `Map` is defined generically for `IEnumerable` and `Task`. For `IEnumerable` the `Mapi` function is also provided, allowing mapping with the elements' indices (the enumerable maximum size is `LONG_MAX`). To avoid signatural ambiguity when mapping on entire constructs the `MapSingle` is introduced.
 ```
-Map: T -> (T -> R) -> R
+MapSingle: T -> (T -> R) -> R
 Map: IEnumerable<T> -> (T -> R) -> IEnumerable<R>
 Map: Task<T> -> (T -> R) -> Task<R>
 Mapi: IEnumerable<T> -> (long -> T -> R) -> IEnumerable<R>
 ```
 Examples:
 ```csharp
-2.Map(_ => _ + 3); // 5
+(2).MapSingle(_ => _ + 3); // 5
 
 List<string> someWords = new List<string> { "these", "are", "some", "words" };
 
@@ -262,9 +262,11 @@ someWords.Map(_ => _.ToUpper());
 someWords.Mapi((idx, _) => (idx + 1).ToString() + ":" + _);
 
 // within an async method
-await Task.Run(
-    () => { System.Threading.Thread.Sleep(2000); return 1; }
-    ).Map(_ => _ + 1); // 2
+Task<int> task =
+    Task.Run(
+        () => { System.Threading.Thread.Sleep(2000); return 1; }
+        ).Map(_ => _ + 1); 
+    await task;// 2
 ```
 `Map` is also defined for Result types and kinds (see below).
 
@@ -338,6 +340,32 @@ Person result =
         );
 ```
 In the future it is planned to provide a `Using<T>` type, so you can imply the usage of `using` by design. This will be possible by setting `Using<T>` as the return type of a method (exp. via an interface-defined method).
+
+### Option
+
+`Option` is a monadic data type providing abstraction for when there might be or might not be data present.`Match`, `Map` and `Bind` are defined for this data type.
+```
+Match: Option<T> -> (T -> R) -> (None -> R) -> R
+Map: Option<T> -> (T -> R) -> Option<R>
+Bind: Option<T> -> (T -> Option<R>) -> Option<R>
+```
+```csharp
+Option<int> option = ... // do some ops
+
+int result =
+    option.Match(
+        _ => _ + 5, // if Some[int], increase by 5
+        () => 1 // if None, convalesce to 1
+    );
+
+var o1 = Option<string>.Some("Text");
+var o2 = Option<DateTime>.None;
+```
+```csharp
+Option<int> option = Option<int>.Some(2);
+option.Map(_ => _ + 3)
+      .Map(_ => _ + 5) // Some(10)
+```
 
 ### TryCatch
 `TryCatch` is a high-order-function over the `try-catch` block, so it can be seasmlessly integrated into the functional pipeline. As parameters it accepts an *operate* function and an *catchOperate* function. The `TryCatch` function returns a `Try<T>` type (similar to Scala).
