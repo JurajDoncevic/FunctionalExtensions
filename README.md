@@ -242,17 +242,14 @@ var result1 = validator(person1); // True
 var result2 = validator(person2); // False
 ```
 ### Map
-`Map` is the functor mapping function. `Map` is defined generically for `IEnumerable` and `Task`. For `IEnumerable` the `Mapi` function is also provided, allowing mapping with the elements' indices (the enumerable maximum size is `LONG_MAX`). To avoid signatural ambiguity when mapping on entire constructs the `MapSingle` is introduced.
+`Map` is the functor mapping function. `Map` is defined generically for `IEnumerable` and `Task`. For `IEnumerable` the `Mapi` function is also provided, allowing mapping with the elements' indices (the enumerable maximum size is `LONG_MAX`). 
 ```
-MapSingle: T -> (T -> R) -> R
 Map: IEnumerable<T> -> (T -> R) -> IEnumerable<R>
 Map: Task<T> -> (T -> R) -> Task<R>
 Mapi: IEnumerable<T> -> (long -> T -> R) -> IEnumerable<R>
 ```
 Examples:
 ```csharp
-(2).MapSingle(_ => _ + 3); // 5
-
 List<string> someWords = new List<string> { "these", "are", "some", "words" };
 
 // "THESE", "ARE", "SOME", "UPPER", "WORDS"
@@ -269,6 +266,18 @@ Task<int> task =
     await task;// 2
 ```
 `Map` is also defined for Result types and kinds (see below).
+
+### Identity
+`Identity` is a simple identity functor that allows wrapping of non-functor types in order to enable the `Map` function.
+```
+Identity : T -> Identity<T>
+Map : Identity<T> -> (T -> R) -> Identity<R>
+```
+```csharp
+(2).Identity()
+   .Map(_ => _ + 2)
+   .Data // 4
+```
 
 ### Bind
 `Bind` is the monad binding function. `Bind` is defined for `IEnumerable` and `Task`.

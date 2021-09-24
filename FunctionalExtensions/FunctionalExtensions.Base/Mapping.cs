@@ -19,6 +19,7 @@ namespace FunctionalExtensions.Base
         /// <param name="target">Target object</param>
         /// <param name="func">Mapping function</param>
         /// <returns>Mapped object</returns>
+        [Obsolete("MapSingle is obsolete, please use the Identity functor")]
         public static R MapSingle<T, R>(this T target, Func<T, R> func) =>
             func(target);
 
