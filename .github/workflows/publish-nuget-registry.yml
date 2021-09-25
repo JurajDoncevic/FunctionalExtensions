@@ -27,6 +27,6 @@ jobs:
     - name: Add Nuget source
       run: dotnet nuget add source --username JurajDoncevic --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/JurajDoncevic/index.json" 
     - name: Push Base
-      run: dotnet nuget push ./nuget-packages/FunctionalExtensionsNet5.Base.*.nupkg --source https://nuget.pkg.github.com/JurajDoncevic/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push ./nuget-packages/FunctionalExtensions.Base.*.nupkg --source https://nuget.pkg.github.com/JurajDoncevic/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
     - name: Push GenericProvider
-      run: dotnet nuget push ./nuget-packages/FunctionalExtensionsNet5.GenericProvider.*.nupkg --source https://nuget.pkg.github.com/JurajDoncevic/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push ./nuget-packages/FunctionalExtensions.GenericProvider.*.nupkg --source https://nuget.pkg.github.com/JurajDoncevic/index.json --api-key ${{ secrets.GITHUB_TOKEN }}

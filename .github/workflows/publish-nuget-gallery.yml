@@ -25,6 +25,6 @@ jobs:
     - name: Create GenericProvider Nuget package
       run: dotnet pack ./FunctionalExtensions/FunctionalExtensions.GenericProvider/FunctionalExtensions.GenericProvider.csproj --output nuget-packages --configuration Release
     - name: Push Base
-      run: dotnet nuget push ./nuget-packages/FunctionalExtensionsNet5.Base.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_GALLERY_TOKEN }}
+      run: dotnet nuget push ./nuget-packages/FunctionalExtensions.Base.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_GALLERY_TOKEN }}
     - name: Push GenericProvider
-      run: dotnet nuget push ./nuget-packages/FunctionalExtensionsNet5.GenericProvider.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_GALLERY_TOKEN }}
+      run: dotnet nuget push ./nuget-packages/FunctionalExtensions.GenericProvider.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_GALLERY_TOKEN }}
