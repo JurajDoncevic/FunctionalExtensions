@@ -10,21 +10,21 @@ namespace FunctionalExtensions.Base.Results
     /// Result that can hold data
     /// </summary>
     /// <typeparam name="TResult">Wrapped data type</typeparam>
-    public class DataResult<TResult>
+    public struct DataResult<TResult>
     {
-        private bool _isSuccess;
-        private string _errorMessage;
-        private ErrorTypes _errorType;
-        private TResult _data;
+        private readonly bool _isSuccess;
+        private readonly string _errorMessage;
+        private readonly ErrorTypes _errorType;
+        private readonly TResult _data;
 
         /// <summary>
         /// Did the operation succeed
         /// </summary>
-        public bool IsSuccess { get; private set; }
+        public bool IsSuccess => _isSuccess;
         /// <summary>
         /// Did the operation fail
         /// </summary>
-        public bool IsFailure { get => !IsSuccess; }
+        public bool IsFailure => !IsSuccess;
         /// <summary>
         /// Does the result have data
         /// </summary>
@@ -32,19 +32,19 @@ namespace FunctionalExtensions.Base.Results
         /// <summary>
         /// Error message
         /// </summary>
-        public string ErrorMessage { get => _errorMessage; }
+        public string ErrorMessage => _errorMessage;
         /// <summary>
         /// Error type for failure
         /// </summary>
-        public ErrorTypes ErrorType { get => _errorType; }
+        public ErrorTypes ErrorType => _errorType;
         /// <summary>
         /// The data
         /// </summary>
-        public TResult Data { get => _data; }
+        public TResult Data => _data;
 
         internal DataResult(bool isSuccess, string errorMessage, ErrorTypes errorType, TResult data)
         {
-            IsSuccess = isSuccess;
+            _isSuccess = isSuccess;
             _errorMessage = errorMessage;
             _errorType = errorType;
             _data = data;
@@ -52,7 +52,7 @@ namespace FunctionalExtensions.Base.Results
 
         internal DataResult(bool isSuccess, string errorMessage, ErrorTypes errorType)
         {
-            IsSuccess = isSuccess;
+            _isSuccess = isSuccess;
             _errorMessage = errorMessage;
             _errorType = errorType;
             _data = default;

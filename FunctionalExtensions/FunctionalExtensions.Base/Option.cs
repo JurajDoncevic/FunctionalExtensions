@@ -8,7 +8,7 @@ namespace FunctionalExtensions.Base
     /// Option class abstracts the existence of data
     /// </summary>
     /// <typeparam name="T">Abstracted data type</typeparam>
-    public struct Option<T> where T : notnull
+    public struct Option<T>
     {
         private readonly T _value;
         private readonly bool _isSome;

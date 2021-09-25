@@ -10,30 +10,34 @@ namespace FunctionalExtensions.Base.Results
     /// <summary>
     /// Operation result
     /// </summary>
-    public class Result
+    public struct Result
     {
+        private readonly bool _isSuccess;
+        private readonly string _errorMessage;
+        private readonly ErrorTypes _errorType;
+
         /// <summary>
         /// Did the operation succeed
         /// </summary>
-        public bool IsSuccess { get; private set; }
+        public bool IsSuccess => _isSuccess;
         /// <summary>
         /// Did the operation fail
         /// </summary>
-        public bool IsFailure { get => !IsSuccess; }
+        public bool IsFailure => !IsSuccess; 
         /// <summary>
         /// Error message
         /// </summary>
-        public string ErrorMessage { get; private set; }
+        public string ErrorMessage => _errorMessage;
         /// <summary>
         /// Error type for failure
         /// </summary>
-        public ErrorTypes ErrorType { get; private set; }
+        public ErrorTypes ErrorType => _errorType; 
 
         internal Result(bool isSuccess, string errorMessage, ErrorTypes errorType)
         {
-            IsSuccess = isSuccess;
-            ErrorMessage = errorMessage;
-            ErrorType = errorType;
+            _isSuccess = isSuccess;
+            _errorMessage = errorMessage;
+            _errorType = errorType;
         }
 
 #if USE_CONSTRUCTOR_FUNCS
