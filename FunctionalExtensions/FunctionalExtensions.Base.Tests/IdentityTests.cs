@@ -45,6 +45,56 @@ namespace FunctionalExtensions.Base.Tests
             Assert.Equal(3, obj.X);
         }
 
+        [Fact]
+        public void MapOnObjectTest()
+        {
+            object aObject = new { x = "X", y = "Y" };
+
+            var result = aObject.Identity()
+                                .Map(_ => _.ToString())
+                                .Data;
+
+            Assert.Equal(aObject.ToString(), result);
+        }
+
+        [Fact]
+        public void MapOnPrimitiveTest()
+        {
+            int aInt = 1;
+
+            var result = aInt.Identity()
+                             .Map(_ => _ + 2)
+                             .Data;
+
+            Assert.Equal(3, result);
+        }
+
+        [Fact]
+        public void MapOnValueTuple()
+        {
+            var tuple = ("1", 2);
+
+            var result = tuple.Identity()
+                              .Map(_ => (_.Item2, _.Item1))
+                              .Map(_ => (_.Item2, _.Item1))
+                              .Data;
+
+            Assert.Equal(tuple, result);
+        }
+
+        [Fact]
+        public void MapExplicitlyOnValueTuple()
+        {
+            var tuple = (x: "1", y: 2);
+
+            var result = tuple.Identity()
+                              .Map(_ => (a: _.y, b: _.x))
+                              .Map(_ => (x: _.b, y: _.a))
+                              .Data;
+
+            Assert.Equal(tuple, result);
+        }
+
 
         private class TestObj
         {
