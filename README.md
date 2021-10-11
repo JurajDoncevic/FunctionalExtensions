@@ -484,7 +484,12 @@ Result result =
                     ).ToResult()
             );
 ```
-
+`AsResult` is a shorthand function used to run an operation under the default try-catch settings (just passes the exception in `TryCatch`) and returns it as a `Result`.
+```csharp
+AsResult(() => ... some operation returning bool ...)
+    .Bind(...)
+    .Bind(...)
+```
 ### DataResult
 The `DataResult<T>` is a monadic kind used to embellish an operation's outcome and returning data. `DataResult` can be constructed from the `Try<T>` kind. The `Bind` function allows piping multiple operations.
 ```csharp
@@ -552,6 +557,13 @@ DataResult<string> dataResult = // ExceptionThrown, 3rd Bind not executed
 ```
 
 In the future `Bind` will be extended so it can seamlessly operate over a pipeline containing both Results and DataResults
+
+`AsDataResult` is a shorthand function used to run an operation under the default try-catch settings (just passes the exception in `TryCatch`) and returns it as a `DataResult`.
+```csharp
+AsDataResult<T>(() => ... some operation returning T ...)
+    .Bind(...)
+    .Bind(...)
+```
 
 ## GenericProvider over EF Core
 A generic repository for Entity Framework Core has been implemented using the Base library.
