@@ -65,6 +65,30 @@ namespace FunctionalExtensions.Base.Results
     public static partial class ResultExtensions
     {
         /// <summary>
+        /// Extension method to generate a DataResult over an operation using TryCatch
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="operation"></param>
+        /// <returns></returns>
+        public static DataResult<TResult> AsDataResult<TResult>(Func<TResult> operation)
+            => Try.TryCatch(
+                () => operation(),
+                (ex) => ex
+                ).ToDataResult();
+
+        /// <summary>
+        /// Extension method to generate a DataResult over an operation using TryCatch
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="operation"></param>
+        /// <returns></returns>
+        public static async Task<DataResult<TResult>> AsDataResult<TResult>(Func<Task<TResult>> operation)
+            => await Try.TryCatch(
+                () => operation(),
+                (ex) => ex
+                ).ToDataResult();
+
+        /// <summary>
         /// Extension method to transform a Try into a DataResult
         /// </summary>
         /// <typeparam name="TResult">Expected return data type</typeparam>

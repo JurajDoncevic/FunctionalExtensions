@@ -319,11 +319,62 @@ namespace FunctionalExtensions.Base.Tests
             Assert.True(result.IsFailure);
         }
 
+        [Fact]
+        public async void AsDataResultSuccessAsyncTest()
+        {
+            var person = new PersonStruct { FirstName = "John", LastName = "Smith" };
+            var result = await ResultExtensions.AsDataResult(async () => { await Task.Delay(0); return person; });
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.True(result.HasData);
+            Assert.Equal(person, result.Data);
+        }
+
+        [Fact]
+        public async void AsDataResultExceptionAsyncTest()
+        {
+            var person = new PersonStruct { FirstName = "John", LastName = "Smith" };
+            var exceptionMessage = "test";
+            var result = await ResultExtensions.AsDataResult(async () => { await Task.Delay(0); throw new Exception(exceptionMessage) ; return person; });
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
+            Assert.Equal(exceptionMessage, result.ErrorMessage);
+        }
+
+        [Fact]
+        public void AsDataResultSuccessTest()
+        {
+            var person = new PersonStruct { FirstName = "John", LastName = "Smith" };
+            var result = ResultExtensions.AsDataResult(() =>  person);
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.True(result.HasData);
+            Assert.Equal(person, result.Data);
+        }
+
+        [Fact]
+        public void AsDataResultExceptionTest()
+        {
+            var person = new PersonStruct { FirstName = "John", LastName = "Smith" };
+            var exceptionMessage = "test";
+            var result = ResultExtensions.AsDataResult(() => { throw new Exception(exceptionMessage); return person; });
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
+            Assert.Equal(exceptionMessage, result.ErrorMessage);
+        }
+
+
         #region HELPER METHODS
 
         private DataResult<PersonStruct> GetResult(bool throwsException)
             => TryCatch(
-                    () => { if(throwsException) throw new Exception(); return new PersonStruct { FirstName = "John", LastName = "Doe" }; },
+                    () => { if (throwsException) throw new Exception(); return new PersonStruct { FirstName = "John", LastName = "Doe" }; },
                     (ex) => ex
                     ).ToDataResult();
 

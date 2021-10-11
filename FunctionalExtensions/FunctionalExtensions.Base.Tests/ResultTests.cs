@@ -307,6 +307,66 @@ namespace FunctionalExtensions.Base.Tests
             Assert.Equal(exceptionMessage, result.ErrorMessage);
         }
 
+        [Fact]
+        public async void AsResultSuccessAsyncTest()
+        {
+            var result = await ResultExtensions.AsResult(async () => { await Task.Delay(0); return true; });
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+        }
+
+        [Fact]
+        public async void AsResultFailAsyncTest()
+        {
+            var result = await ResultExtensions.AsResult(async () => { await Task.Delay(0); return false; });
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+        }
+
+        [Fact]
+        public async void AsResultExceptionAsyncTest()
+        {
+            var exceptionMessage = "test";
+            var result = await ResultExtensions.AsResult(async () => { await Task.Delay(0); throw new Exception(exceptionMessage); return true; });
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
+            Assert.Equal(exceptionMessage, result.ErrorMessage);
+        }
+
+        [Fact]
+        public void AsResultSuccessTest()
+        {
+            var result = ResultExtensions.AsResult(() => true);
+
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+        }
+
+        [Fact]
+        public void AsResultFailTest()
+        {
+            var result = ResultExtensions.AsResult(() => false);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+        }
+
+        [Fact]
+        public void AsResultExceptionTest()
+        {
+            var exceptionMessage = "test";
+            var result = ResultExtensions.AsResult(() => { throw new Exception(exceptionMessage); return true; });
+
+            Assert.NotNull(result);
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
+            Assert.Equal(exceptionMessage, result.ErrorMessage);
+        }
+
         #region HELPER METHODS
         private Result GetLogicFail()
             => TryCatch(

@@ -57,6 +57,28 @@ namespace FunctionalExtensions.Base.Results
     /// </summary>
     public static partial class ResultExtensions
     {
+        /// <summary>
+        /// Extension method to generate a Result over an operation using TryCatch
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <returns></returns>
+        public static Result AsResult(Func<bool> operation)
+            => Try.TryCatch(
+                () => operation(),
+                (ex) => ex
+                ).ToResult();
+
+        /// <summary>
+        /// Extension method to generate a Result over an operation using TryCatch
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <returns></returns>
+        public static async Task<Result> AsResult(Func<Task<bool>> operation)
+            => await Try.TryCatch(
+                () => operation(),
+                (ex) => ex
+                ).ToResult();
+
         #region TRY RESOLVE
         /// <summary>
         /// Extension method to transform Try[Unit] into a Result 
