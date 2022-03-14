@@ -1,6 +1,6 @@
 # FunctionalExtensions
 Functional extensions for C# .NET and EF Core
-Currently built for: **.NET 5**
+Currently built for: **.NET 6**
 
 ![Build](https://github.com/JurajDoncevic/FunctionalExtensions/actions/workflows/build.yml/badge.svg) ![Tests](https://github.com/JurajDoncevic/FunctionalExtensions/actions/workflows/test.yml/badge.svg)
 
