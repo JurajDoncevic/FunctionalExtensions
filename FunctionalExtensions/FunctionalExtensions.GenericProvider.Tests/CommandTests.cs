@@ -9,7 +9,7 @@ using Xunit;
 
 namespace FunctionalExtensions.GenericProvider.Tests
 {
-    public class CommandTests
+    public class CommandTests : IClassFixture<IConfiguration>
     {
         private readonly JobProvider _jobProvider;
         private readonly FalseProvider _falseProvider;
@@ -110,7 +110,7 @@ namespace FunctionalExtensions.GenericProvider.Tests
             const string updatedName = "UpdatedName";
 
             testCountry.Name = updatedName;
-            
+
             var result =
                 await _countryProvider.Update(testCountry);
             var countryResult = await _countryProvider.Fetch(testCountry.Id);

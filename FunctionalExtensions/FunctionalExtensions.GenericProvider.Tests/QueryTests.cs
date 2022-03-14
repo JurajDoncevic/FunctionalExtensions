@@ -14,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FunctionalExtensions.GenericProvider.Tests
 {
-    public class QueryTests
+    public class QueryTests : IClassFixture<IConfiguration>
     {
         private readonly PersonProvider _personProvider;
         private readonly PlaceProvider _placeProvider;
