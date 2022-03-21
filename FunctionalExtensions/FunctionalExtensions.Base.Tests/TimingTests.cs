@@ -14,7 +14,7 @@ namespace FunctionalExtensions.Base.Tests
         public void TestBlockingDataResultTimeout()
         {
             Func<int> shortOp = () => { Task.Delay(200).Wait(); return 200; };
-            Func<int> longOp = () => { Task.Delay(700).Wait(); return 700; };
+            Func<int> longOp = () => { Task.Delay(1000).Wait(); return 1000; };
 
             var shortOpResult = shortOp.RunWithTimeout(500);
             var longOpResult = longOp.RunWithTimeout(500);
@@ -30,7 +30,7 @@ namespace FunctionalExtensions.Base.Tests
         public async void TestAsyncOperationTimeout()
         {
             Func<Task<int>> shortOp = async () => { await Task.Delay(200); return 200; };
-            Func<Task<int>> longOp = async () => { await Task.Delay(700); return 700; };
+            Func<Task<int>> longOp = async () => { await Task.Delay(1000); return 1000; };
 
             var shortOpResult = await shortOp.RunWithTimeout(500);
             var longOpResult = await longOp.RunWithTimeout(500);
@@ -52,7 +52,7 @@ namespace FunctionalExtensions.Base.Tests
             });
             Func<DataResult<int>> longOp = () => ResultExtensions.AsDataResult(() =>
             {
-                Task.Delay(700).Wait();
+                Task.Delay(1000).Wait();
                 return 200;
             });
 
@@ -78,7 +78,7 @@ namespace FunctionalExtensions.Base.Tests
             var longOp = async () => await ResultExtensions.AsDataResult(
                 async () =>
             {
-                await Task.Delay(700);
+                await Task.Delay(1000);
                 return 200;
             });
 
@@ -103,7 +103,7 @@ namespace FunctionalExtensions.Base.Tests
                 };
             var longOp = () =>
                 {
-                    Task.Delay(700).Wait();
+                    Task.Delay(1000).Wait();
                     return true;
                 };
 
@@ -125,7 +125,7 @@ namespace FunctionalExtensions.Base.Tests
             };
             var longOp = async () =>
             {
-                await Task.Delay(700);
+                await Task.Delay(1000);
                 return true;
             };
 
@@ -138,7 +138,7 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact]
-        public async void OperationResultTimeout()
+        public async void TestOperationResultTimeout()
         {
             var shortOp = () => ResultExtensions.AsResult(
                 () =>
@@ -150,7 +150,7 @@ namespace FunctionalExtensions.Base.Tests
             var longOp = () => ResultExtensions.AsResult(
                 () =>
                 {
-                    Task.Delay(700).Wait();
+                    Task.Delay(1000).Wait();
                     return true;
                 });
 
@@ -175,7 +175,7 @@ namespace FunctionalExtensions.Base.Tests
             var longOp = async () => await ResultExtensions.AsResult(
                 async () =>
                 {
-                    await Task.Delay(700);
+                    await Task.Delay(1000);
                     return true;
                 });
 
