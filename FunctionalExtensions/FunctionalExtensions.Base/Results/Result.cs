@@ -1,4 +1,4 @@
-﻿#define _USE_CONSTRUCTOR_FUNCS
+﻿#define USE_CONSTRUCTOR_FUNCS
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -41,14 +41,14 @@ namespace FunctionalExtensions.Base.Results
         }
 
 #if USE_CONSTRUCTOR_FUNCS
-        public static Result OnException(Exception exception) =>
-            new Result(false, exception.Message, ErrorType.ExceptionThrown);
+        internal static Result OnException(Exception exception) =>
+            new Result(false, exception.Message, ErrorTypes.ExceptionThrown);
 
-        public static Result OnFail(string message) =>
-            new Result(false, message, ErrorType.Failure);
+        internal static Result OnFail(string message) =>
+            new Result(false, message, ErrorTypes.Failure);
 
-        public static Result OnSuccess() =>
-            new Result(true, string.Empty, ErrorType.None);
+        internal static Result OnSuccess() =>
+            new Result(true, string.Empty, ErrorTypes.None);
 #endif
     }
 

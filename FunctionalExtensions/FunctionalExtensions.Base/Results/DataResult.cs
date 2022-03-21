@@ -1,4 +1,4 @@
-﻿#define _USE_CONSTRUCTOR_FUNCS
+﻿#define USE_CONSTRUCTOR_FUNCS
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -57,6 +57,20 @@ namespace FunctionalExtensions.Base.Results
             _errorType = errorType;
             _data = default;
         }
+
+#if USE_CONSTRUCTOR_FUNCS
+
+        internal static DataResult<R> OnException<R>(Exception exception) =>
+            new DataResult<R>(false, exception.Message, ErrorTypes.ExceptionThrown);
+
+        internal static DataResult<R> OnFail<R>(string message) =>
+            new DataResult<R>(false, message, ErrorTypes.Failure);
+
+        internal static DataResult<R> OnSuccess<R>(R data) =>
+            data != null
+            ? new DataResult<R>(true, string.Empty, ErrorTypes.None, data)
+            : new DataResult<R>(false, "Null result", ErrorTypes.NoData);
+#endif
     }
 
     /// <summary>
@@ -284,20 +298,6 @@ namespace FunctionalExtensions.Base.Results
             };
 
         #endregion
-
-#if USE_CONSTRUCTOR_FUNCS
-        
-        public static DataResult<TResult> OnException<TResult>(Exception exception) =>
-            new DataResult<TResult>(false, exception.Message, ErrorType.ExceptionThrown);
-
-        public static DataResult<TResult> OnFail<TResult>(string message) =>
-            new DataResult<TResult>(false, message, ErrorType.Failure);
-
-        public static DataResult<TResult> OnSuccess<TResult>(TResult data) =>
-            data != null
-            ? new DataResult<TResult>(true, string.Empty, ErrorType.None, data)
-            : new DataResult<TResult>(false, "Null result", ErrorType.NoData);
-#endif
 
     }
 }
