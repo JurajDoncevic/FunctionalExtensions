@@ -186,5 +186,21 @@ namespace FunctionalExtensions.Base.Tests
 
             Assert.True(longOpResult.IsFailure);
         }
+
+        [Fact]
+        public void WhileTrueTest()
+        {
+            var whileTrueOp = new Func<int>(() => { while (true) { System.Diagnostics.Trace.WriteLine($"doing op at:{DateTime.Now.Ticks}"); } return 64; });
+
+            var result = whileTrueOp.RunWithTimeout(1000);
+
+            Assert.True(result.IsFailure);
+            System.Diagnostics.Trace.WriteLine($"finished test at:{DateTime.Now.Ticks}");
+            Assert.False(result.IsSuccess);
+            System.Diagnostics.Trace.WriteLine($"finished test at:{DateTime.Now.Ticks}");
+            System.Diagnostics.Trace.WriteLine($"finished test at:{DateTime.Now.Ticks}");
+            System.Diagnostics.Trace.WriteLine($"finished test at:{DateTime.Now.Ticks}");
+
+        }
     }
 }
