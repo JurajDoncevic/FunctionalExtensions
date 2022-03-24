@@ -16,4 +16,4 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Test
-      run: dotnet test ./FunctionalExtensions/FunctionalExtensions.sln 
+      run: dotnet test --filter Category!=TimingTest ./FunctionalExtensions/FunctionalExtensions.sln 
