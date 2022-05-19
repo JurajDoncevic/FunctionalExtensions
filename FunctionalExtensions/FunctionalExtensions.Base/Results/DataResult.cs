@@ -58,6 +58,25 @@ namespace FunctionalExtensions.Base.Results
             _data = default;
         }
 
+        public static implicit operator bool(DataResult<TResult> dataResult)
+        {
+            return dataResult.IsSuccess;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is DataResult<TResult> result &&
+                   _isSuccess == result._isSuccess &&
+                   _errorType == result._errorType &&
+                   _errorMessage == result._errorMessage &&
+                   EqualityComparer<TResult>.Default.Equals(_data, result._data);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(_isSuccess, _errorMessage, _errorType, _data);
+        }
+
 #if USE_CONSTRUCTOR_FUNCS
 
         internal static DataResult<R> OnException<R>(Exception exception) =>

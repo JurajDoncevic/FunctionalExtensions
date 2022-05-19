@@ -35,11 +35,29 @@ namespace FunctionalExtensions.Base
         /// <param name="value"></param>
         /// <returns></returns>
         public static Option<T> Some(T value) => new Option<T>(value);
-        
+
+        public override bool Equals(object obj)
+        {
+            return obj is Option<T> option &&
+                _isSome == option._isSome &&
+                EqualityComparer<T>.Default.Equals(_value, option._value);
+
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(_value, _isSome);
+        }
+
         /// <summary>
         /// Creates a None Option: ()[T] -> None[T]
         /// </summary>
         public static Option<T> None => new Option<T>();
+
+        public static implicit operator bool(Option<T> option)
+        {
+            return option.IsSome;
+        }
     }
 
     public static class OptionExtensions
@@ -54,8 +72,8 @@ namespace FunctionalExtensions.Base
         /// <param name="onSomeFunc"></param>
         /// <param name="onNoneFunc"></param>
         /// <returns></returns>
-        public static R Match<T, R>(this Option<T> target, Func<T, R> onSomeFunc, Func<R> onNoneFunc) 
-            where T : notnull 
+        public static R Match<T, R>(this Option<T> target, Func<T, R> onSomeFunc, Func<R> onNoneFunc)
+            where T : notnull
             where R : notnull
             => target.IsSome
                 ? onSomeFunc(target.Value)
