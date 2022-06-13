@@ -24,6 +24,108 @@ namespace FunctionalExtensions.Base
         }
 
         /// <summary>
+        /// Executes an Action returning/side-effect function with target as the parameter and passes the target onward in the pipeline.
+        /// Side effects preserved if done on a mutable-type target (class)! 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="target">Target object</param>
+        /// <param name="successAction">Side-effect action on success</param>
+        /// <param name="failureAction">Side-effect action on failure</param>
+        /// <remarks>This should be used for logging</remarks>
+        /// <returns></returns>
+        public static Results.DataResult<T> Pass<T>(this Results.DataResult<T> target, 
+                                                    Action<Results.DataResult<T>> successAction,
+                                                    Action<Results.DataResult<T>> failureAction)
+        {
+            if (target.IsSuccess)
+            {
+                successAction(target);
+            }
+            else
+            {
+                failureAction(target);
+            }
+                
+            return target;
+        }
+
+        /// <summary>
+        /// Executes a Unit returning/side-effect function with target as the parameter and passes the target onward in the pipeline.
+        /// Side effects preserved if done on a mutable-type target (class)! 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="target">Target object</param>
+        /// <param name="successFunc">Side-effect action on success</param>
+        /// <param name="failureFunc">Side-effect action on failure</param>
+        /// <remarks>This should be used for logging</remarks>
+        /// <returns></returns>
+        public static Results.DataResult<T> Pass<T>(this Results.DataResult<T> target,
+                                                    Func<Results.DataResult<T>, Unit> successFunc,
+                                                    Func<Results.DataResult<T>, Unit> failureFunc)
+        {
+            if (target.IsSuccess)
+            {
+                successFunc(target);
+            }
+            else
+            {
+                failureFunc(target);
+            }
+
+            return target;
+        }
+
+        /// <summary>
+        /// Executes an Action returning/side-effect function with target as the parameter and passes the target onward in the pipeline.
+        /// Side effects preserved if done on a mutable-type target (class)! 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="target">Target object</param>
+        /// <param name="successAction">Side-effect action on success</param>
+        /// <param name="failureAction">Side-effect action on failure</param>
+        /// <returns></returns>
+        public static Results.Result Pass(this Results.Result target,
+                                          Action<Results.Result> successAction,
+                                          Action<Results.Result> failureAction)
+        {
+            if (target.IsSuccess)
+            {
+                successAction(target);
+            }
+            else
+            {
+                failureAction(target);
+            }
+
+            return target;
+        }
+
+        /// <summary>
+        /// Executes a Unit returning/side-effect function with target as the parameter and passes the target onward in the pipeline.
+        /// Side effects preserved if done on a mutable-type target (class)! 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="target">Target object</param>
+        /// <param name="successFunc">Side-effect function on success</param>
+        /// <param name="failureFunc">Side-effect function on failure</param>
+        /// <returns></returns>
+        public static Results.Result Pass(this Results.Result target,
+                                          Func<Results.Result, Unit> successFunc,
+                                          Func<Results.Result, Unit> failureFunc)
+        {
+            if (target.IsSuccess)
+            {
+                successFunc(target);
+            }
+            else
+            {
+                failureFunc(target);
+            }
+
+            return target;
+        }
+
+        /// <summary>
         /// Executes a Unit returning/side-effect function with target as the parameter and passes the target onward in the pipeline.
         /// Side effects preserved if done on a mutable-type target (class)! 
         /// </summary>
