@@ -40,6 +40,24 @@ namespace FunctionalExtensions.Base.Results
             _errorType = errorType;
         }
 
+        public static implicit operator bool(Result result)
+        {
+            return result.IsSuccess;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Result result &&
+                   _isSuccess == result._isSuccess &&
+                   _errorType == result._errorType &&
+                   _errorMessage == result._errorMessage;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(_isSuccess, _errorMessage, _errorType);
+        }
+
 #if USE_CONSTRUCTOR_FUNCS
         internal static Result OnException(Exception exception) =>
             new Result(false, exception.Message, ErrorTypes.ExceptionThrown);

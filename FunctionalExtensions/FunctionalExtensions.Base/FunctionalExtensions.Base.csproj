@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <PackageId>FunctionalExtensions.Base</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.4</Version>
     <RepositoryUrl>https://github.com/JurajDoncevic/FunctionalExtensions</RepositoryUrl>
     <Description>Functional extensions for C#</Description>
     <Authors>Juraj Doncevic</Authors>
