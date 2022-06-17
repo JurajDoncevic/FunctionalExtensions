@@ -130,6 +130,9 @@ public struct Result<TData>
     private readonly Exception _exception;
     private readonly ResultTypes _resultType;
 
+    /// <summary>
+    /// Enclosed result data
+    /// </summary>
     public TData? Data => _data;
 
     /// <summary>
