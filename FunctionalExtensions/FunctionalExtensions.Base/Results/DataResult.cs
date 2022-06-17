@@ -63,6 +63,11 @@ namespace FunctionalExtensions.Base.Results
             return dataResult.IsSuccess;
         }
 
+        public static implicit operator DataResult<TResult>(TResult data)
+        {
+            return OnSuccess(data);
+        }
+
         public override bool Equals(object obj)
         {
             return obj is DataResult<TResult> result &&

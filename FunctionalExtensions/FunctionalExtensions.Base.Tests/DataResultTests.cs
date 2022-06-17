@@ -369,6 +369,28 @@ namespace FunctionalExtensions.Base.Tests
             Assert.Equal(exceptionMessage, result.ErrorMessage);
         }
 
+        [Fact]
+        public void ImplicitOperatorSuccessReturn()
+        {
+            int? someValue = 5;
+
+            var result =
+                ResultExtensions.AsDataResult(() => someValue);
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void ImplicitOperatorNullSuccessReturn()
+        {
+            int? someValue = null;
+
+            var result =
+                ResultExtensions.AsDataResult(() => someValue);
+
+            Assert.False(result);
+            Assert.Equal(ErrorTypes.NoData, result.ErrorType);
+        }
 
         #region HELPER METHODS
 

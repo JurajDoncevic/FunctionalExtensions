@@ -45,6 +45,11 @@ namespace FunctionalExtensions.Base.Results
             return result.IsSuccess;
         }
 
+        public static implicit operator Result(bool result)
+            => result
+               ? OnSuccess()
+               : OnFail("Failure occured");
+
         public override bool Equals(object obj)
         {
             return obj is Result result &&
