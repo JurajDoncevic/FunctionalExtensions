@@ -21,7 +21,7 @@ namespace FunctionalExtensions.Base
         /// <param name="operation">Limited operation</param>
         /// <param name="timeoutMillis">Time limit in milliseconds</param>
         /// <returns>Data result of operation</returns>
-        public static DataResult<R> RunWithTimeout<R>(this Func<R> operation, int timeoutMillis)
+        public static Result<R> RunWithTimeout<R>(this Func<R> operation, int timeoutMillis)
             => TryCatch(
                 () =>
                 {
@@ -30,10 +30,10 @@ namespace FunctionalExtensions.Base
                     return (finishedBeforeTimeout, result);
                 },
                 _ => _
-                ).ToDataResult()
+                ).ToResult()
                 .Bind(_ => _.finishedBeforeTimeout
-                            ? ResultExtensions.AsDataResult(() => _.result)
-                            : DataResult<R>.OnFail<R>(TIMEOUT_ERROR_MESSAGE));
+                            ? ResultExtensions.AsResult(() => _.result)
+                            : Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE));
 
         /// <summary>
         /// Run an operation within a time limit. Use this version when using a loops that could be infinite. Cancel with ThrowIfCancellationRequested.
@@ -42,7 +42,7 @@ namespace FunctionalExtensions.Base
         /// <param name="operation">Limited operation</param>
         /// <param name="timeoutMillis">Time limit in milliseconds</param>
         /// <returns>Data result of operation</returns>
-        public static DataResult<R> RunWithTimeout<R>(this Func<CancellationToken, R> operation, int timeoutMillis)
+        public static Result<R> RunWithTimeout<R>(this Func<CancellationToken, R> operation, int timeoutMillis)
             => TryCatch(
                 () =>
                 {
@@ -61,35 +61,11 @@ namespace FunctionalExtensions.Base
                     return (taskCancelled, result);
                 },
                 _ => _
-                ).ToDataResult()
+                ).ToResult()
                 .Bind(_ => !_.taskCancelled
-                            ? ResultExtensions.AsDataResult(() => _.result)
-                            : DataResult<R>.OnFail<R>(TIMEOUT_ERROR_MESSAGE));
+                            ? ResultExtensions.AsResult<R>(() => _.result)
+                            : Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE));
 
-        /// <summary>
-        /// Run an async operation within a time limit 
-        /// </summary>
-        /// <typeparam name="R"></typeparam>
-        /// <param name="operation">Limited async operation</param>
-        /// <param name="timeoutMillis">Time limit in milliseconds</param>
-        /// <returns>Data result of operation</returns>
-        public static async Task<DataResult<R>> RunWithTimeout<R>(this Func<Task<R>> operation, int timeoutMillis)
-            => await ResultExtensions.AsDataResult(
-                async () =>
-                {
-                    R result = default;
-                    var task = async () => result = await operation();
-                    var delayTask = Task.Delay(timeoutMillis);
-                    var completedTask = await Task.WhenAny(task.Invoke(), delayTask);
-                    if (completedTask != delayTask)
-                    {
-                        return DataResult<R>.OnSuccess(result);
-                    }
-                    else
-                    {
-                        return DataResult<R>.OnFail<R>(TIMEOUT_ERROR_MESSAGE);
-                    }
-                }).Map(_ => _.Data);
 
         /// <summary>
         /// Run an async operation within a time limit. Use this version when using a loops that could be infinite. Cancel with ThrowIfCancellationRequested.
@@ -98,8 +74,8 @@ namespace FunctionalExtensions.Base
         /// <param name="operation">Limited async operation</param>
         /// <param name="timeoutMillis">Time limit in milliseconds</param>
         /// <returns>Data result of operation</returns>
-        public static async Task<DataResult<R>> RunWithTimeout<R>(this Func<CancellationToken, Task<R>> operation, int timeoutMillis)
-            => await ResultExtensions.AsDataResult(
+        public static async Task<Result<R>> RunWithTimeout<R>(this Func<CancellationToken, Task<R>> operation, int timeoutMillis)
+            => await ResultExtensions.AsResult(
                 async () =>
                 {
                     var tokenSource = new CancellationTokenSource();
@@ -113,39 +89,14 @@ namespace FunctionalExtensions.Base
                     {
                         if(completedTask.IsFaulted)
                         { 
-                            return DataResult<R>.OnException<R>(completedTask.Exception.InnerExceptions.First());
+                            return Result<R>.OnException<R>(completedTask.Exception.InnerExceptions.First());
                         }
-                        return DataResult<R>.OnSuccess(result);
+                        return Result<R>.OnSuccess(result);
                     }
                     else
                     {
                         tokenSource.Cancel();
-                        return DataResult<R>.OnFail<R>(TIMEOUT_ERROR_MESSAGE);
-                    }
-                }).Map(_ => _.Data);
-
-        /// <summary>
-        /// Run an operation within a time limit
-        /// </summary>
-        /// <typeparam name="R"></typeparam>
-        /// <param name="operation">Limited operation</param>
-        /// <param name="timeoutMillis">Time limit in milliseconds</param>
-        /// <returns>Data result of operation</returns>
-        public static async Task<DataResult<R>> RunWithTimeout<R>(this Func<DataResult<R>> operation, int timeoutMillis)
-            => await ResultExtensions.AsDataResult(
-                async () =>
-                {
-                    DataResult<R> result = default;
-                    var task = async () => result = await Task.Run(() => operation());
-                    var delayTask = Task.Delay(timeoutMillis);
-                    var completedTask = await Task.WhenAny(task.Invoke(), delayTask);
-                    if (completedTask != delayTask)
-                    {
-                        return result;
-                    }
-                    else
-                    {
-                        return DataResult<R>.OnFail<R>(TIMEOUT_ERROR_MESSAGE);
+                        return Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE);
                     }
                 }).Map(_ => _.Data);
 
@@ -156,13 +107,13 @@ namespace FunctionalExtensions.Base
         /// <param name="operation">Limited operation</param>
         /// <param name="timeoutMillis">Time limit in milliseconds</param>
         /// <returns>Data result of operation</returns>
-        public static async Task<DataResult<R>> RunWithTimeout<R>(this Func<CancellationToken, DataResult<R>> operation, int timeoutMillis)
-            => await ResultExtensions.AsDataResult(
+        public static async Task<Result<R>> RunWithTimeout<R>(this Func<CancellationToken, Result<R>> operation, int timeoutMillis)
+            => await ResultExtensions.AsResult(
                 async () =>
                 {
                     var tokenSource = new CancellationTokenSource();
                     var token = tokenSource.Token;
-                    DataResult<R> result = default;
+                    Result<R> result = default;
                     var task = Task.Run(() => result = operation(token), token);
                     var delayTask = Task.Delay(timeoutMillis);
                     var completedTask = await Task.WhenAny(task, delayTask);
@@ -170,39 +121,14 @@ namespace FunctionalExtensions.Base
                     {
                         if (task.IsFaulted)
                         {
-                            return DataResult<R>.OnException<R>(completedTask.Exception.InnerExceptions.First());
+                            return Result<R>.OnException<R>(completedTask.Exception.InnerExceptions.First());
                         }
                         return result;
                     }
                     else
                     {
                         tokenSource.Cancel();
-                        return DataResult<R>.OnFail<R>(TIMEOUT_ERROR_MESSAGE);
-                    }
-                }).Map(_ => _.Data);
-
-        /// <summary>
-        /// Run an operation within a time limit
-        /// </summary>
-        /// <typeparam name="R"></typeparam>
-        /// <param name="operation">Limited async operation</param>
-        /// <param name="timeoutMillis">Time limit in milliseconds</param>
-        /// <returns>Data result of operation</returns>
-        public static async Task<DataResult<R>> RunWithTimeout<R>(this Func<Task<DataResult<R>>> operation, int timeoutMillis)
-            => await ResultExtensions.AsDataResult(
-                async () =>
-                {
-                    DataResult<R> result = default;
-                    var task = async () => result = await operation();
-                    var delayTask = Task.Delay(timeoutMillis);
-                    var completedTask = await Task.WhenAny(task.Invoke(), delayTask);
-                    if (completedTask != delayTask)
-                    {
-                        return result;
-                    }
-                    else
-                    {
-                        return DataResult<R>.OnFail<R>(TIMEOUT_ERROR_MESSAGE);
+                        return Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE);
                     }
                 }).Map(_ => _.Data);
 
@@ -213,13 +139,13 @@ namespace FunctionalExtensions.Base
         /// <param name="operation">Limited async operation</param>
         /// <param name="timeoutMillis">Time limit in milliseconds</param>
         /// <returns>Data result of operation</returns>
-        public static async Task<DataResult<R>> RunWithTimeout<R>(this Func<CancellationToken, Task<DataResult<R>>> operation, int timeoutMillis)
-            => await ResultExtensions.AsDataResult(
+        public static async Task<Result<R>> RunWithTimeout<R>(this Func<CancellationToken, Task<Result<R>>> operation, int timeoutMillis)
+            => await ResultExtensions.AsResult(
                 async () =>
                 {
                     var tokenSource = new CancellationTokenSource();
                     var token = tokenSource.Token;
-                    DataResult<R> result = default;
+                    Result<R> result = default;
                     var task = Task.Run(async () => result = await operation(token));
                     var delayTask = Task.Delay(timeoutMillis);
                     var completedTask = await Task.WhenAny(task, delayTask);
@@ -230,32 +156,9 @@ namespace FunctionalExtensions.Base
                     else
                     {
                         tokenSource.Cancel();
-                        return DataResult<R>.OnFail<R>(TIMEOUT_ERROR_MESSAGE);
+                        return Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE);
                     }
                 }).Map(_ => _.Data);
-
-        /// <summary>
-        /// Run an operation within a time limit
-        /// </summary>
-        /// <param name="operation">Limited operation</param>
-        /// <param name="timeoutMillis">Time limit in milliseconds</param>
-        /// <returns>Result of operation</returns>
-        public static Result RunWithTimeout(this Func<bool> operation, int timeoutMillis)
-        {
-            try
-            {
-                bool result = false;
-                bool finishedBeforeTimeout = Task.Run(() => result = operation()).Wait(timeoutMillis);
-                return finishedBeforeTimeout
-                    ? ResultExtensions.AsResult(() => result)
-                    : Result.OnFail(TIMEOUT_ERROR_MESSAGE);
-
-            }
-            catch (Exception exception)
-            {
-                return Result.OnException(exception);
-            }
-        }
 
         /// <summary>
         /// Run an operation within a time limit. Use this version when using a loops that could be infinite. Cancel with ThrowIfCancellationRequested.
@@ -279,7 +182,7 @@ namespace FunctionalExtensions.Base
                 else
                 {
                     tokenSource.Cancel();
-                    return Result.OnFail(TIMEOUT_ERROR_MESSAGE);
+                    return Result.OnFailure(TIMEOUT_ERROR_MESSAGE);
                 }
 
             }
@@ -313,71 +216,7 @@ namespace FunctionalExtensions.Base
                 }
                 else
                 {
-                    return Result.OnFail(TIMEOUT_ERROR_MESSAGE);
-                }
-            }
-            catch (Exception exception)
-            {
-                return Result.OnException(exception);
-            }
-        }
-
-        /// <summary>
-        /// Run an operation within a time limit. Use this version when using a loops that could be infinite. Cancel with ThrowIfCancellationRequested.
-        /// </summary>
-        /// <param name="operation">Limited async operation</param>
-        /// <param name="timeoutMillis">Time limit in milliseconds</param>
-        /// <returns>Result of operation</returns>
-        public async static Task<Result> RunWithTimeout(this Func<CancellationToken, Task<bool>> operation, int timeoutMillis)
-        {
-            try
-            {
-                var tokenSource = new CancellationTokenSource();
-                var token = tokenSource.Token;
-                bool result = false;
-                var task = Task.Run(async () => result = await operation(token), token);
-                var delayTask = Task.Delay(timeoutMillis);
-                var completedTask = await Task.WhenAny(task, delayTask);
-                if (completedTask != delayTask)
-                {
-                    if (task.IsFaulted)
-                    {
-                        return Result.OnException(((AggregateException)task.Exception).InnerExceptions.First());
-                    }
-                    return ResultExtensions.AsResult(() => result);
-                }
-                else
-                {
-                    return Result.OnFail(TIMEOUT_ERROR_MESSAGE);
-                }
-            }
-            catch (Exception exception)
-            {
-                return Result.OnException(exception);
-            }
-        }
-
-        /// <summary>
-        /// Run an operation within a time limit
-        /// </summary>
-        /// <param name="operation">Limited operation</param>
-        /// <param name="timeoutMillis">Time limit in milliseconds</param>
-        /// <returns>Result of operation</returns>
-        public static async Task<Result> RunWithTimeout(this Func<Result> operation, int timeoutMillis)
-        {
-            try
-            {
-                Result result = default;
-                var task = async () => result = await Task.Run(() => operation());
-                var delayTask = Task.Delay(timeoutMillis);
-                var completedTask = await Task.WhenAny(task.Invoke(), delayTask);
-                if (completedTask != delayTask)
-                {
-                    return result;
-                }
-                else
-                {
-                    return Result.OnFail(TIMEOUT_ERROR_MESSAGE);
+                    return Result.OnFailure(TIMEOUT_ERROR_MESSAGE);
                 }
             }
             catch (Exception exception)
@@ -408,36 +247,7 @@ namespace FunctionalExtensions.Base
                 }
                 else
                 {
-                    return Result.OnFail(TIMEOUT_ERROR_MESSAGE);
-                }
-            }
-            catch (Exception exception)
-            {
-                return Result.OnException(exception);
-            }
-        }
-
-        /// <summary>
-        /// Run an operation within a time limit
-        /// </summary>
-        /// <param name="operation">Limited async operation</param>
-        /// <param name="timeoutMillis">Time limit in milliseconds</param>
-        /// <returns>Result of operation</returns>
-        public static async Task<Result> RunWithTimeout(this Func<Task<Result>> operation, int timeoutMillis)
-        {
-            try
-            {
-                Result result = default;
-                var task = async () => result = await operation();
-                var delayTask = Task.Delay(timeoutMillis);
-                var completedTask = await Task.WhenAny(task.Invoke(), delayTask);
-                if (completedTask != delayTask)
-                {
-                    return result;
-                }
-                else
-                {
-                    return Result.OnFail(TIMEOUT_ERROR_MESSAGE);
+                    return Result.OnFailure(TIMEOUT_ERROR_MESSAGE);
                 }
             }
             catch (Exception exception)
@@ -468,7 +278,7 @@ namespace FunctionalExtensions.Base
                 }
                 else
                 {
-                    return Result.OnFail(TIMEOUT_ERROR_MESSAGE);
+                    return Result.OnFailure(TIMEOUT_ERROR_MESSAGE);
                 }
             }
             catch (Exception exception)

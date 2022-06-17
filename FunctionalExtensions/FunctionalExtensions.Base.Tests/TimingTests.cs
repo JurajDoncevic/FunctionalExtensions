@@ -12,7 +12,7 @@ namespace FunctionalExtensions.Base.Tests
     public class TimingTests
     {
         [Fact, Trait("Category", "TimingTest")]
-        public void TestBlockingDataResultTimeout()
+        public void TestBlockingResultTimeout()
         {
             Func<int> shortOp = () => { Task.Delay(50).Wait(); return 50; };
             Func<int> longOp = () => { Task.Delay(1500).Wait(); return 1500; };
@@ -24,172 +24,11 @@ namespace FunctionalExtensions.Base.Tests
             Assert.True(shortOpResult.HasData);
             Assert.Equal(50, shortOpResult.Data);
 
-            Assert.True(longOpResult.IsFailure);
+            Assert.False(longOpResult);
         }
 
         [Fact, Trait("Category", "TimingTest")]
-        public async void TestAsyncOperationTimeout()
-        {
-            Func<Task<int>> shortOp = async () => { await Task.Delay(50); return 50; };
-            Func<Task<int>> longOp = async () => { await Task.Delay(1500); return 1500; };
-
-            var shortOpResult = await shortOp.RunWithTimeout(700);
-            var longOpResult = await longOp.RunWithTimeout(700);
-
-            Assert.True(shortOpResult.IsSuccess);
-            Assert.True(shortOpResult.HasData);
-            Assert.Equal(50, shortOpResult.Data);
-
-            Assert.True(longOpResult.IsFailure);
-        }
-
-        [Fact, Trait("Category", "TimingTest")]
-        public async void TestDataResultTimeout()
-        {
-            Func<DataResult<int>> shortOp = () => ResultExtensions.AsDataResult(() =>
-            {
-                Task.Delay(50).Wait();
-                return 50;
-            });
-            Func<DataResult<int>> longOp = () => ResultExtensions.AsDataResult(() =>
-            {
-                Task.Delay(1500).Wait();
-                return 50;
-            });
-
-            var shortOpResult = await shortOp.RunWithTimeout(700);
-            var longOpResult = await longOp.RunWithTimeout(700);
-
-            Assert.True(shortOpResult.IsSuccess);
-            Assert.True(shortOpResult.HasData);
-            Assert.Equal(50, shortOpResult.Data);
-
-            Assert.True(longOpResult.IsFailure);
-        }
-
-        [Fact, Trait("Category", "TimingTest")]
-        public async void TestAsyncOperationDataResultTimeout()
-        {
-            var shortOp = async () => await ResultExtensions.AsDataResult(
-                async () =>
-            {
-                await Task.Delay(50);
-                return 50;
-            });
-            var longOp = async () => await ResultExtensions.AsDataResult(
-                async () =>
-            {
-                await Task.Delay(1500);
-                return 50;
-            });
-
-            var shortOpResult = await shortOp.RunWithTimeout(700);
-            var longOpResult = await longOp.RunWithTimeout(700);
-
-            Assert.True(shortOpResult.IsSuccess);
-            Assert.True(shortOpResult.HasData);
-            Assert.Equal(50, shortOpResult.Data);
-
-            Assert.True(longOpResult.IsFailure);
-        }
-
-
-        [Fact, Trait("Category", "TimingTest")]
-        public void TestOperationBoolResultTimeout()
-        {
-            var shortOp = () =>
-                {
-                    Task.Delay(50).Wait();
-                    return true;
-                };
-            var longOp = () =>
-                {
-                    Task.Delay(1500).Wait();
-                    return true;
-                };
-
-            var shortOpResult = shortOp.RunWithTimeout(700);
-            var longOpResult = longOp.RunWithTimeout(700);
-
-            Assert.True(shortOpResult.IsSuccess);
-
-            Assert.True(longOpResult.IsFailure);
-        }
-
-        [Fact, Trait("Category", "TimingTest")]
-        public async void TestAsyncOperationBoolResultTimeout()
-        {
-            var shortOp = async () =>
-            {
-                await Task.Delay(50);
-                return true;
-            };
-            var longOp = async () =>
-            {
-                await Task.Delay(1500);
-                return true;
-            };
-
-            var shortOpResult = await shortOp.RunWithTimeout(700);
-            var longOpResult = await longOp.RunWithTimeout(700);
-
-            Assert.True(shortOpResult.IsSuccess);
-
-            Assert.True(longOpResult.IsFailure);
-        }
-
-        [Fact, Trait("Category", "TimingTest")]
-        public async void TestOperationResultTimeout()
-        {
-            var shortOp = () => ResultExtensions.AsResult(
-                () =>
-                {
-                    Task.Delay(50).Wait();
-                    return true;
-                });
-
-            var longOp = () => ResultExtensions.AsResult(
-                () =>
-                {
-                    Task.Delay(1500).Wait();
-                    return true;
-                });
-
-            var shortOpResult = await shortOp.RunWithTimeout(700);
-            var longOpResult = await longOp.RunWithTimeout(700);
-
-            Assert.True(shortOpResult.IsSuccess);
-
-            Assert.True(longOpResult.IsFailure);
-        }
-
-        [Fact, Trait("Category", "TimingTest")]
-        public async void TestAsyncOperationResultTimeout()
-        {
-            var shortOp = async () => await ResultExtensions.AsResult(
-                async () =>
-                {
-                    await Task.Delay(50);
-                    return true;
-                });
-
-            var longOp = async () => await ResultExtensions.AsResult(
-                async () =>
-                {
-                    await Task.Delay(1500);
-                    return true;
-                });
-
-            var shortOpResult = await shortOp.RunWithTimeout(700);
-            var longOpResult = await longOp.RunWithTimeout(700);
-
-            Assert.True(shortOpResult.IsSuccess);
-
-            Assert.True(longOpResult.IsFailure);
-        }
-
-        [Fact, Trait("Category", "TimingTest")]
-        public void BlockingDataResultTest()
+        public void BlockingResultTest()
         {
             var operation = (CancellationToken token) =>
             {
@@ -200,35 +39,33 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = operation.RunWithTimeout(700);
 
-            Assert.True(result.IsSuccess);
+            Assert.True(result);
             Assert.True(result.HasData);
             Assert.Equal(64, result.Data);
 
         }
 
         [Fact, Trait("Category", "TimingTest")]
-        public void BlockingDataResultWhileTrueTest()
+        public void BlockingResultWhileTrueTest()
         {
             var whileTrueOp = new Func<CancellationToken, int>(token => { while (true) { token.ThrowIfCancellationRequested(); } return 64; });
 
             var result = whileTrueOp.RunWithTimeout(700);
 
-            Assert.True(result.IsFailure);
-            Assert.False(result.IsSuccess);
-            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.Message);
 
         }
 
         [Fact, Trait("Category", "TimingTest")]
-        public void BlockingDataResultWhileTrueThrowsExceptionTest()
+        public void BlockingResultWhileTrueThrowsExceptionTest()
         {
             var whileTrueOp = new Func<CancellationToken, int>(token => { while (true) { token.ThrowIfCancellationRequested(); throw new Exception("TEST"); } return 64; });
 
             var result = whileTrueOp.RunWithTimeout(700);
 
-            Assert.True(result.IsFailure);
-            Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal("TEST", result.Message);
 
         }
 
@@ -265,9 +102,8 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await operation.RunWithTimeout(700);
 
-            Assert.True(result.IsFailure);
-            Assert.False(result.IsSuccess);
-            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -286,20 +122,19 @@ namespace FunctionalExtensions.Base.Tests
                     return 700;
                 };
 
-            var result = await operation.RunWithTimeout(700);
+            var result = await operation.RunWithTimeout(700000);
 
-            Assert.True(result.IsFailure);
-            Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
-        public async void AsyncDataResultOperationTest()
+        public async void AsyncResultOperationTest()
         {
-            Func<CancellationToken, Task<DataResult<int>>> operation =
+            Func<CancellationToken, Task<Result<int>>> operation =
                 async token =>
                 {
-                    return await ResultExtensions.AsDataResult(async () =>
+                    return await ResultExtensions.AsResult(async () =>
                     {
                         token.ThrowIfCancellationRequested();
                         await Task.Delay(1);
@@ -316,12 +151,12 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact, Trait("Category", "TimingTest")]
-        public async void AsyncDataResultOperationWhileTrueTest()
+        public async void AsyncResultOperationWhileTrueTest()
         {
-            Func<CancellationToken, Task<DataResult<int>>> operation =
+            Func<CancellationToken, Task<Result<int>>> operation =
                 async token =>
                 {
-                    return await ResultExtensions.AsDataResult(async () =>
+                    return await ResultExtensions.AsResult(async () =>
                     {
                         while (true)
                         {
@@ -336,18 +171,17 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await operation.RunWithTimeout(700);
 
-            Assert.True(result.IsFailure);
-            Assert.False(result.IsSuccess);
-            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
-        public async void AsyncDataResultOperationWhileTrueThrowsExceptionTest()
+        public async void AsyncResultOperationWhileTrueThrowsExceptionTest()
         {
-            Func<CancellationToken, Task<DataResult<int>>> operation =
+            Func<CancellationToken, Task<Result<int>>> operation =
                 async token =>
                 {
-                    return await ResultExtensions.AsDataResult(async () =>
+                    return await ResultExtensions.AsResult(async () =>
                     {
                         while (true)
                         {
@@ -363,18 +197,17 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await operation.RunWithTimeout(700);
 
-            Assert.True(result.IsFailure);
-            Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
-        public async void DataResultOperationTest()
+        public async void ResultOperationTest()
         {
-            Func<CancellationToken, DataResult<int>> operation =
+            Func<CancellationToken, Result<int>> operation =
                 token =>
                 {
-                    return ResultExtensions.AsDataResult(() =>
+                    return ResultExtensions.AsResult(() =>
                     {
                         token.ThrowIfCancellationRequested();
                         Task.Delay(1).Wait();
@@ -391,12 +224,12 @@ namespace FunctionalExtensions.Base.Tests
         }
 
         [Fact, Trait("Category", "TimingTest")]
-        public async void DataResultOperationWhileTrueTest()
+        public async void ResultOperationWhileTrueTest()
         {
-            Func<CancellationToken, DataResult<int>> operation =
+            Func<CancellationToken, Result<int>> operation =
                 token =>
                 {
-                    return ResultExtensions.AsDataResult(() =>
+                    return ResultExtensions.AsResult(() =>
                     {
                         while (true)
                         {
@@ -411,18 +244,17 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await operation.RunWithTimeout(700);
 
-            Assert.True(result.IsFailure);
-            Assert.False(result.IsSuccess);
-            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
-        public async void DataResultOperationWhileTrueThrowsExceptionTest()
+        public async void ResultOperationWhileTrueThrowsExceptionTest()
         {
-            Func<CancellationToken, DataResult<int>> operation =
+            Func<CancellationToken, Result<int>> operation =
                 token =>
                 {
-                    return ResultExtensions.AsDataResult(() =>
+                    return ResultExtensions.AsResult(() =>
                     {
                         while (true)
                         {
@@ -438,9 +270,8 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await operation.RunWithTimeout(700);
 
-            Assert.True(result.IsFailure);
-            Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -474,7 +305,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = operation.RunWithTimeout(700);
 
             Assert.False(result.IsSuccess);
-            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.ErrorMessage);
+            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -494,7 +325,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = operation.RunWithTimeout(700);
 
             Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.ErrorMessage);
+            Assert.Equal("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -529,7 +360,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = await operation.RunWithTimeout(700);
 
             Assert.False(result.IsSuccess);
-            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.ErrorMessage);
+            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -549,7 +380,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = await operation.RunWithTimeout(700);
 
             Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.ErrorMessage);
+            Assert.Equal("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -586,7 +417,7 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await operation.RunWithTimeout(700);
             Assert.False(result.IsSuccess);
-            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.ErrorMessage);
+            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.Message);
 
         }
 
@@ -608,7 +439,7 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await operation.RunWithTimeout(700);
             Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.ErrorMessage);
+            Assert.Equal("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -647,7 +478,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = await operation.RunWithTimeout(700);
 
             Assert.False(result.IsSuccess);
-            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.ErrorMessage);
+            Assert.Equal(Timing.TIMEOUT_ERROR_MESSAGE, result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -670,7 +501,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = await operation.RunWithTimeout(700);
 
             Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.ErrorMessage);
+            Assert.Equal("TEST", result.Message);
         }
 
 

@@ -14,90 +14,77 @@ namespace FunctionalExtensions.Base.Tests
     public class ResultTests
     {
 
-        [Fact]
+        [Fact(DisplayName = "Get a success result")]
         public void ResultSuccessTest()
         {
             var result =
-                TryCatch(
+                Results.ResultExtensions.ToResult(TryCatch(
                     ((Action)(() => Console.WriteLine())).ToFunc(),
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
-            Assert.NotNull(result);
-            Assert.True(result.IsSuccess);
-            Assert.False(result.IsFailure);
-            Assert.Equal(ErrorTypes.None, result.ErrorType);
+            Assert.True(result);
+            Assert.Equal(ResultTypes.SUCCESS, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get an exception on Result")]
         public void ResultExceptionFailTest()
         {
             const string exceptionMessage = "Exception message";
 
             var result =
-                TryCatch(
-                    ((Action)(() => {throw new Exception(exceptionMessage); })).ToFunc(),
+                Results.ResultExtensions.ToResult(TryCatch(
+                    ((Action)(() => { throw new Exception(exceptionMessage); })).ToFunc(),
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get specific type of exception on Result")]
         public void ResultTypedExceptionFailTest()
         {
             var result =
-                TryCatch(
+                Results.ResultExtensions.ToResult(TryCatch(
                     ((Action)(() => { throw new ArgumentNullException(); })).ToFunc(),
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(new ArgumentNullException().Message, result.ErrorMessage);
-            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
+            Assert.False(result);
+            Assert.IsType<ArgumentNullException>(result.Exception);
+            Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result success")]
         public void ResultLogicSuccessTest()
         {
-            const string exceptionMessage = "Exception message";
 
             var result =
-                TryCatch(
+                Results.ResultExtensions.ToResult(TryCatch(
                     () => true,
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
-            Assert.NotNull(result);
-            Assert.True(result.IsSuccess);
-            Assert.False(result.IsFailure);
-            Assert.Equal(string.Empty, result.ErrorMessage);
-            Assert.Equal(ErrorTypes.None, result.ErrorType);
+            Assert.True(result);
+            Assert.Equal(ResultTypes.SUCCESS, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result failure")]
         public void ResultLogicFailTest()
         {
 
             var result =
-                TryCatch(
+                Results.ResultExtensions.ToResult(TryCatch(
                     () => false,
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal("Operation failed", result.ErrorMessage);
-            Assert.Equal(ErrorTypes.Failure, result.ErrorType);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.FAILURE, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Use multiple Binds with success on Result")]
         public void ResultBindSuccessTest()
         {
             var result =
@@ -106,13 +93,11 @@ namespace FunctionalExtensions.Base.Tests
                 .Bind(_ => GetLogicSuccess())
                 .Bind(_ => GetSuccessResult());
 
-            Assert.NotNull(result);
-            Assert.True(result.IsSuccess);
-            Assert.False(result.IsFailure);
-            Assert.Equal(ErrorTypes.None, result.ErrorType);
+            Assert.True(result);
+            Assert.Equal(ResultTypes.SUCCESS, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result failure through Binds")]
         public void ResultBindLogicFailTest()
         {
             var result =
@@ -121,13 +106,11 @@ namespace FunctionalExtensions.Base.Tests
                 .Bind(_ => GetLogicFail())
                 .Bind(_ => GetSuccessResult());
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorTypes.Failure, result.ErrorType);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.FAILURE, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result exception through Binds")]
         public void ResultBindExceptionFailTest()
         {
             string exceptionMessage = "EXCEPTION MESSAGE";
@@ -137,14 +120,12 @@ namespace FunctionalExtensions.Base.Tests
                     .Bind(_ => GetExceptionFail(exceptionMessage))
                     .Bind(_ => GetSuccessResult());
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
-            Assert.Equal(exceptionMessage, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
+            Assert.Equal(exceptionMessage, result.Message);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result success through async Binds")]
         public async void ResultBindSuccessAsyncTest()
         {
             var result =
@@ -153,13 +134,11 @@ namespace FunctionalExtensions.Base.Tests
                     .Bind(_ => GetLogicSuccessAsync())
                     .Bind(_ => GetSuccessResultAsync());
 
-            Assert.NotNull(result);
-            Assert.True(result.IsSuccess);
-            Assert.False(result.IsFailure);
-            Assert.Equal(ErrorTypes.None, result.ErrorType);
+            Assert.True(result);
+            Assert.Equal(ResultTypes.SUCCESS, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result failure through Binds async")]
         public async void ResultBindLogicFailAsyncTest()
         {
             var result =
@@ -168,13 +147,11 @@ namespace FunctionalExtensions.Base.Tests
                     .Bind(_ => GetLogicFailAsync())
                     .Bind(_ => GetSuccessResultAsync());
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorTypes.Failure, result.ErrorType);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.FAILURE, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result exception through Binds async")]
         public async void ResultBindExceptionFailAsyncTest()
         {
             string exceptionMessage = "EXCEPTION MESSAGE";
@@ -184,16 +161,14 @@ namespace FunctionalExtensions.Base.Tests
                     .Bind(_ => GetExceptionFailAsync(exceptionMessage))
                     .Bind(_ => GetSuccessResultAsync());
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
-            Assert.Equal(exceptionMessage, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
+            Assert.Equal(exceptionMessage, result.Message);
         }
 
 
 
-        [Fact]
+        [Fact(DisplayName = "Get Result success through Fish chain")]
         public void ResultFishSuccessTest()
         {
             var composition =
@@ -205,13 +180,11 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = composition(true);
 
-            Assert.NotNull(result);
-            Assert.True(result.IsSuccess);
-            Assert.False(result.IsFailure);
-            Assert.Equal(ErrorTypes.None, result.ErrorType);
+            Assert.True(result);
+            Assert.Equal(ResultTypes.SUCCESS, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result failure through Fish chain")]
         public void ResultFishLogicFailTest()
         {
             var composition =
@@ -223,13 +196,11 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = composition(false);
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorTypes.Failure, result.ErrorType);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.FAILURE, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result exception through Fish chain")]
         public void ResultFishExceptionFailTest()
         {
             string exceptionMessage = "EXCEPTION MESSAGE";
@@ -243,14 +214,12 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = composition(true);
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
-            Assert.Equal(exceptionMessage, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
+            Assert.Equal(exceptionMessage, result.Message);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result success through Fish chain async")]
         public async void ResultFishSuccessAsyncTest()
         {
             var composition =
@@ -262,13 +231,11 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await composition(true);
 
-            Assert.NotNull(result);
-            Assert.True(result.IsSuccess);
-            Assert.False(result.IsFailure);
-            Assert.Equal(ErrorTypes.None, result.ErrorType);
+            Assert.True(result);
+            Assert.Equal(ResultTypes.SUCCESS, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result failure through Fish chain async")]
         public async void ResultFishLogicFailAsyncTest()
         {
             var composition =
@@ -280,13 +247,11 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await composition(false);
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorTypes.Failure, result.ErrorType);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.FAILURE, result.ResultType);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get Result exception through Fish chain async")]
         public async void ResultFishExceptionFailAsyncTest()
         {
             string exceptionMessage = "EXCEPTION MESSAGE";
@@ -300,133 +265,125 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await composition(true);
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
-            Assert.Equal(exceptionMessage, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
+            Assert.Equal(exceptionMessage, result.Message);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get AsResult success async")]
         public async void AsResultSuccessAsyncTest()
         {
             var result = await ResultExtensions.AsResult(async () => { await Task.Delay(0); return true; });
 
-            Assert.NotNull(result);
-            Assert.True(result.IsSuccess);
+            Assert.True(result);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get AsResult failure async")]
         public async void AsResultFailAsyncTest()
         {
             var result = await ResultExtensions.AsResult(async () => { await Task.Delay(0); return false; });
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
+            Assert.False(result);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get AsResult exception async")]
         public async void AsResultExceptionAsyncTest()
         {
             var exceptionMessage = "test";
             var result = await ResultExtensions.AsResult(async () => { await Task.Delay(0); throw new Exception(exceptionMessage); return true; });
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
-            Assert.Equal(exceptionMessage, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
+            Assert.Equal(exceptionMessage, result.Message);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get AsResult success")]
         public void AsResultSuccessTest()
         {
             var result = ResultExtensions.AsResult(() => true);
 
-            Assert.NotNull(result);
-            Assert.True(result.IsSuccess);
+            Assert.True(result);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get AsResult failure")]
         public void AsResultFailTest()
         {
             var result = ResultExtensions.AsResult(() => false);
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
+            Assert.False(result);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Get AsResult exception")]
         public void AsResultExceptionTest()
         {
             var exceptionMessage = "test";
             var result = ResultExtensions.AsResult(() => { throw new Exception(exceptionMessage); return true; });
 
-            Assert.NotNull(result);
-            Assert.False(result.IsSuccess);
-            Assert.Equal(ErrorTypes.ExceptionThrown, result.ErrorType);
-            Assert.Equal(exceptionMessage, result.ErrorMessage);
+            Assert.False(result);
+            Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
+            Assert.Equal(exceptionMessage, result.Message);
         }
 
         #region HELPER METHODS
         private Result GetLogicFail()
-            => TryCatch(
+            => Results.ResultExtensions.ToResult(TryCatch(
                     () => false,
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
         private Result GetLogicSuccess()
-            => TryCatch(
+            => Results.ResultExtensions.ToResult(TryCatch(
                     () => true,
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
         private Result GetSuccessResult()
-            => TryCatch(
+            => Results.ResultExtensions.ToResult(TryCatch(
                     ((Action)(() => Console.WriteLine())).ToFunc(),
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
         private Result GetExceptionFail(string exceptionMessage)
-            => TryCatch(
+            => Results.ResultExtensions.ToResult(TryCatch(
                     ((Action)(() => { throw new Exception(exceptionMessage); })).ToFunc(),
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
         private async Task<Result> GetLogicFailAsync()
-            => await TryCatch(
+            => await Results.ResultExtensions.ToResult(TryCatch(
                     async () => { await Task.Run(() => 0); return false; },
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
         private async Task<Result> GetLogicSuccessAsync()
-            => await TryCatch(
+            => await Results.ResultExtensions.ToResult(TryCatch(
                     async () => { await Task.Run(() => 0); return true; },
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
         private async Task<Result> GetSuccessResultAsync()
-            => await TryCatch(
+            => await Results.ResultExtensions.ToResult(TryCatch(
                     async () => (await Task.Run(() => 0)).Ignore(),
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
         private async Task<Result> GetExceptionFailAsync(string exceptionMessage)
-            => await TryCatch(
-                    async () => { throw new Exception(exceptionMessage); return await Task.Run(() => Unit()); },
+            => await Results.ResultExtensions.ToResult(TryCatch(
+                    async () => { throw new Exception(exceptionMessage); return await Task.Run(() => UnitExtensions.Unit()); },
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
         private Result GetResultByLogic(bool isSuccess)
-            => TryCatch(
+            => Results.ResultExtensions.ToResult(TryCatch(
                     () => isSuccess,
                     (ex) => ex
-                    ).ToResult();
+                    ));
 
         private async Task<Result> GetResultByLogicAsync(bool isSuccess)
-            => await TryCatch(
+            => await Results.ResultExtensions.ToResult(TryCatch(
                     async () => { await Task.Run(() => 0); return isSuccess; },
                     (ex) => ex
-                    ).ToResult();
+                    ));
         #endregion
     }
 }
