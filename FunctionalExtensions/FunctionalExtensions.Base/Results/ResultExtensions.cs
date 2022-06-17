@@ -8,12 +8,106 @@ namespace FunctionalExtensions.Base.Results;
 
 public static class ResultExtensions
 {
+    #region MATCH
+    /// <summary>
+    /// Match function to resolve the Result to a single type of data by result type
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="R"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="onSuccess">Function to execute on success</param>
+    /// <param name="onFailure">Function to execute on failure. First parameter is the message</param>
+    /// <param name="onException">Function to execute on exception. First parameter is the message</param>
+    /// <returns></returns>
+    public static R Match<T, R>(this Result<T> result, Func<T, R> onSuccess, Func<string, R> onFailure, Func<string, R> onException = null)
+        => result switch
+        {
+            Result<T> { ResultType: ResultTypes.SUCCESS } r => onSuccess(r.Data),
+            Result<T> { ResultType: ResultTypes.FAILURE } r => onFailure(r.Message),
+            Result<T> { ResultType: ResultTypes.EXCEPTION } r => (onException ?? onFailure).Invoke(r.Message),
+            _ => throw new NotImplementedException()
+        };
+
+    /// <summary>
+    /// Match function to resolve the Result to a single type of data by result type
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="R"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="onSuccess">Function to execute on success</param>
+    /// <param name="onFailure">Function to execute on failure. First parameter is the message</param>
+    /// <param name="onException">Function to execute on exception. First parameter is the message</param>
+    /// <returns></returns>
+    public static R Match<R>(this Result result, Func<string, R> onSuccess, Func<string, R> onFailure, Func<string, R> onException = null)
+        => result switch
+        {
+            Result { ResultType: ResultTypes.SUCCESS } r => onSuccess(r.Message),
+            Result { ResultType: ResultTypes.FAILURE } r => onFailure(r.Message),
+            Result { ResultType: ResultTypes.EXCEPTION } r => (onException ?? onFailure).Invoke(r.Message),
+            _ => throw new NotImplementedException()
+        };
+
+    /// <summary>
+    /// Async Match function to resolve the Result to a single type of data by result type
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="R"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="onSuccess">Function to execute on success</param>
+    /// <param name="onFailure">Function to execute on failure. First parameter is the message</param>
+    /// <param name="onException">Function to execute on exception. First parameter is the message</param>
+    /// <returns></returns>
+    public async static Task<R> Match<T, R>(this Task<Result<T>> result, Func<T, R> onSuccess, Func<string, R> onFailure, Func<string, R> onException = null)
+        => await result switch
+        {
+            Result<T> { ResultType: ResultTypes.SUCCESS } r => onSuccess(r.Data),
+            Result<T> { ResultType: ResultTypes.FAILURE } r => onFailure(r.Message),
+            Result<T> { ResultType: ResultTypes.EXCEPTION } r => (onException ?? onFailure).Invoke(r.Message),
+            _ => throw new NotImplementedException()
+        };
+
+    /// <summary>
+    /// Async Match function to resolve the Result to a single type of data by result type
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="R"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="onSuccess">Function to execute on success</param>
+    /// <param name="onFailure">Function to execute on failure. First parameter is the message</param>
+    /// <param name="onException">Function to execute on exception. First parameter is the message</param>
+    /// <returns></returns>
+    public async static Task<R> Match<R>(this Task<Result> result, Func<string, R> onSuccess, Func<string, R> onFailure, Func<string, R> onException = null)
+        => await result switch
+        {
+            Result { ResultType: ResultTypes.SUCCESS } r => onSuccess(r.Message),
+            Result { ResultType: ResultTypes.FAILURE } r => onFailure(r.Message),
+            Result { ResultType: ResultTypes.EXCEPTION } r => (onException ?? onFailure).Invoke(r.Message),
+            _ => throw new NotImplementedException()
+        };
+    #endregion
+
     #region MAP
+    /// <summary>
+    /// Map on Result: D[T] -> (T -> R) -> D[R]
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="R"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="func">Mapping function</param>
+    /// <returns></returns>
     public static Result<R> Map<T, R>(this Result<T> result, Func<T, R> func)
         => result.IsSuccess
             ? func(result.Data)
             : new Result<R>(default, result.IsSuccess, result.Message, result.ResultType, result.Exception);
 
+    /// <summary>
+    /// Async Map on Result: D[T] -> (T -> R) -> D[R]
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="R"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="func">Mapping function</param>
+    /// <returns></returns>
     public static async Task<Result<R>> Map<T, R>(this Task<Result<T>> result, Func<T, R> func) =>
         await result.Map(r => r.IsSuccess
             ? new Result<R>(func(r.Data), r.IsSuccess, r.Message, r.ResultType, r.Exception)
@@ -21,11 +115,23 @@ public static class ResultExtensions
     #endregion
 
     #region BIND
+
+    /// <summary>
+    /// Bind on Result: D -> (D -> D') -> D'
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="func">Binding function</param>
+    /// <returns></returns>
     public static Result Bind(this Result result, Func<Result, Result> func)
         => result.IsSuccess
             ? func(result)
             : result;
 
+    /// <summary>
+    /// Async Bind on Result: D -> (D -> D') -> D
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="func">Bind
     public static async Task<Result> Bind(this Task<Result> result, Func<Result, Task<Result>> func)
     {
         var awaitedResult = await result;
@@ -33,12 +139,21 @@ public static class ResultExtensions
             ? await func(awaitedResult)
             : awaitedResult;
     }
-
+    /// <summary>
+    /// Bind on Result: D[T] -> (T -> D[R]) -> D[R]
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="func">Bind
     public static Result<R> Bind<T, R>(this Result<T> result, Func<T, Result<R>> func)
         => result.IsSuccess
             ? func(result.Data)
             : new Result<R>(default, result.IsSuccess, result.Message, result.ResultType, result.Exception);
 
+    /// <summary>
+    /// Async Bind on Result: D[T] -> (T -> D[R]) -> D[R]
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="func">Bind
     public static async Task<Result<R>> Bind<T, R>(this Task<Result<T>> result, Func<T, Task<Result<R>>> func)
     {
         var awaitedResult = await result;

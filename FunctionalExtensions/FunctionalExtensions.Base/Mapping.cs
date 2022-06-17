@@ -12,18 +12,6 @@ namespace FunctionalExtensions.Base
     public static class Mapping
     {
         /// <summary>
-        /// Map single object without looking inside: T->(T->R)->R
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="R"></typeparam>
-        /// <param name="target">Target object</param>
-        /// <param name="func">Mapping function</param>
-        /// <returns>Mapped object</returns>
-        [Obsolete("MapSingle is obsolete, please use the Identity functor")]
-        public static R MapSingle<T, R>(this T target, Func<T, R> func) =>
-            func(target);
-
-        /// <summary>
         /// Map IEnumerable by index: E[T]->(idx->T->R)->E[R]
         /// </summary>
         /// <typeparam name="T"></typeparam>
