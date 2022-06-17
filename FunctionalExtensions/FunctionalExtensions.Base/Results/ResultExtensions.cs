@@ -161,6 +161,62 @@ public static class ResultExtensions
             ? await func(awaitedResult.Data)
             : new Result<R>(default, awaitedResult.IsSuccess, awaitedResult.Message, awaitedResult.ResultType, awaitedResult.Exception);
     }
+
+    /// <summary>
+    /// Bind between Result and Result with data: D -> (D -> D[R]) -> D[R]
+    /// </summary>
+    /// <typeparam name="R"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    public static Result<R> Bind<R>(this Result result, Func<Result, Result<R>> func)
+        => result.IsSuccess
+            ? func(result)
+            : new Result<R>(default, result.IsSuccess, result.Message, result.ResultType, result.Exception);
+
+    /// <summary>
+    /// Async Bind between Result and Result with data: D -> (D -> D[R]) -> D[R]
+    /// </summary>
+    /// <typeparam name="R"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    public static async Task<Result<R>> Bind<R>(this Task<Result> result, Func<Result, Task<Result<R>>> func)
+    {
+        var awaitedResult = await result;
+        return awaitedResult.IsSuccess
+            ? await func(awaitedResult)
+            : new Result<R>(default, awaitedResult.IsSuccess, awaitedResult.Message, awaitedResult.ResultType, awaitedResult.Exception);
+    }
+
+    /// <summary>
+    /// Bind between Result and Result with data: D[T] -> (T -> D) -> D
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    public static Result Bind<T>(this Result<T> result, Func<T, Result> func)
+        => result.IsSuccess
+            ? func(result.Data)
+            : new Result(result.IsSuccess, result.Message, result.ResultType, result.Exception);
+
+    /// <summary>
+    /// Async Bind between Result and Result with data: D[T] -> (T -> D) -> D
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="result"></param>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    public static async Task<Result> Bind<T>(this Task<Result<T>> result, Func<T, Task<Result>> func)
+    {
+        var awaitedResult = await result;
+        return awaitedResult.IsSuccess
+            ? await func(awaitedResult.Data)
+            : new Result(awaitedResult.IsSuccess, awaitedResult.Message, awaitedResult.ResultType, awaitedResult.Exception);
+    }
+
+
     #endregion
 
     #region KLEISLI FISH OPERATOR
