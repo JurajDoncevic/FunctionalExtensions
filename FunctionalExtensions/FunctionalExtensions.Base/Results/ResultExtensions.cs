@@ -303,6 +303,30 @@ public static class ResultExtensions
             ).ToResult();
 
     /// <summary>
+    /// Extension method to generate a Result over an operation using TryCatch
+    /// </summary>
+    /// <param name="operation"></param>
+    /// <returns></returns>
+    public static Result AsResult(Func<Result> operation)
+        => Try.TryCatch(
+            () => operation(),
+            (ex) => ex
+            ).ToResult()
+            .Bind(result => result);
+
+    /// <summary>
+    /// Extension method to generate a Result over an operation using TryCatch
+    /// </summary>
+    /// <param name="operation"></param>
+    /// <returns></returns>
+    public static async Task<Result> AsResult(Func<Task<Result>> operation)
+        => (await Try.TryCatch(
+            async () => await operation(),
+            (ex) => ex
+            ).ToResult())
+            .Bind(result => result);
+
+    /// <summary>
     /// Extension method to transform Try[Unit] into a Result 
     /// </summary>
     /// <param name="try">Try object</param>
@@ -437,11 +461,37 @@ public static class ResultExtensions
     /// <typeparam name="TResult"></typeparam>
     /// <param name="operation"></param>
     /// <returns></returns>
+    public static Result<TResult> AsResult<TResult>(Func<Result<TResult>> operation)
+        => Try.TryCatch(
+            () => operation(),
+            (ex) => ex
+            ).ToResult()
+            .Bind(result => result);
+
+    /// <summary>
+    /// Extension method to generate a Result over an operation using TryCatch
+    /// </summary>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="operation"></param>
+    /// <returns></returns>
     public static async Task<Result<TResult>> AsResult<TResult>(Func<Task<TResult>> operation)
         => await Try.TryCatch(
             () => operation(),
             (ex) => ex
             ).ToResult();
+
+    /// <summary>
+    /// Extension method to generate a Result over an operation using TryCatch
+    /// </summary>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="operation"></param>
+    /// <returns></returns>
+    public static async Task<Result<TResult>> AsResult<TResult>(Func<Task<Result<TResult>>> operation)
+        => (await Try.TryCatch(
+            async () => await operation(),
+            (ex) => ex
+            ).ToResult())
+            .Bind(result => result);
 
     /// <summary>
     /// Extension method to transform a Try into a Result

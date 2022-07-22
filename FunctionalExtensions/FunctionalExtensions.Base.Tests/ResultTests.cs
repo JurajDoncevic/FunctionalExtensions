@@ -324,6 +324,69 @@ namespace FunctionalExtensions.Base.Tests
             Assert.Equal(exceptionMessage, result.Message);
         }
 
+        [Fact(DisplayName = "Run AsResult with operation returning Result")]
+        public void AsResultAcceptingResultTest()
+        {
+            var successMessage = "Test success!";
+            var failureMessage = "Test failure!";
+            var exceptionToThrow = new Exception("Exception failure");
+            
+            var operationSuccess = () =>
+            {
+                return Result.OnSuccess(successMessage);
+            };
+
+            var operationFailure = () =>
+            {
+                return Result.OnFailure(failureMessage);
+            };
+
+            var operationException = () =>
+            {
+                return Result.OnException(exceptionToThrow);
+            };
+
+            var successResult = ResultExtensions.AsResult(operationSuccess);
+            var failureResult = ResultExtensions.AsResult(operationFailure);
+            var exceptionResult = ResultExtensions.AsResult(operationException);
+        
+            Assert.Equal(successMessage, successResult.Message);
+            Assert.Equal(failureMessage, failureResult.Message);
+            Assert.Equal(exceptionToThrow, exceptionResult.Exception);
+        }
+
+        [Fact(DisplayName = "Run AsResult with operation returning Result")]
+        public void AsResultAcceptingResultWithDataTest()
+        {
+            var successMessage = "Test success!";
+            var failureMessage = "Test failure!";
+            var exceptionToThrow = new Exception("Exception failure");
+
+            var operationSuccess = () =>
+            {
+                return Result<int>.OnSuccess(1, successMessage);
+            };
+
+            var operationFailure = () =>
+            {
+                return Result<int>.OnFailure<int>(failureMessage);
+            };
+
+            var operationException = () =>
+            {
+                return Result<int>.OnException<int>(exceptionToThrow);
+            };
+
+            var successResult = ResultExtensions.AsResult(operationSuccess);
+            var failureResult = ResultExtensions.AsResult(operationFailure);
+            var exceptionResult = ResultExtensions.AsResult(operationException);
+
+            Assert.Equal(successMessage, successResult.Message);
+            Assert.Equal(1, successResult.Data);
+            Assert.Equal(failureMessage, failureResult.Message);
+            Assert.Equal(exceptionToThrow, exceptionResult.Exception);
+        }
+
         #region HELPER METHODS
         private Result GetLogicFail()
             => Results.ResultExtensions.ToResult(TryCatch(
