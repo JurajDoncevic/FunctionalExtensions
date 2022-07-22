@@ -330,7 +330,7 @@ namespace FunctionalExtensions.Base.Tests
             var successMessage = "Test success!";
             var failureMessage = "Test failure!";
             var exceptionToThrow = new Exception("Exception failure");
-            
+
             var operationSuccess = () =>
             {
                 return Result.OnSuccess(successMessage);
@@ -346,45 +346,101 @@ namespace FunctionalExtensions.Base.Tests
                 return Result.OnException(exceptionToThrow);
             };
 
+            var operationThrownException = () =>
+            {
+                throw exceptionToThrow;
+                return Result.OnSuccess(successMessage); return Result.OnException(exceptionToThrow);
+            };
+
             var successResult = ResultExtensions.AsResult(operationSuccess);
             var failureResult = ResultExtensions.AsResult(operationFailure);
             var exceptionResult = ResultExtensions.AsResult(operationException);
-        
+            var exceptionThrownResult = ResultExtensions.AsResult(operationThrownException);
+
             Assert.Equal(successMessage, successResult.Message);
             Assert.Equal(failureMessage, failureResult.Message);
             Assert.Equal(exceptionToThrow, exceptionResult.Exception);
+            Assert.Equal(exceptionToThrow, exceptionThrownResult.Exception);
         }
 
-        [Fact(DisplayName = "Run AsResult with operation returning Result")]
-        public void AsResultAcceptingResultWithDataTest()
+        [Fact(DisplayName = "Run AsResult async with operation returning Result")]
+        public async void AsResultAcceptingResultWithDataTest()
         {
             var successMessage = "Test success!";
             var failureMessage = "Test failure!";
             var exceptionToThrow = new Exception("Exception failure");
 
-            var operationSuccess = () =>
+            var operationSuccess = async () =>
             {
-                return Result<int>.OnSuccess(1, successMessage);
+                return await Task.FromResult(Result<int>.OnSuccess(1, successMessage)); ;
             };
 
-            var operationFailure = () =>
+            var operationFailure = async () =>
             {
-                return Result<int>.OnFailure<int>(failureMessage);
+                return await Task.FromResult(Result<int>.OnFailure<int>(failureMessage));
             };
 
-            var operationException = () =>
+            var operationException = async () =>
             {
-                return Result<int>.OnException<int>(exceptionToThrow);
+                return await Task.FromResult(Result<int>.OnException<int>(exceptionToThrow));
             };
 
-            var successResult = ResultExtensions.AsResult(operationSuccess);
-            var failureResult = ResultExtensions.AsResult(operationFailure);
-            var exceptionResult = ResultExtensions.AsResult(operationException);
+            var operationThrownException = async () =>
+            {
+                throw exceptionToThrow;
+                return await Task.FromResult(Result<int>.OnSuccess(1, successMessage));
+            };
+
+            var successResult = await ResultExtensions.AsResult(operationSuccess);
+            var failureResult = await ResultExtensions.AsResult(operationFailure);
+            var exceptionResult = await ResultExtensions.AsResult(operationException);
+            var exceptionThrownResult = await ResultExtensions.AsResult(operationThrownException);
 
             Assert.Equal(successMessage, successResult.Message);
             Assert.Equal(1, successResult.Data);
             Assert.Equal(failureMessage, failureResult.Message);
             Assert.Equal(exceptionToThrow, exceptionResult.Exception);
+            Assert.Equal(exceptionToThrow, exceptionThrownResult.Exception);
+        }
+
+        [Fact(DisplayName = "Run AsResult async with operation returning Result")]
+        public async void AsResultAsyncAcceptingResultWithDataTest()
+        {
+            var successMessage = "Test success!";
+            var failureMessage = "Test failure!";
+            var exceptionToThrow = new Exception("Exception failure");
+
+            var operationSuccess = async () =>
+            {
+                return await Task.FromResult(Result<int>.OnSuccess(1, successMessage));
+            };
+
+            var operationFailure = async () =>
+            {
+                return await Task.FromResult(Result<int>.OnFailure<int>(failureMessage));
+            };
+
+            var operationException = async () =>
+            {
+                return await Task.FromResult(Result<int>.OnException<int>(exceptionToThrow));
+            };
+
+            var operationThrownException = async () =>
+            {
+                throw exceptionToThrow;
+                return await Task.FromResult(Result<int>.OnSuccess(1, successMessage));
+            };
+
+            var successResult = await ResultExtensions.AsResult(operationSuccess);
+            var failureResult = await ResultExtensions.AsResult(operationFailure);
+            var exceptionResult = await ResultExtensions.AsResult(operationException);
+            var exceptionThrownResult = await ResultExtensions.AsResult(operationThrownException);
+
+            Assert.Equal(successMessage, successResult.Message);
+            Assert.Equal(1, successResult.Data);
+            Assert.Equal(failureMessage, failureResult.Message);
+            Assert.Equal(exceptionToThrow, exceptionResult.Exception);
+            Assert.Equal(exceptionToThrow, exceptionThrownResult.Exception);
         }
 
         #region HELPER METHODS
