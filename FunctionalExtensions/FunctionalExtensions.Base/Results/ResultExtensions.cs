@@ -502,10 +502,10 @@ public static class ResultExtensions
     public static Result<TResult> ToResult<TResult>(this Try<TResult> @try) =>
         @try switch
         {
-            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure<TResult>(),
+            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure(),
             Try<TResult> t when !t.IsException && t.IsData => Result<TResult>.OnSuccess(t.ExpectedData),
-            Try<TResult> t when t.IsException => Result<TResult>.OnException<TResult>(t.Exception),
-            _ => Result<TResult>.OnFailure<TResult>()
+            Try<TResult> t when t.IsException => Result<TResult>.OnException(t.Exception),
+            _ => Result<TResult>.OnFailure()
         };
 
     /// <summary>
@@ -517,10 +517,10 @@ public static class ResultExtensions
     public static async Task<Result<TResult>> ToResult<TResult>(this Task<Try<TResult>> @try) =>
         await @try switch
         {
-            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure<TResult>(),
+            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure(),
             Try<TResult> t when !t.IsException && t.IsData => Result<TResult>.OnSuccess(t.ExpectedData),
-            Try<TResult> t when t.IsException => Result<TResult>.OnException<TResult>(t.Exception),
-            _ => Result<TResult>.OnFailure<TResult>()
+            Try<TResult> t when t.IsException => Result<TResult>.OnException(t.Exception),
+            _ => Result<TResult>.OnFailure()
         };
 
     /// <summary>
@@ -533,10 +533,10 @@ public static class ResultExtensions
     public static Result<TResult> ToResult<TResult, TException>(this Try<TResult, TException> @try) where TException : Exception =>
         @try switch
         {
-            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure<TResult>(),
+            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure(),
             Try<TResult> t when !t.IsException && t.IsData => Result<TResult>.OnSuccess(t.ExpectedData),
-            Try<TResult> t when t.IsException => Result<TResult>.OnException<TResult>(t.Exception),
-            _ => Result<TResult>.OnFailure<TResult>()
+            Try<TResult> t when t.IsException => Result<TResult>.OnException(t.Exception),
+            _ => Result<TResult>.OnFailure()
         };
 
     /// <summary>
@@ -549,10 +549,10 @@ public static class ResultExtensions
     public static async Task<Result<TResult>> ToResult<TResult, TException>(this Task<Try<TResult, TException>> @try) where TException : Exception =>
         await @try switch
         {
-            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure<TResult>(),
+            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure(),
             Try<TResult> t when !t.IsException && t.IsData => Result<TResult>.OnSuccess(t.ExpectedData),
-            Try<TResult> t when t.IsException => Result<TResult>.OnException<TResult>(t.Exception),
-            _ => Result<TResult>.OnFailure<TResult>()
+            Try<TResult> t when t.IsException => Result<TResult>.OnException(t.Exception),
+            _ => Result<TResult>.OnFailure()
         };
 
     #endregion

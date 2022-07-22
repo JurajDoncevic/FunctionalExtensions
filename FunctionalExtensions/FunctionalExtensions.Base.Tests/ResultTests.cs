@@ -377,12 +377,12 @@ namespace FunctionalExtensions.Base.Tests
 
             var operationFailure = async () =>
             {
-                return await Task.FromResult(Result<int>.OnFailure<int>(failureMessage));
+                return await Task.FromResult(Result<int>.OnFailure(failureMessage));
             };
 
             var operationException = async () =>
             {
-                return await Task.FromResult(Result<int>.OnException<int>(exceptionToThrow));
+                return await Task.FromResult(Result<int>.OnException(exceptionToThrow));
             };
 
             var operationThrownException = async () =>
@@ -417,12 +417,12 @@ namespace FunctionalExtensions.Base.Tests
 
             var operationFailure = async () =>
             {
-                return await Task.FromResult(Result<int>.OnFailure<int>(failureMessage));
+                return await Task.FromResult(Result<int>.OnFailure(failureMessage));
             };
 
             var operationException = async () =>
             {
-                return await Task.FromResult(Result<int>.OnException<int>(exceptionToThrow));
+                return await Task.FromResult(Result<int>.OnException(exceptionToThrow));
             };
 
             var operationThrownException = async () =>

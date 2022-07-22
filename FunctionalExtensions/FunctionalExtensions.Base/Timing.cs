@@ -33,7 +33,7 @@ namespace FunctionalExtensions.Base
                 ).ToResult()
                 .Bind(_ => _.finishedBeforeTimeout
                             ? ResultExtensions.AsResult(() => _.result)
-                            : Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE));
+                            : Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE));
 
         /// <summary>
         /// Run an operation within a time limit. Use this version when using a loops that could be infinite. Cancel with ThrowIfCancellationRequested.
@@ -64,7 +64,7 @@ namespace FunctionalExtensions.Base
                 ).ToResult()
                 .Bind(_ => !_.taskCancelled
                             ? ResultExtensions.AsResult<R>(() => _.result)
-                            : Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE));
+                            : Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE));
 
 
         /// <summary>
@@ -89,14 +89,14 @@ namespace FunctionalExtensions.Base
                     {
                         if(completedTask.IsFaulted)
                         { 
-                            return Result<R>.OnException<R>(completedTask.Exception.InnerExceptions.First());
+                            return Result<R>.OnException(completedTask.Exception.InnerExceptions.First());
                         }
                         return Result<R>.OnSuccess(result);
                     }
                     else
                     {
                         tokenSource.Cancel();
-                        return Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE);
+                        return Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE);
                     }
                 }).Map(_ => _.Data);
 
@@ -121,14 +121,14 @@ namespace FunctionalExtensions.Base
                     {
                         if (task.IsFaulted)
                         {
-                            return Result<R>.OnException<R>(completedTask.Exception.InnerExceptions.First());
+                            return Result<R>.OnException(completedTask.Exception.InnerExceptions.First());
                         }
                         return result;
                     }
                     else
                     {
                         tokenSource.Cancel();
-                        return Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE);
+                        return Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE);
                     }
                 }).Map(_ => _.Data);
 
@@ -156,7 +156,7 @@ namespace FunctionalExtensions.Base
                     else
                     {
                         tokenSource.Cancel();
-                        return Result<R>.OnFailure<R>(TIMEOUT_ERROR_MESSAGE);
+                        return Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE);
                     }
                 }).Map(_ => _.Data);
 

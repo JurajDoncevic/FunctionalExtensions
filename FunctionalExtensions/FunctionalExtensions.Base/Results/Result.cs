@@ -197,36 +197,36 @@ public struct Result<TData>
     public static implicit operator Result<TData>(TData data)
         => data != null
         ? OnSuccess(data)
-        : OnFailure<TData>();
+        : OnFailure();
 
     /// <summary>
     /// Creates a successful operation result
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TData"></typeparam>
     /// <param name="data">Result data</param>
     /// <param name="message">Outcome message</param>
     /// <returns></returns>
-    public static Result<T> OnSuccess<T>(T data!!, string message!! = "Operation successful")
-        => new Result<T>(data, true, message, ResultTypes.SUCCESS, null);
+    public static Result<TData> OnSuccess(TData data!!, string message!! = "Operation successful")
+        => new Result<TData>(data, true, message, ResultTypes.SUCCESS, null);
 
     /// <summary>
     /// Creates a failure operation result
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TData"></typeparam>
     /// <param name="message">Outcome message</param>
     /// <returns></returns>
-    public static Result<T> OnFailure<T>(string message!! = "Operation failed")
-        => new Result<T>(default, false, message, ResultTypes.FAILURE, null);
+    public static Result<TData> OnFailure(string message!! = "Operation failed")
+        => new Result<TData>(default, false, message, ResultTypes.FAILURE, null);
 
     /// <summary>
     /// Creates an exception operation result
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TData"></typeparam>
     /// <param name="exception">The thrown exception</param>
     /// <param name="message">Outcome message</param>
     /// <returns></returns>
-    public static Result<T> OnException<T>(Exception exception!!)
-        => new Result<T>(default, false, exception.Message, ResultTypes.EXCEPTION, exception);
+    public static Result<TData> OnException(Exception exception!!)
+        => new Result<TData>(default, false, exception.Message, ResultTypes.EXCEPTION, exception);
 
     public override bool Equals(object obj)
     {
