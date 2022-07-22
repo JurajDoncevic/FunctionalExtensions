@@ -98,7 +98,7 @@ namespace FunctionalExtensions.Base
                         tokenSource.Cancel();
                         return Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE);
                     }
-                }).Map(_ => _.Data);
+                });
 
         /// <summary>
         /// Run an operation within a time limit. Use this version when using a loops that could be infinite. Cancel with ThrowIfCancellationRequested.
@@ -130,7 +130,7 @@ namespace FunctionalExtensions.Base
                         tokenSource.Cancel();
                         return Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE);
                     }
-                }).Map(_ => _.Data);
+                });
 
         /// <summary>
         /// Run an operation within a time limit. Use this version when using a loops that could be infinite. Cancel with ThrowIfCancellationRequested.
@@ -158,7 +158,7 @@ namespace FunctionalExtensions.Base
                         tokenSource.Cancel();
                         return Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE);
                     }
-                }).Map(_ => _.Data);
+                });
 
         /// <summary>
         /// Run an operation within a time limit. Use this version when using a loops that could be infinite. Cancel with ThrowIfCancellationRequested.
