@@ -33,9 +33,9 @@ namespace FunctionalExtensions.Base
         /// <param name="failureAction">Side-effect action on failure</param>
         /// <remarks>This should be used for logging</remarks>
         /// <returns></returns>
-        public static Results.Result<T> Pass<T>(this Results.Result<T> target, 
-                                                    Action<Results.Result<T>> successAction,
-                                                    Action<Results.Result<T>> failureAction)
+        public static Resulting.Result<T> Pass<T>(this Resulting.Result<T> target, 
+                                                    Action<Resulting.Result<T>> successAction,
+                                                    Action<Resulting.Result<T>> failureAction)
         {
             if (target.IsSuccess)
             {
@@ -59,9 +59,9 @@ namespace FunctionalExtensions.Base
         /// <param name="failureFunc">Side-effect action on failure</param>
         /// <remarks>This should be used for logging</remarks>
         /// <returns></returns>
-        public static Results.Result<T> Pass<T>(this Results.Result<T> target,
-                                                    Func<Results.Result<T>, Unit> successFunc,
-                                                    Func<Results.Result<T>, Unit> failureFunc)
+        public static Resulting.Result<T> Pass<T>(this Resulting.Result<T> target,
+                                                    Func<Resulting.Result<T>, Unit> successFunc,
+                                                    Func<Resulting.Result<T>, Unit> failureFunc)
         {
             if (target.IsSuccess)
             {
@@ -84,9 +84,9 @@ namespace FunctionalExtensions.Base
         /// <param name="successAction">Side-effect action on success</param>
         /// <param name="failureAction">Side-effect action on failure</param>
         /// <returns></returns>
-        public static Results.Result Pass(this Results.Result target,
-                                          Action<Results.Result> successAction,
-                                          Action<Results.Result> failureAction)
+        public static Resulting.Result Pass(this Resulting.Result target,
+                                          Action<Resulting.Result> successAction,
+                                          Action<Resulting.Result> failureAction)
         {
             if (target.IsSuccess)
             {
@@ -109,9 +109,9 @@ namespace FunctionalExtensions.Base
         /// <param name="successFunc">Side-effect function on success</param>
         /// <param name="failureFunc">Side-effect function on failure</param>
         /// <returns></returns>
-        public static Results.Result Pass(this Results.Result target,
-                                          Func<Results.Result, Unit> successFunc,
-                                          Func<Results.Result, Unit> failureFunc)
+        public static Resulting.Result Pass(this Resulting.Result target,
+                                          Func<Resulting.Result, Unit> successFunc,
+                                          Func<Resulting.Result, Unit> failureFunc)
         {
             if (target.IsSuccess)
             {

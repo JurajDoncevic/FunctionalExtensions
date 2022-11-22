@@ -1,4 +1,4 @@
-﻿using FunctionalExtensions.Base.Results;
+﻿using FunctionalExtensions.Base.Resulting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +65,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = whileTrueOp.RunWithTimeout(700);
 
             Assert.False(result);
-            Assert.Equal("TEST", result.Message);
+            Assert.Contains("TEST", result.Message);
 
         }
 
@@ -125,7 +125,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = await operation.RunWithTimeout(700000);
 
             Assert.False(result);
-            Assert.Equal("TEST", result.Message);
+            Assert.Contains("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -134,7 +134,7 @@ namespace FunctionalExtensions.Base.Tests
             Func<CancellationToken, Task<Result<int>>> operation =
                 async token =>
                 {
-                    return await ResultExtensions.AsResult(async () =>
+                    return await Results.AsResult(async () =>
                     {
                         token.ThrowIfCancellationRequested();
                         await Task.Delay(1);
@@ -156,7 +156,7 @@ namespace FunctionalExtensions.Base.Tests
             Func<CancellationToken, Task<Result<int>>> operation =
                 async token =>
                 {
-                    return await ResultExtensions.AsResult(async () =>
+                    return await Results.AsResult(async () =>
                     {
                         while (true)
                         {
@@ -181,7 +181,7 @@ namespace FunctionalExtensions.Base.Tests
             Func<CancellationToken, Task<Result<int>>> operation =
                 async token =>
                 {
-                    return await ResultExtensions.AsResult(async () =>
+                    return await Results.AsResult(async () =>
                     {
                         while (true)
                         {
@@ -198,7 +198,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = await operation.RunWithTimeout(700);
 
             Assert.False(result);
-            Assert.Equal("TEST", result.Message);
+            Assert.Contains("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -207,7 +207,7 @@ namespace FunctionalExtensions.Base.Tests
             Func<CancellationToken, Result<int>> operation =
                 token =>
                 {
-                    return ResultExtensions.AsResult(() =>
+                    return Results.AsResult(() =>
                     {
                         token.ThrowIfCancellationRequested();
                         Task.Delay(1).Wait();
@@ -229,7 +229,7 @@ namespace FunctionalExtensions.Base.Tests
             Func<CancellationToken, Result<int>> operation =
                 token =>
                 {
-                    return ResultExtensions.AsResult(() =>
+                    return Results.AsResult(() =>
                     {
                         while (true)
                         {
@@ -254,7 +254,7 @@ namespace FunctionalExtensions.Base.Tests
             Func<CancellationToken, Result<int>> operation =
                 token =>
                 {
-                    return ResultExtensions.AsResult(() =>
+                    return Results.AsResult(() =>
                     {
                         while (true)
                         {
@@ -271,7 +271,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = await operation.RunWithTimeout(700);
 
             Assert.False(result);
-            Assert.Equal("TEST", result.Message);
+            Assert.Contains("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -325,7 +325,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = operation.RunWithTimeout(700);
 
             Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.Message);
+            Assert.Contains("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
@@ -380,13 +380,13 @@ namespace FunctionalExtensions.Base.Tests
             var result = await operation.RunWithTimeout(700);
 
             Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.Message);
+            Assert.Contains("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
         public async void OperationResultTimeoutTest()
         {
-            var operation = (CancellationToken token) => ResultExtensions.AsResult(
+            var operation = (CancellationToken token) => Results.AsResult(
                 () =>
                 {
                     Task.Delay(1).Wait();
@@ -403,7 +403,7 @@ namespace FunctionalExtensions.Base.Tests
         [Fact, Trait("Category", "TimingTest")]
         public async void OperationResultWhileTrueTimeoutTest()
         {
-            var operation = (CancellationToken token) => ResultExtensions.AsResult(
+            var operation = (CancellationToken token) => Results.AsResult(
                 () =>
                 {
                     while (true)
@@ -424,7 +424,7 @@ namespace FunctionalExtensions.Base.Tests
         [Fact, Trait("Category", "TimingTest")]
         public async void OperationResultWhileTrueExceptionTest()
         {
-            var operation = (CancellationToken token) => ResultExtensions.AsResult(
+            var operation = (CancellationToken token) => Results.AsResult(
                 () =>
                 {
                     while (true)
@@ -439,13 +439,13 @@ namespace FunctionalExtensions.Base.Tests
 
             var result = await operation.RunWithTimeout(700);
             Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.Message);
+            Assert.Contains("TEST", result.Message);
         }
 
         [Fact, Trait("Category", "TimingTest")]
         public async void AsyncOperationResultTimeoutTest()
         {
-            var operation = async (CancellationToken token) => await ResultExtensions.AsResult(
+            var operation = async (CancellationToken token) => await Results.AsResult(
                 async () =>
                 {
                     token.ThrowIfCancellationRequested();
@@ -462,7 +462,7 @@ namespace FunctionalExtensions.Base.Tests
         [Fact, Trait("Category", "TimingTest")]
         public async void AsyncOperationWhileTrueResultTimeoutTest()
         {
-            var operation = async (CancellationToken token) => await ResultExtensions.AsResult(
+            var operation = async (CancellationToken token) => await Results.AsResult(
                 async () =>
                 {
                     while (true)
@@ -484,7 +484,7 @@ namespace FunctionalExtensions.Base.Tests
         [Fact, Trait("Category", "TimingTest")]
         public async void AsyncOperationWhileTrueThrowsExceptionResultTimeoutTest()
         {
-            var operation = async (CancellationToken token) => await ResultExtensions.AsResult(
+            var operation = async (CancellationToken token) => await Results.AsResult(
                 async () =>
                 {
                     while (true)
@@ -501,7 +501,7 @@ namespace FunctionalExtensions.Base.Tests
             var result = await operation.RunWithTimeout(700);
 
             Assert.False(result.IsSuccess);
-            Assert.Equal("TEST", result.Message);
+            Assert.Contains("TEST", result.Message);
         }
 
 

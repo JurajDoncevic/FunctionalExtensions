@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using FunctionalExtensions.Base.Results;
+using FunctionalExtensions.Base.Resulting;
 using static FunctionalExtensions.Base.Try;
 using Xunit;
 using FunctionalExtensions.Base;
@@ -40,7 +40,7 @@ public class ResultWithDataTests
 
 
         Assert.False(dataResult);
-        Assert.Equal(exceptionMessage, dataResult.Message);
+        Assert.Contains(exceptionMessage, dataResult.Message);
         Assert.Equal(ResultTypes.EXCEPTION, dataResult.ResultType);
     }
 
@@ -56,7 +56,7 @@ public class ResultWithDataTests
 
 
         Assert.False(dataResult);
-        Assert.Equal(new ArgumentNullException().Message, dataResult.Message);
+        Assert.Contains(new ArgumentNullException().Message, dataResult.Message);
         Assert.Equal(ResultTypes.EXCEPTION, dataResult.ResultType);
     }
 
@@ -102,7 +102,7 @@ public class ResultWithDataTests
                     ).ToResult());
 
         Assert.False(dataResult2);
-        Assert.Equal(exceptionMessage, dataResult2.Message);
+        Assert.Contains(exceptionMessage, dataResult2.Message);
         Assert.Equal(ResultTypes.EXCEPTION, dataResult2.ResultType);
     }
 
@@ -168,7 +168,7 @@ public class ResultWithDataTests
 
         Assert.False(finalResult.IsSuccess);
         Assert.False(finalResult.HasData);
-        Assert.Equal(exceptionMessage, finalResult.Message);
+        Assert.Contains(exceptionMessage, finalResult.Message);
         Assert.Equal(ResultTypes.EXCEPTION, finalResult.ResultType);
     }
 
@@ -227,7 +227,7 @@ public class ResultWithDataTests
 
         Assert.False(result);
         Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
-        Assert.Equal(exceptionMessage, result.Message);
+        Assert.Contains(exceptionMessage, result.Message);
     }
 
     [Fact(DisplayName = "Get success Result with data on Fish chain")]
@@ -262,7 +262,7 @@ public class ResultWithDataTests
 
         Assert.False(result);
         Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
-        Assert.Equal(exceptionMessage, result.Message);
+        Assert.Contains(exceptionMessage, result.Message);
     }
 
     [Fact(DisplayName = "Get success Result with data on async Fish chain")]
@@ -298,14 +298,14 @@ public class ResultWithDataTests
 
         Assert.False(result);
         Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
-        Assert.Equal(exceptionMessage, result.Message);
+        Assert.Contains(exceptionMessage, result.Message);
     }
 
     [Fact(DisplayName = "Get success on async AsResult with data")]
     public async void AsResultSuccessAsyncTest()
     {
         var person = new PersonStruct { FirstName = "John", LastName = "Smith" };
-        var result = await ResultExtensions.AsResult(async () => { await Task.Delay(0); return person; });
+        var result = await Results.AsResult(async () => { await Task.Delay(0); return person; });
 
         Assert.True(result);
         Assert.True(result.HasData);
@@ -317,18 +317,18 @@ public class ResultWithDataTests
     {
         var person = new PersonStruct { FirstName = "John", LastName = "Smith" };
         var exceptionMessage = "test";
-        var result = await ResultExtensions.AsResult(async () => { await Task.Delay(0); throw new Exception(exceptionMessage) ; return person; });
+        var result = await Results.AsResult(async () => { await Task.Delay(0); throw new Exception(exceptionMessage) ; return person; });
 
         Assert.False(result);
         Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
-        Assert.Equal(exceptionMessage, result.Message);
+        Assert.Contains(exceptionMessage, result.Message);
     }
 
     [Fact(DisplayName = "Get success on AsResult with data")]
     public void AsResultSuccessTest()
     {
         var person = new PersonStruct { FirstName = "John", LastName = "Smith" };
-        var result = ResultExtensions.AsResult(() =>  person);
+        var result = Results.AsResult(() =>  person);
 
         Assert.True(result);
         Assert.True(result.HasData);
@@ -340,11 +340,11 @@ public class ResultWithDataTests
     {
         var person = new PersonStruct { FirstName = "John", LastName = "Smith" };
         var exceptionMessage = "test";
-        var result = ResultExtensions.AsResult(() => { throw new Exception(exceptionMessage); return person; });
+        var result = Results.AsResult(() => { throw new Exception(exceptionMessage); return person; });
 
         Assert.False(result);
         Assert.Equal(ResultTypes.EXCEPTION, result.ResultType);
-        Assert.Equal(exceptionMessage, result.Message);
+        Assert.Contains(exceptionMessage, result.Message);
     }
 
     #region HELPER METHODS

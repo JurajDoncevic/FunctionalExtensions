@@ -1,4 +1,4 @@
-﻿using FunctionalExtensions.Base.Results;
+﻿using FunctionalExtensions.Base.Resulting;
 using static FunctionalExtensions.Base.Try;
 using static FunctionalExtensions.Base.UnitExtensions;
 using System;
@@ -25,15 +25,17 @@ namespace FunctionalExtensions.Base
             => TryCatch(
                 () =>
                 {
-                    R result = default;
+                    R? result = default;
                     bool finishedBeforeTimeout = Task.Run(() => result = operation()).Wait(timeoutMillis);
                     return (finishedBeforeTimeout, result);
                 },
-                _ => _
-                ).ToResult()
-                .Bind(_ => _.finishedBeforeTimeout
-                            ? ResultExtensions.AsResult(() => _.result)
-                            : Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE));
+                exception => exception
+                )
+                .ToResult()
+                .Bind((Func<(bool finishedBeforeTimeout, R? result), Result<R>>)(timeoutResult => 
+                    timeoutResult.finishedBeforeTimeout
+                            ? Results.AsResult<R>(() => timeoutResult.result)
+                            : Results.OnFailure<R>(TIMEOUT_ERROR_MESSAGE)));
 
         /// <summary>
         /// Run an operation within a time limit. Use this version when using a loops that could be infinite. Cancel with ThrowIfCancellationRequested.
@@ -48,7 +50,7 @@ namespace FunctionalExtensions.Base
                 {
                     var tokenSource = new CancellationTokenSource();
                     var token = tokenSource.Token;
-                    R result = default;
+                    R? result = default;
                     Task task = Task.Run(() => result = operation(token), token);
                     tokenSource.CancelAfter(timeoutMillis);
 
@@ -58,13 +60,14 @@ namespace FunctionalExtensions.Base
                         throw ((AggregateException)tryResult.Exception).InnerExceptions.Single();
 
                     bool taskCancelled = task.IsCanceled;
-                    return (taskCancelled, result);
+                    return (taskCancelled, result!);
                 },
                 _ => _
-                ).ToResult()
-                .Bind(_ => !_.taskCancelled
-                            ? ResultExtensions.AsResult<R>(() => _.result)
-                            : Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE));
+                )
+                .ToResult()
+                .Bind((Func<(bool taskCancelled, R result), Result<R>>)(_ => !_.taskCancelled
+                            ? Results.AsResult<R>(() => _.result)
+                            : Results.OnFailure<R>(TIMEOUT_ERROR_MESSAGE)));
 
 
         /// <summary>
@@ -75,12 +78,12 @@ namespace FunctionalExtensions.Base
         /// <param name="timeoutMillis">Time limit in milliseconds</param>
         /// <returns>Data result of operation</returns>
         public static async Task<Result<R>> RunWithTimeout<R>(this Func<CancellationToken, Task<R>> operation, int timeoutMillis)
-            => await ResultExtensions.AsResult(
+            => await Results.AsResult(
                 async () =>
                 {
                     var tokenSource = new CancellationTokenSource();
                     var token = tokenSource.Token;
-                    R result = default;
+                    R? result = default;
 
                     var delayTask = Task.Delay(timeoutMillis);
                     var task = Task.Run(async () => result = await operation(token), token);
@@ -89,14 +92,14 @@ namespace FunctionalExtensions.Base
                     {
                         if(completedTask.IsFaulted)
                         { 
-                            return Result<R>.OnException(completedTask.Exception.InnerExceptions.First());
+                            return Results.OnException<R>(completedTask.Exception.InnerExceptions.First());
                         }
-                        return Result<R>.OnSuccess(result);
+                        return Results.OnSuccess(result);
                     }
                     else
                     {
                         tokenSource.Cancel();
-                        return Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE);
+                        return Results.OnFailure<R>(TIMEOUT_ERROR_MESSAGE);
                     }
                 });
 
@@ -108,7 +111,7 @@ namespace FunctionalExtensions.Base
         /// <param name="timeoutMillis">Time limit in milliseconds</param>
         /// <returns>Data result of operation</returns>
         public static async Task<Result<R>> RunWithTimeout<R>(this Func<CancellationToken, Result<R>> operation, int timeoutMillis)
-            => await ResultExtensions.AsResult(
+            => await Results.AsResult(
                 async () =>
                 {
                     var tokenSource = new CancellationTokenSource();
@@ -121,14 +124,14 @@ namespace FunctionalExtensions.Base
                     {
                         if (task.IsFaulted)
                         {
-                            return Result<R>.OnException(completedTask.Exception.InnerExceptions.First());
+                            return Results.OnException<R>(completedTask.Exception.InnerExceptions.First());
                         }
                         return result;
                     }
                     else
                     {
                         tokenSource.Cancel();
-                        return Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE);
+                        return Results.OnFailure<R>(TIMEOUT_ERROR_MESSAGE);
                     }
                 });
 
@@ -140,7 +143,7 @@ namespace FunctionalExtensions.Base
         /// <param name="timeoutMillis">Time limit in milliseconds</param>
         /// <returns>Data result of operation</returns>
         public static async Task<Result<R>> RunWithTimeout<R>(this Func<CancellationToken, Task<Result<R>>> operation, int timeoutMillis)
-            => await ResultExtensions.AsResult(
+            => await Results.AsResult(
                 async () =>
                 {
                     var tokenSource = new CancellationTokenSource();
@@ -156,7 +159,7 @@ namespace FunctionalExtensions.Base
                     else
                     {
                         tokenSource.Cancel();
-                        return Result<R>.OnFailure(TIMEOUT_ERROR_MESSAGE);
+                        return Results.OnFailure<R>(TIMEOUT_ERROR_MESSAGE);
                     }
                 });
 
@@ -177,12 +180,12 @@ namespace FunctionalExtensions.Base
                 bool finishedBeforeTimeout = task.Wait(timeoutMillis);
                 if (finishedBeforeTimeout)
                 {
-                    return ResultExtensions.AsResult(() => result);
+                    return Results.AsResult(() => result);
                 }
                 else
                 {
                     tokenSource.Cancel();
-                    return Result.OnFailure(TIMEOUT_ERROR_MESSAGE);
+                    return Results.OnFailure(TIMEOUT_ERROR_MESSAGE);
                 }
 
             }
@@ -190,9 +193,9 @@ namespace FunctionalExtensions.Base
             {
                 if(exception is AggregateException)
                 {
-                    return Result.OnException(((AggregateException)exception).InnerExceptions.First());
+                    return Results.OnException(((AggregateException)exception).InnerExceptions.First());
                 }
-                return Result.OnException(exception);
+                return Results.OnException(exception);
             }
         }
 
@@ -212,16 +215,16 @@ namespace FunctionalExtensions.Base
                 var completedTask = await Task.WhenAny(task.Invoke(), delayTask);
                 if (completedTask != delayTask)
                 {
-                    return ResultExtensions.AsResult(() => result);
+                    return Results.AsResult(() => result);
                 }
                 else
                 {
-                    return Result.OnFailure(TIMEOUT_ERROR_MESSAGE);
+                    return Results.OnFailure(TIMEOUT_ERROR_MESSAGE);
                 }
             }
             catch (Exception exception)
             {
-                return Result.OnException(exception);
+                return Results.OnException(exception);
             }
         }
 
@@ -247,12 +250,12 @@ namespace FunctionalExtensions.Base
                 }
                 else
                 {
-                    return Result.OnFailure(TIMEOUT_ERROR_MESSAGE);
+                    return Results.OnFailure(TIMEOUT_ERROR_MESSAGE);
                 }
             }
             catch (Exception exception)
             {
-                return Result.OnException(exception);
+                return Results.OnException(exception);
             }
         }
 
@@ -278,12 +281,12 @@ namespace FunctionalExtensions.Base
                 }
                 else
                 {
-                    return Result.OnFailure(TIMEOUT_ERROR_MESSAGE);
+                    return Results.OnFailure(TIMEOUT_ERROR_MESSAGE);
                 }
             }
             catch (Exception exception)
             {
-                return Result.OnException(exception);
+                return Results.OnException(exception);
             }
         }
 

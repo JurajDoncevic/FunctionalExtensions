@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using System;
 
-namespace FunctionalExtensions.Base.Results;
-
-public static class ResultExtensions
+namespace FunctionalExtensions.Base.Resulting;
+public static partial class Results
 {
     #region MATCH
     /// <summary>
@@ -19,7 +15,7 @@ public static class ResultExtensions
     /// <param name="onFailure">Function to execute on failure. First parameter is the message</param>
     /// <param name="onException">Function to execute on exception. First parameter is the message</param>
     /// <returns></returns>
-    public static R Match<T, R>(this Result<T> result, Func<T, R> onSuccess, Func<string, R> onFailure, Func<string, R> onException = null)
+    public static R Match<T, R>(this Result<T> result, Func<T, R> onSuccess, Func<string, R> onFailure, Func<string, R>? onException = null)
         => result switch
         {
             Result<T> { ResultType: ResultTypes.SUCCESS } r => onSuccess(r.Data),
@@ -38,7 +34,7 @@ public static class ResultExtensions
     /// <param name="onFailure">Function to execute on failure. First parameter is the message</param>
     /// <param name="onException">Function to execute on exception. First parameter is the message</param>
     /// <returns></returns>
-    public static R Match<R>(this Result result, Func<string, R> onSuccess, Func<string, R> onFailure, Func<string, R> onException = null)
+    public static R Match<R>(this Result result, Func<string, R> onSuccess, Func<string, R> onFailure, Func<string, R>? onException = null)
         => result switch
         {
             Result { ResultType: ResultTypes.SUCCESS } r => onSuccess(r.Message),
@@ -57,7 +53,7 @@ public static class ResultExtensions
     /// <param name="onFailure">Function to execute on failure. First parameter is the message</param>
     /// <param name="onException">Function to execute on exception. First parameter is the message</param>
     /// <returns></returns>
-    public async static Task<R> Match<T, R>(this Task<Result<T>> result, Func<T, R> onSuccess, Func<string, R> onFailure, Func<string, R> onException = null)
+    public async static Task<R> Match<T, R>(this Task<Result<T>> result, Func<T, R> onSuccess, Func<string, R> onFailure, Func<string, R>? onException = null)
         => await result switch
         {
             Result<T> { ResultType: ResultTypes.SUCCESS } r => onSuccess(r.Data),
@@ -76,7 +72,7 @@ public static class ResultExtensions
     /// <param name="onFailure">Function to execute on failure. First parameter is the message</param>
     /// <param name="onException">Function to execute on exception. First parameter is the message</param>
     /// <returns></returns>
-    public async static Task<R> Match<R>(this Task<Result> result, Func<string, R> onSuccess, Func<string, R> onFailure, Func<string, R> onException = null)
+    public async static Task<R> Match<R>(this Task<Result> result, Func<string, R> onSuccess, Func<string, R> onFailure, Func<string, R>? onException = null)
         => await result switch
         {
             Result { ResultType: ResultTypes.SUCCESS } r => onSuccess(r.Message),
@@ -98,7 +94,7 @@ public static class ResultExtensions
     public static Result<R> Map<T, R>(this Result<T> result, Func<T, R> func)
         => result.IsSuccess
             ? func(result.Data)
-            : new Result<R>(default, result.IsSuccess, result.Message, result.ResultType, result.Exception);
+            : new Result<R>(default, result.ResultType, result.Message, result.Exception);
 
     /// <summary>
     /// Async Map on Result: D[T] -> (T -> R) -> D[R]
@@ -110,8 +106,8 @@ public static class ResultExtensions
     /// <returns></returns>
     public static async Task<Result<R>> Map<T, R>(this Task<Result<T>> result, Func<T, R> func) =>
         await result.Map(r => r.IsSuccess
-            ? new Result<R>(func(r.Data), r.IsSuccess, r.Message, r.ResultType, r.Exception)
-            : new Result<R>(default, r.IsSuccess, r.Message, r.ResultType, r.Exception));
+            ? new Result<R>(func(r.Data), r.ResultType, r.Message, r.Exception)
+            : new Result<R>(default, r.ResultType, r.Message, r.Exception));
     #endregion
 
     #region BIND
@@ -147,7 +143,7 @@ public static class ResultExtensions
     public static Result<R> Bind<T, R>(this Result<T> result, Func<T, Result<R>> func)
         => result.IsSuccess
             ? func(result.Data)
-            : new Result<R>(default, result.IsSuccess, result.Message, result.ResultType, result.Exception);
+            : new Result<R>(default, result.ResultType, result.Message, result.Exception);
 
     /// <summary>
     /// Async Bind on Result: D[T] -> (T -> D[R]) -> D[R]
@@ -159,7 +155,7 @@ public static class ResultExtensions
         var awaitedResult = await result;
         return awaitedResult
             ? await func(awaitedResult.Data)
-            : new Result<R>(default, awaitedResult.IsSuccess, awaitedResult.Message, awaitedResult.ResultType, awaitedResult.Exception);
+            : new Result<R>(default, awaitedResult.ResultType, awaitedResult.Message, awaitedResult.Exception);
     }
 
     /// <summary>
@@ -171,8 +167,8 @@ public static class ResultExtensions
     /// <returns></returns>
     public static Result<R> Bind<R>(this Result result, Func<Result, Result<R>> func)
         => result.IsSuccess
-            ? func(result)
-            : new Result<R>(default, result.IsSuccess, result.Message, result.ResultType, result.Exception);
+            ? func((Result)result)
+            : new Result<R>(default, (ResultTypes)result.ResultType, (string)result.Message, (Exception)result.Exception);
 
     /// <summary>
     /// Async Bind between Result and Result with data: D -> (D -> D[R]) -> D[R]
@@ -185,8 +181,8 @@ public static class ResultExtensions
     {
         var awaitedResult = await result;
         return awaitedResult.IsSuccess
-            ? await func(awaitedResult)
-            : new Result<R>(default, awaitedResult.IsSuccess, awaitedResult.Message, awaitedResult.ResultType, awaitedResult.Exception);
+            ? await func((Result)awaitedResult)
+            : new Result<R>(default, (ResultTypes)awaitedResult.ResultType, (string)awaitedResult.Message, (Exception)awaitedResult.Exception);
     }
 
     /// <summary>
@@ -199,7 +195,7 @@ public static class ResultExtensions
     public static Result Bind<T>(this Result<T> result, Func<T, Result> func)
         => result.IsSuccess
             ? func(result.Data)
-            : new Result(result.IsSuccess, result.Message, result.ResultType, result.Exception);
+            : new Result(result.ResultType, result.Message, result.Exception);
 
     /// <summary>
     /// Async Bind between Result and Result with data: D[T] -> (T -> D) -> D
@@ -213,7 +209,7 @@ public static class ResultExtensions
         var awaitedResult = await result;
         return awaitedResult.IsSuccess
             ? await func(awaitedResult.Data)
-            : new Result(awaitedResult.IsSuccess, awaitedResult.Message, awaitedResult.ResultType, awaitedResult.Exception);
+            : new Result(awaitedResult.ResultType, awaitedResult.Message, awaitedResult.Exception);
     }
 
 
@@ -253,28 +249,28 @@ public static class ResultExtensions
         => _1 => before(_1) switch
         {
             Result<R1> { IsSuccess: true, HasData: true } r => after(r.Data),
-            Result<R1> r => new Result<R2>(default, r.IsSuccess, r.Message, r.ResultType, r.Exception)
+            Result<R1> r => new Result<R2>(default, r.ResultType, r.Message, r.Exception)
         };
 
     public static Func<T1, Task<Result<R2>>> Fish<T1, R1, R2>(this Func<T1, Task<Result<R1>>> before, Func<R1, Task<Result<R2>>> after)
         => async _1 => await before(_1) switch
         {
             Result<R1> { IsSuccess: true, HasData: true } r => await after(r.Data),
-            Result<R1> r => new Result<R2>(default, r.IsSuccess, r.Message, r.ResultType, r.Exception)
+            Result<R1> r => new Result<R2>(default, r.ResultType, r.Message, r.Exception)
         };
 
     public static Func<Result<R2>> Fish<R1, R2>(this Func<Result<R1>> before, Func<R1, Result<R2>> after)
         => () => before() switch
         {
             Result<R1> { IsSuccess: true, HasData: true } r => after(r.Data),
-            Result<R1> r => new Result<R2>(default, r.IsSuccess, r.Message, r.ResultType, r.Exception)
+            Result<R1> r => new Result<R2>(default, r.ResultType, r.Message, r.Exception)
         };
 
     public static Func<Task<Result<R2>>> Fish<R1, R2>(this Func<Task<Result<R1>>> before, Func<R1, Task<Result<R2>>> after)
         => async () => await before() switch
         {
             Result<R1> { IsSuccess: true, HasData: true } r => await after(r.Data),
-            Result<R1> r => new Result<R2>(default, r.IsSuccess, r.Message, r.ResultType, r.Exception)
+            Result<R1> r => new Result<R2>(default, r.ResultType, r.Message, r.Exception)
         };
     #endregion
 
@@ -334,9 +330,9 @@ public static class ResultExtensions
     public static Result ToResult(this Try<Unit> @try) =>
         @try switch
         {
-            Try<Unit> t when !t.IsException => Result.OnSuccess(),
-            Try<Unit> t when t.IsException => Result.OnException(t.Exception),
-            _ => Result.OnFailure()
+            Try<Unit> t when !t.IsException => Results.OnSuccess(),
+            Try<Unit> t when t.IsException => Results.OnException(t.Exception),
+            _ => Results.OnFailure()
         };
 
     /// <summary>
@@ -347,9 +343,9 @@ public static class ResultExtensions
     public static async Task<Result> ToResult(this Task<Try<Unit>> @try) =>
         await @try switch
         {
-            Try<Unit> t when !t.IsException => Result.OnSuccess(),
-            Try<Unit> t when t.IsException => Result.OnException(t.Exception),
-            _ => Result.OnFailure()
+            Try<Unit> t when !t.IsException => Results.OnSuccess(),
+            Try<Unit> t when t.IsException => Results.OnException(t.Exception),
+            _ => Results.OnFailure()
         };
 
     /// <summary>
@@ -361,9 +357,9 @@ public static class ResultExtensions
     public static Result ToResult<TExpection>(this Try<Unit, TExpection> @try) where TExpection : Exception =>
         @try switch
         {
-            Try<Unit> t when !t.IsException => Result.OnSuccess(),
-            Try<Unit> t when t.IsException => Result.OnException(t.Exception),
-            _ => Result.OnFailure()
+            Try<Unit> t when !t.IsException => Results.OnSuccess(),
+            Try<Unit> t when t.IsException => Results.OnException(t.Exception),
+            _ => Results.OnFailure()
         };
 
     /// <summary>
@@ -375,9 +371,9 @@ public static class ResultExtensions
     public static async Task<Result> ToResult<TExpection>(this Task<Try<Unit, TExpection>> @try) where TExpection : Exception =>
         await @try switch
         {
-            Try<Unit> t when !t.IsException => Result.OnSuccess(),
-            Try<Unit> t when t.IsException => Result.OnException(t.Exception),
-            _ => Result.OnFailure()
+            Try<Unit> t when !t.IsException => Results.OnSuccess(),
+            Try<Unit> t when t.IsException => Results.OnException(t.Exception),
+            _ => Results.OnFailure()
         };
 
     /// <summary>
@@ -389,10 +385,10 @@ public static class ResultExtensions
     public static Result ToResult(this Try<bool> @try) =>
         @try switch
         {
-            Try<bool> t when !t.IsException && t.ExpectedData => Result.OnSuccess(),
-            Try<bool> t when !t.IsException && !t.ExpectedData => Result.OnFailure(),
-            Try<bool> t when t.IsException => Result.OnException(t.Exception),
-            _ => Result.OnFailure()
+            Try<bool> t when !t.IsException && t.ExpectedData => Results.OnSuccess(),
+            Try<bool> t when !t.IsException && !t.ExpectedData => Results.OnFailure(),
+            Try<bool> t when t.IsException => Results.OnException(t.Exception),
+            _ => Results.OnFailure()
         };
 
     /// <summary>
@@ -404,10 +400,10 @@ public static class ResultExtensions
     public static async Task<Result> ToResult(this Task<Try<bool>> @try) =>
         await @try switch
         {
-            Try<bool> t when !t.IsException && t.ExpectedData => Result.OnSuccess(),
-            Try<bool> t when !t.IsException && !t.ExpectedData => Result.OnFailure(),
-            Try<bool> t when t.IsException => Result.OnException(t.Exception),
-            _ => Result.OnFailure()
+            Try<bool> t when !t.IsException && t.ExpectedData => Results.OnSuccess(),
+            Try<bool> t when !t.IsException && !t.ExpectedData => Results.OnFailure(),
+            Try<bool> t when t.IsException => Results.OnException(t.Exception),
+            _ => Results.OnFailure()
         };
 
 
@@ -421,10 +417,10 @@ public static class ResultExtensions
     public static Result ToResult<TException>(this Try<bool, TException> @try) where TException : Exception =>
         @try switch
         {
-            Try<bool> t when !t.IsException && t.ExpectedData => Result.OnSuccess(),
-            Try<bool> t when !t.IsException && !t.ExpectedData => Result.OnFailure(),
-            Try<bool> t when t.IsException => Result.OnException(t.Exception),
-            _ => Result.OnFailure(),
+            Try<bool> t when !t.IsException && t.ExpectedData => Results.OnSuccess(),
+            Try<bool> t when !t.IsException && !t.ExpectedData => Results.OnFailure(),
+            Try<bool> t when t.IsException => Results.OnException(t.Exception),
+            _ => Results.OnFailure(),
         };
 
     /// <summary>
@@ -437,10 +433,10 @@ public static class ResultExtensions
     public static async Task<Result> ToResult<TException>(this Task<Try<bool, TException>> @try) where TException : Exception =>
         await @try switch
         {
-            Try<bool> t when !t.IsException && t.ExpectedData => Result.OnSuccess(),
-            Try<bool> t when !t.IsException && !t.ExpectedData => Result.OnFailure(),
-            Try<bool> t when t.IsException => Result.OnException(t.Exception),
-            _ => Result.OnFailure(),
+            Try<bool> t when !t.IsException && t.ExpectedData => Results.OnSuccess(),
+            Try<bool> t when !t.IsException && !t.ExpectedData => Results.OnFailure(),
+            Try<bool> t when t.IsException => Results.OnException(t.Exception),
+            _ => Results.OnFailure(),
         };
 
     /// <summary>
@@ -502,10 +498,10 @@ public static class ResultExtensions
     public static Result<TResult> ToResult<TResult>(this Try<TResult> @try) =>
         @try switch
         {
-            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure(),
-            Try<TResult> t when !t.IsException && t.IsData => Result<TResult>.OnSuccess(t.ExpectedData),
-            Try<TResult> t when t.IsException => Result<TResult>.OnException(t.Exception),
-            _ => Result<TResult>.OnFailure()
+            Try<TResult> t when !t.IsException && !t.IsData => Results.OnFailure<TResult>(),
+            Try<TResult> t when !t.IsException && t.IsData => Results.OnSuccess(t.ExpectedData),
+            Try<TResult> t when t.IsException => Results.OnException<TResult>(t.Exception),
+            _ => Results.OnFailure<TResult>()
         };
 
     /// <summary>
@@ -517,10 +513,10 @@ public static class ResultExtensions
     public static async Task<Result<TResult>> ToResult<TResult>(this Task<Try<TResult>> @try) =>
         await @try switch
         {
-            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure(),
-            Try<TResult> t when !t.IsException && t.IsData => Result<TResult>.OnSuccess(t.ExpectedData),
-            Try<TResult> t when t.IsException => Result<TResult>.OnException(t.Exception),
-            _ => Result<TResult>.OnFailure()
+            Try<TResult> t when !t.IsException && !t.IsData => Results.OnFailure<TResult>(),
+            Try<TResult> t when !t.IsException && t.IsData => Results.OnSuccess(t.ExpectedData),
+            Try<TResult> t when t.IsException => Results.OnException<TResult>(t.Exception),
+            _ => Results.OnFailure<TResult>()
         };
 
     /// <summary>
@@ -533,10 +529,10 @@ public static class ResultExtensions
     public static Result<TResult> ToResult<TResult, TException>(this Try<TResult, TException> @try) where TException : Exception =>
         @try switch
         {
-            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure(),
-            Try<TResult> t when !t.IsException && t.IsData => Result<TResult>.OnSuccess(t.ExpectedData),
-            Try<TResult> t when t.IsException => Result<TResult>.OnException(t.Exception),
-            _ => Result<TResult>.OnFailure()
+            Try<TResult> t when !t.IsException && !t.IsData => Results.OnFailure<TResult>(),
+            Try<TResult> t when !t.IsException && t.IsData => Results.OnSuccess(t.ExpectedData),
+            Try<TResult> t when t.IsException => Results.OnException<TResult>(t.Exception),
+            _ => Results.OnFailure<TResult>()
         };
 
     /// <summary>
@@ -549,12 +545,11 @@ public static class ResultExtensions
     public static async Task<Result<TResult>> ToResult<TResult, TException>(this Task<Try<TResult, TException>> @try) where TException : Exception =>
         await @try switch
         {
-            Try<TResult> t when !t.IsException && !t.IsData => Result<TResult>.OnFailure(),
-            Try<TResult> t when !t.IsException && t.IsData => Result<TResult>.OnSuccess(t.ExpectedData),
-            Try<TResult> t when t.IsException => Result<TResult>.OnException(t.Exception),
-            _ => Result<TResult>.OnFailure()
+            Try<TResult> t when !t.IsException && !t.IsData => Results.OnFailure<TResult>(),
+            Try<TResult> t when !t.IsException && t.IsData => Results.OnSuccess(t.ExpectedData),
+            Try<TResult> t when t.IsException => Results.OnException<TResult>(t.Exception),
+            _ => Results.OnFailure<TResult>()
         };
 
     #endregion
-
 }
