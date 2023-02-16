@@ -8,8 +8,6 @@ Currenty built artifacts (.dll) linked by [nightly.link](https://nightly.link)
 
 [Base library](https://nightly.link/JurajDoncevic/FunctionalExtensions/workflows/build/master/FunctionalExtensions.Base.zip)
 
-[Generic provider library](https://nightly.link/JurajDoncevic/FunctionalExtensions/workflows/build/master/FunctionalExtensions.GenericProvider.zip)
-
 ## About
 FunctionalExtensions is a library for .NET Core providing functional-styled helper methods and types for C#. It allows production of safer and cleaner code.
 
