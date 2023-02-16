@@ -22,8 +22,3 @@ jobs:
       with:
         name: FunctionalExtensions.Base
         path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.Base/bin/Release/net6.0/FunctionalExtensions.Base.dll
-    - name: Deploy GenericProvider
-      uses: actions/upload-artifact@v2
-      with:
-        name: FunctionalExtensions.GenericProvider
-        path: /home/runner/work/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions/FunctionalExtensions.GenericProvider/bin/Release/net6.0/FunctionalExtensions.GenericProvider.dll
