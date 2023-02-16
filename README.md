@@ -21,7 +21,7 @@ The **Base** library provides helper functions, high-order functions, and types 
 - mapping over objects (functor), including specialization for `IEnumerable` and `Task`
 - binding over `IEnumerable` and `Task` (as monads)
 - synchrounous and asynchronous specialized functions and types for `try-catch` and `using` handling
-- the `Result` and `DataResult` monads, with synchrounous and asynchronous functions
+- the `Result` and `Result` monads, with synchrounous and asynchronous functions
 - parallel execution and finalization of smaller functions (forking)
 
 The **GenericProvider** library extension provides an extendable generic data access provider (repository) over a Entity Framework-operated store built using the Base library. 
@@ -308,16 +308,16 @@ var result = // List of 1, 2, 3, 4
 **Note:** *Due to the nature of `Task` and as the Roslyn compiler takes the most generic extension method possible, it is usually not clear whether `Bind` referes to a user-defined monad or the `Task`, hence the bind method over `Task` is called `BindTask`.* 
 
 ### Fish (Kleisli operator)
-The Fish operator is implemented to allow composition of functions working with `Result` and `DataResult<T>` via the HOF `Fish`. Synchronous and asynchronous variants are implemented.
+The Fish operator is implemented to allow composition of functions working with `Result` and `Result<T>` via the HOF `Fish`. Synchronous and asynchronous variants are implemented.
 
 ```
-Fish: (T1 -> DataResult<T2>) -> (T2 -> DataResult<T3>) -> (T1 -> DataResult<T3>)
+Fish: (T1 -> Result<T2>) -> (T2 -> Result<T3>) -> (T1 -> Result<T3>)
 Fish: (T1 -> Result) -> (Result -> Result) -> (T1 -> Result)
 ```
 
 ```csharp
 var composition =
-    ((Func<int, DataResult<List<Students>>>)GetTopNStudents)
+    ((Func<int, Result<List<Students>>>)GetTopNStudents)
         .Fish(_ => EnrollStudentsInSpecialClass(_))
         .Fish(_ => NotifyPrincipalOfEnrollment())
         .Fish(_ => GetSuccessResult());
@@ -327,7 +327,7 @@ var resultOf12 = composition(12);
 
 ...
 
-public DataResult<List<Students>>> GetTopNStudents(int n) 
+public Result<List<Students>>> GetTopNStudents(int n) 
 {
     ...
 }
@@ -490,131 +490,77 @@ AsResult(() => ... some operation returning bool ...)
     .Bind(...)
     .Bind(...)
 ```
-### DataResult
-The `DataResult<T>` is a monadic kind used to embellish an operation's outcome and returning data. `DataResult` can be constructed from the `Try<T>` kind. The `Bind` function allows piping multiple operations.
+### Result
+The `Result<T>` is a monadic kind used to embellish an operation's outcome and returning data. `Result<T>` can be constructed from the `Try<T>` kind. The `Bind` function allows piping multiple operations.
 ```csharp
 // IsSuccess = true, IsFailure = false, 
 // ErrorMessage = string.Empty, ErrorType = None, 
 // HasData = true, Data = { Name = "test" }
-DataResult<a> dataResult =
+Result<T> dataResult =
     TryCatch(
         () => new { Name = "test" },
         (ex) => ex
-        ).ToDataResult();
+        ).ToResult();
 
 // IsSuccess = false, IsFailure = true, 
 // ErrorMessage = <exceptionMessage>, ErrorType = ExceptionThrown, 
 // HasData = false, Data = default
-DataResult<a> dataResult =
+Result<T> dataResult =
     TryCatch(
         () => { throw new Exception(exceptionMessage); return new { Name = "test" }; },
         (ex) => ex
-        ).ToDataResult();
+        ).ToResult();
 
-DataResult<string> dataResult = // "1234"
+Result<string> dataResult = // "1234"
     TryCatch(
         () => 1,
         (ex) => ex
-        ).ToDataResult()
+        ).ToResult()
     .Bind(x => 
         TryCatch( // this mocks a complex data returning operation
             () => x.ToString() + "2",
             (ex) => ex
-            ).ToDataResult())
+            ).ToResult())
     .Bind(x =>
         TryCatch(
             () => x.ToString() + "3",
             (ex) => ex
-            ).ToDataResult())
+            ).ToResult())
     .Bind(x =>
         TryCatch(
             () => x.ToString() + "4",
             (ex) => ex
-            ).ToDataResult()
+            ).ToResult()
     );
 
-DataResult<string> dataResult = // ExceptionThrown, 3rd Bind not executed
+Result<string> dataResult = // ExceptionThrown, 3rd Bind not executed
     TryCatch(
         () => 1,
         (ex) => ex
-        ).ToDataResult()
+        ).ToResult()
     .Bind(x =>
         TryCatch(
             () => x.ToString() + "2",
             (ex) => ex
-            ).ToDataResult())
+            ).ToResult())
     .Bind(x =>
         TryCatch(
             () => { throw new Exception(exceptionMessage; return "3"; },
             (ex) => ex
-            ).ToDataResult())
+            ).ToResult())
     .Bind(x =>
         TryCatch(
             () => x.ToString() + "4",
             (ex) => ex
-            ).ToDataResult()
+            ).ToResult()
     );
 ```
 
-In the future `Bind` will be extended so it can seamlessly operate over a pipeline containing both Results and DataResults
+In the future `Bind` will be extended so it can seamlessly operate over a pipeline containing both Results and Results
 
-`AsDataResult` is a shorthand function used to run an operation under the default try-catch settings (just passes the exception in `TryCatch`) and returns it as a `DataResult`.
+`AsResult<T>` is a shorthand function used to run an operation under the default try-catch settings (just passes the exception in `TryCatch`) and returns it as a `Result`.
 ```csharp
-AsDataResult<T>(() => ... some operation returning T ...)
+AsResult<T>(() => ... some operation returning T ...)
     .Bind(...)
     .Bind(...)
-```
-
-## GenericProvider over EF Core
-A generic repository for Entity Framework Core has been implemented using the Base library.
-### BaseModel
-All models, scaffolded from or migrated to a database, must inherit the `BaseModel` class. This class contains the primary key identifier `Id` and its basic annotations. The data type of the key is determined by the generic parameter `TKey` 
-```csharp
-// this model has the Id of type Guid
-public class Person : BaseModel<Guid>  
-{
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public int Age { get; set; }
-    public Place Place { get; set; }
-}
-``` 
-### BaseProvider
-On each model inheriting the `BaseModel` class, a provider can be implemented by inheriting the generic `BaseProvider` class. The following methods are generically and asynchronously implemented using EF Core:
-
-- `Fetch` - fetches an instance with given id from the DB
-- `FetchAll` - fetches all instances from the DB
-- `FetchIncluding` - `Fetch` but additional elements from the aggregate can be loaded with multiple expressions
-- `FetchAllIncluding` - `FetchAll` but additional elements from the aggregate can be loaded with multiple expressions
-- `Insert` - inserts a new entity into the DB
-- `Delete` - deletes an entity with given id from the DB
-
-The `BaseProvider` returns embellished results using `Result` and `DataResult`.
-
-The class `Person` (from the previous example) can have its provider implemented as follows:
-```csharp
-public class PersonProvider : BaseProvider<Guid, Person, PersonDbContext>
-{
-        public PersonProvider(PersonDbContext dbContext) : base(dbContext)
-        {
-        }
-
-        // additional user-defined methods go here
-}
-```
-With just that, the provider can be used:
-```csharp
-// dbContext and id are initialized somewhere above
-...
-PersonProvider personProvider = new PersonProvider(dbContext);
-
-var dataResult = await personProvider.FetchIncluding(id, _ => Place, _ => Place.Country);
-``` 
-By extensions, the Bind function can also be used to chain Provider operations:
-```csharp
-var chainedResults =
-    await _personProvider.FetchAll()
-                         .Bind(_ => _placeProvider.Fetch(_.First().PlaceId.Value))
-                         .Bind(_ => _countryProvider.Fetch(_.CountryId))
-                         .Map(_ => _.Name);
 ```
